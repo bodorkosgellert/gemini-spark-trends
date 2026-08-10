@@ -1,0 +1,1372 @@
+{
+ "generatedAt": "2026-08-10T18:28:29.035817+00:00",
+ "windowStart": "2026-06-08",
+ "windowEnd": "2026-08-03",
+ "weeks": [
+  "2026-06-08",
+  "2026-06-15",
+  "2026-06-22",
+  "2026-06-29",
+  "2026-07-06",
+  "2026-07-13",
+  "2026-07-20",
+  "2026-07-27",
+  "2026-08-03"
+ ],
+ "launchesScanned": 1500,
+ "launchesTagged": 712,
+ "rows": [
+  {
+   "tag": "agents",
+   "app_launches": 343,
+   "r": 0.521,
+   "p": 0.1501,
+   "lead_weeks": 0,
+   "n": 9,
+   "appWeek": [
+    18,
+    27,
+    22,
+    24,
+    32,
+    21,
+    24,
+    19,
+    146
+   ],
+   "sigWeek": [
+    5.17,
+    4.89,
+    4.91,
+    4.79,
+    4.92,
+    4.95,
+    4.8,
+    4.94,
+    5.15
+   ],
+   "examples": [
+    {
+     "title": "ponytail Makes your AI agent think like the laziest senior dev in the room. The best code is the code you neve",
+     "url": "https://github.com/DietrichGebert/ponytail",
+     "src": "github",
+     "score": 100049,
+     "at": "2026-06-12T00:52:37Z"
+    },
+    {
+     "title": "grok-build SpaceXAI's coding agent harness and TUI. Fullscreen, mouse interactive, extensible.",
+     "url": "https://github.com/xai-org/grok-build",
+     "src": "github",
+     "score": 24591,
+     "at": "2026-07-14T20:04:23Z"
+    },
+    {
+     "title": "openwiki OpenWiki is a CLI that writes and maintains agent documentation for your codebase.",
+     "url": "https://github.com/langchain-ai/openwiki",
+     "src": "github",
+     "score": 14831,
+     "at": "2026-06-22T23:48:26Z"
+    },
+    {
+     "title": "qm Multiplayer agent harness for work",
+     "url": "https://github.com/yc-software/qm",
+     "src": "github",
+     "score": 12929,
+     "at": "2026-07-29T20:03:08Z"
+    }
+   ]
+  },
+  {
+   "tag": "developer",
+   "app_launches": 161,
+   "r": 0.723,
+   "p": 0.0666,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    5,
+    17,
+    12,
+    16,
+    11,
+    15,
+    13,
+    10,
+    57
+   ],
+   "sigWeek": [
+    4.02,
+    3.63,
+    3.35,
+    3.53,
+    3.74,
+    3.98,
+    4.43,
+    4.88,
+    5.26
+   ],
+   "examples": [
+    {
+     "title": "openwiki OpenWiki is a CLI that writes and maintains agent documentation for your codebase.",
+     "url": "https://github.com/langchain-ai/openwiki",
+     "src": "github",
+     "score": 14831,
+     "at": "2026-06-22T23:48:26Z"
+    },
+    {
+     "title": "anydoc Convert Word, PowerPoint, Excel, OpenDocument, RTF, EPUB, CSV, and PDF to clean Markdown. Built in Rust",
+     "url": "https://github.com/firecrawl/anydoc",
+     "src": "github",
+     "score": 13340,
+     "at": "2026-08-03T16:36:14Z"
+    },
+    {
+     "title": "img2threejs Rebuild the object in a reference image as a code-only, procedural, quality-gated, animation-ready",
+     "url": "https://github.com/img2threejs/img2threejs",
+     "src": "github",
+     "score": 10528,
+     "at": "2026-07-15T02:58:39Z"
+    },
+    {
+     "title": "codex-security OpenAI's Codex Security CLI and TypeScript SDK for finding, validating, and fixing security vul",
+     "url": "https://github.com/openai/codex-security",
+     "src": "github",
+     "score": 9498,
+     "at": "2026-07-13T22:00:13Z"
+    }
+   ]
+  },
+  {
+   "tag": "local",
+   "app_launches": 113,
+   "r": -0.619,
+   "p": 0.1381,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    4,
+    5,
+    9,
+    13,
+    9,
+    5,
+    5,
+    4,
+    54
+   ],
+   "sigWeek": [
+    3.55,
+    2.63,
+    3.14,
+    2.88,
+    3.07,
+    3.17,
+    2.53,
+    2.92,
+    3.19
+   ],
+   "examples": [
+    {
+     "title": "turbo-fieldfare Gemma 4 26B-A4B inference in ~2 GB of RAM on any M-series MacBook",
+     "url": "https://github.com/drumih/turbo-fieldfare",
+     "src": "github",
+     "score": 5609,
+     "at": "2026-07-17T15:57:54Z"
+    },
+    {
+     "title": "tutti Where people and agents build in tune.",
+     "url": "https://github.com/tutti-os/tutti",
+     "src": "github",
+     "score": 3239,
+     "at": "2026-06-12T12:29:05Z"
+    },
+    {
+     "title": "codex-keysmith Version-independent Codex instruction deployment with dry-run, backups, hook isolation, and rec",
+     "url": "https://github.com/Jia-Ethan/codex-keysmith",
+     "src": "github",
+     "score": 3173,
+     "at": "2026-06-28T04:38:07Z"
+    },
+    {
+     "title": "claude-real-video Let Claude (or any LLM) actually watch a video \u2014 scene-aware, deduplicated frames + transcri",
+     "url": "https://github.com/HUANGCHIHHUNGLeo/claude-real-video",
+     "src": "github",
+     "score": 1993,
+     "at": "2026-06-30T10:55:02Z"
+    }
+   ]
+  },
+  {
+   "tag": "privacy",
+   "app_launches": 86,
+   "r": 0.907,
+   "p": 0.0126,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    4,
+    4,
+    11,
+    8,
+    5,
+    5,
+    4,
+    2,
+    37
+   ],
+   "sigWeek": [
+    1.76,
+    1.57,
+    1.47,
+    1.7,
+    1.75,
+    2.3,
+    2.81,
+    3.26,
+    3.66
+   ],
+   "examples": [
+    {
+     "title": "open-connector Open-source auth gateway connecting 1000+ SaaS providers to AI agents through SDK, CLI, MCP, HT",
+     "url": "https://github.com/oomol-lab/open-connector",
+     "src": "github",
+     "score": 4520,
+     "at": "2026-06-29T10:49:36Z"
+    },
+    {
+     "title": "bento Bento, the office suite that fits in a file",
+     "url": "https://github.com/nyblnet/bento",
+     "src": "github",
+     "score": 3887,
+     "at": "2026-07-17T16:55:09Z"
+    },
+    {
+     "title": "tutti Where people and agents build in tune.",
+     "url": "https://github.com/tutti-os/tutti",
+     "src": "github",
+     "score": 3239,
+     "at": "2026-06-12T12:29:05Z"
+    },
+    {
+     "title": "kage Shadow any website for offline viewing, with the JavaScript stripped out",
+     "url": "https://github.com/tamnd/kage",
+     "src": "github",
+     "score": 3185,
+     "at": "2026-06-14T11:21:55Z"
+    }
+   ]
+  },
+  {
+   "tag": "protocol",
+   "app_launches": 75,
+   "r": -0.378,
+   "p": 0.4605,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    2,
+    4,
+    8,
+    8,
+    9,
+    4,
+    6,
+    1,
+    33
+   ],
+   "sigWeek": [
+    1.08,
+    0.98,
+    0.95,
+    0.9,
+    0.98,
+    0.9,
+    0.9,
+    0.94,
+    0.94
+   ],
+   "examples": [
+    {
+     "title": "DeepSpec DeepSpec: a full-stack codebase for training and evaluating speculative decoding algorithms",
+     "url": "https://github.com/deepseek-ai/DeepSpec",
+     "src": "github",
+     "score": 6916,
+     "at": "2026-06-26T12:36:05Z"
+    },
+    {
+     "title": "open-connector Open-source auth gateway connecting 1000+ SaaS providers to AI agents through SDK, CLI, MCP, HT",
+     "url": "https://github.com/oomol-lab/open-connector",
+     "src": "github",
+     "score": 4520,
+     "at": "2026-06-29T10:49:36Z"
+    },
+    {
+     "title": "tutti Where people and agents build in tune.",
+     "url": "https://github.com/tutti-os/tutti",
+     "src": "github",
+     "score": 3239,
+     "at": "2026-06-12T12:29:05Z"
+    },
+    {
+     "title": "Codex-X OpenAI Codex \u684c\u9762\u7aef/CLI \u7684\u53ef\u89c6\u5316\u7ba1\u7406\u5de5\u5177\uff0c\u5177\u6709Provider/API \u5207\u6362\u3001\u4f1a\u8bdd\u540c\u6b65\u3001\u63d0\u793a\u8bcd\u6ce8\u5165\u3001Skills/MCP \u7ba1\u7406\u3001TOML \u914d\u7f6e\u53ef\u89c6\u5316\u7684\u8de8\u5e73\u53f0\u5de5\u5177\u3002",
+     "url": "https://github.com/yynxxxxx/Codex-X",
+     "src": "github",
+     "score": 2338,
+     "at": "2026-07-04T03:28:35Z"
+    }
+   ]
+  },
+  {
+   "tag": "video",
+   "app_launches": 68,
+   "r": 0.652,
+   "p": 0.1126,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    3,
+    2,
+    3,
+    4,
+    10,
+    10,
+    3,
+    5,
+    27
+   ],
+   "sigWeek": [
+    0.93,
+    1.09,
+    1.04,
+    1.22,
+    1.04,
+    1.11,
+    1.21,
+    0.89,
+    0.91
+   ],
+   "examples": [
+    {
+     "title": "video-shotcraft AI video skill for Claude Code & Codex \u2014 cinematic product videos with Remotion: 152 shot reci",
+     "url": "https://github.com/Vincentwei1021/video-shotcraft",
+     "src": "github",
+     "score": 4487,
+     "at": "2026-07-19T11:44:41Z"
+    },
+    {
+     "title": "genoffice Free, open-source AI office suite for macOS, Windows & Linux \u2014 Word (.docx), Excel (.xlsx), PowerPoi",
+     "url": "https://github.com/genspark-ai/genoffice",
+     "src": "github",
+     "score": 2461,
+     "at": "2026-07-31T09:40:58Z"
+    },
+    {
+     "title": "claude-real-video Let Claude (or any LLM) actually watch a video \u2014 scene-aware, deduplicated frames + transcri",
+     "url": "https://github.com/HUANGCHIHHUNGLeo/claude-real-video",
+     "src": "github",
+     "score": 1993,
+     "at": "2026-06-30T10:55:02Z"
+    },
+    {
+     "title": "pixel2motion AI logo animation skill: turn raster logos into smooth SVG animation, animated HTML demos, GIF/vi",
+     "url": "https://github.com/nolangz/pixel2motion",
+     "src": "github",
+     "score": 1922,
+     "at": "2026-06-12T04:25:17Z"
+    }
+   ]
+  },
+  {
+   "tag": "automation",
+   "app_launches": 54,
+   "r": 0.68,
+   "p": 0.1372,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    3,
+    7,
+    8,
+    6,
+    7,
+    4,
+    5,
+    3,
+    11
+   ],
+   "sigWeek": [
+    1.93,
+    1.95,
+    1.91,
+    1.85,
+    1.95,
+    2.02,
+    2.06,
+    1.94,
+    2.0
+   ],
+   "examples": [
+    {
+     "title": "eve The Open Framework for Building Agents",
+     "url": "https://github.com/vercel/eve",
+     "src": "github",
+     "score": 4521,
+     "at": "2026-06-16T10:51:20Z"
+    },
+    {
+     "title": "open-connector Open-source auth gateway connecting 1000+ SaaS providers to AI agents through SDK, CLI, MCP, HT",
+     "url": "https://github.com/oomol-lab/open-connector",
+     "src": "github",
+     "score": 4520,
+     "at": "2026-06-29T10:49:36Z"
+    },
+    {
+     "title": "devspace Turn ChatGPT into Codex! OR Turn Claude Web into Claude Code!",
+     "url": "https://github.com/Waishnav/devspace",
+     "src": "github",
+     "score": 3636,
+     "at": "2026-06-14T16:57:27Z"
+    },
+    {
+     "title": "tutti Where people and agents build in tune.",
+     "url": "https://github.com/tutti-os/tutti",
+     "src": "github",
+     "score": 3239,
+     "at": "2026-06-12T12:29:05Z"
+    }
+   ]
+  },
+  {
+   "tag": "data",
+   "app_launches": 42,
+   "r": 0.575,
+   "p": 0.2323,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    1,
+    4,
+    3,
+    2,
+    2,
+    3,
+    3,
+    3,
+    20
+   ],
+   "sigWeek": [
+    0.97,
+    0.99,
+    1.01,
+    0.85,
+    0.86,
+    1.06,
+    1.0,
+    1.06,
+    0.98
+   ],
+   "examples": [
+    {
+     "title": "CS-Fundamentals Curated CS fundamentals for placement prep: DSA,Computer Networks, DBMS & SQL, OOPs, Operating",
+     "url": "https://github.com/Krishnagangwal/CS-Fundamentals",
+     "src": "github",
+     "score": 2510,
+     "at": "2026-06-28T07:08:15Z"
+    },
+    {
+     "title": "tabfm TabFM (Tabular Foundation Model) is a pretrained tabular foundation model developed by Google Research f",
+     "url": "https://github.com/google-research/tabfm",
+     "src": "github",
+     "score": 2461,
+     "at": "2026-06-16T21:06:19Z"
+    },
+    {
+     "title": "open-science Open Science is an open-source, local-first, model-agnostic AI research workbench for scientific ",
+     "url": "https://github.com/aipoch/open-science",
+     "src": "github",
+     "score": 1862,
+     "at": "2026-07-03T02:50:10Z"
+    },
+    {
+     "title": "xy Ultra-fast and customizable Python charts",
+     "url": "https://github.com/reflex-dev/xy",
+     "src": "github",
+     "score": 1676,
+     "at": "2026-07-09T01:51:00Z"
+    }
+   ]
+  },
+  {
+   "tag": "voice",
+   "app_launches": 41,
+   "r": -0.58,
+   "p": 0.1317,
+   "lead_weeks": 1,
+   "n": 8,
+   "appWeek": [
+    0,
+    2,
+    5,
+    5,
+    3,
+    2,
+    1,
+    2,
+    18
+   ],
+   "sigWeek": [
+    2.11,
+    2.02,
+    2.05,
+    2.05,
+    1.99,
+    2.03,
+    2.03,
+    1.97,
+    2.02
+   ],
+   "examples": [
+    {
+     "title": "Claude-of-Duty A Call of Duty-quality FPS in Three.js, built from a single prompt.",
+     "url": "https://github.com/mshumer/Claude-of-Duty",
+     "src": "github",
+     "score": 3035,
+     "at": "2026-07-25T19:32:36Z"
+    },
+    {
+     "title": "qwen-audio-agent A realtime voice runtime that keeps Agents talking, working, and present.  Real-time Voice Ru",
+     "url": "https://github.com/QwenAudio/qwen-audio-agent",
+     "src": "github",
+     "score": 2058,
+     "at": "2026-07-27T05:04:26Z"
+    },
+    {
+     "title": "claude-real-video Let Claude (or any LLM) actually watch a video \u2014 scene-aware, deduplicated frames + transcri",
+     "url": "https://github.com/HUANGCHIHHUNGLeo/claude-real-video",
+     "src": "github",
+     "score": 1993,
+     "at": "2026-06-30T10:55:02Z"
+    },
+    {
+     "title": "mimic Intercept any app, then call it from Python like a library",
+     "url": "https://github.com/littledivy/mimic",
+     "src": "github",
+     "score": 1524,
+     "at": "2026-07-13T05:13:00Z"
+    }
+   ]
+  },
+  {
+   "tag": "hardware",
+   "app_launches": 33,
+   "r": -0.632,
+   "p": 0.1282,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    1,
+    2,
+    2,
+    3,
+    1,
+    2,
+    2,
+    2,
+    15
+   ],
+   "sigWeek": [
+    1.02,
+    0.97,
+    1.04,
+    0.9,
+    0.9,
+    0.96,
+    0.86,
+    0.92,
+    0.92
+   ],
+   "examples": [
+    {
+     "title": "colibri Run frontier MoE models on hardware you already own \u2014 pure C, zero deps, experts streamed from disk. T",
+     "url": "https://github.com/JustVugg/colibri",
+     "src": "github",
+     "score": 23643,
+     "at": "2026-07-01T12:27:49Z"
+    },
+    {
+     "title": "turbo-fieldfare Gemma 4 26B-A4B inference in ~2 GB of RAM on any M-series MacBook",
+     "url": "https://github.com/drumih/turbo-fieldfare",
+     "src": "github",
+     "score": 5609,
+     "at": "2026-07-17T15:57:54Z"
+    },
+    {
+     "title": "esp32-ai ",
+     "url": "https://github.com/slvDev/esp32-ai",
+     "src": "github",
+     "score": 3902,
+     "at": "2026-07-23T14:53:51Z"
+    },
+    {
+     "title": "OpenSurge-for-Mac Surge-style whole-home gateway and control plane for macOS \u2014 mihomo TUN, dnsmasq-powered DHC",
+     "url": "https://github.com/YTwsy/OpenSurge-for-Mac",
+     "src": "github",
+     "score": 1999,
+     "at": "2026-06-29T15:41:44Z"
+    }
+   ]
+  },
+  {
+   "tag": "crypto",
+   "app_launches": 29,
+   "r": 0.819,
+   "p": 0.046,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    2,
+    3,
+    2,
+    3,
+    2,
+    2,
+    3,
+    0,
+    11
+   ],
+   "sigWeek": [
+    1.06,
+    0.94,
+    0.97,
+    0.99,
+    0.95,
+    1.09,
+    0.9,
+    0.87,
+    1.0
+   ],
+   "examples": [
+    {
+     "title": "img2threejs Rebuild the object in a reference image as a code-only, procedural, quality-gated, animation-ready",
+     "url": "https://github.com/img2threejs/img2threejs",
+     "src": "github",
+     "score": 10528,
+     "at": "2026-07-15T02:58:39Z"
+    },
+    {
+     "title": "investing-for-beginners \u5c0f\u9690\u5bfa\u6295\u8d44\u767e\u79d1\u5b98\u65b9\u516c\u5f00\u7d22\u5f15\uff1a\u7f8e\u80a1\u3001\u671f\u6743\u4e0e\u52a0\u5bc6\u8d27\u5e01\u77e5\u8bc6\u6846\u67b6",
+     "url": "https://github.com/xuchonglang/investing-for-beginners",
+     "src": "github",
+     "score": 3221,
+     "at": "2026-07-03T03:56:00Z"
+    },
+    {
+     "title": "internet-court-skill The trust layer for agent-to-agent commerce \u2014 natural-language mandates, ERC-7710 delegat",
+     "url": "https://github.com/internet-court/internet-court-skill",
+     "src": "github",
+     "score": 1628,
+     "at": "2026-06-16T13:20:01Z"
+    },
+    {
+     "title": "xerj XERJ is the new way for AI to search data. Its autoindex capability activates agents to know your data wi",
+     "url": "https://github.com/xerj-org/xerj",
+     "src": "github",
+     "score": 1330,
+     "at": "2026-06-30T04:32:45Z"
+    }
+   ]
+  },
+  {
+   "tag": "search",
+   "app_launches": 27,
+   "r": -0.724,
+   "p": 0.066,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    1,
+    0,
+    0,
+    1,
+    0,
+    2,
+    1,
+    1,
+    20
+   ],
+   "sigWeek": [
+    1.05,
+    1.02,
+    1.03,
+    0.96,
+    0.97,
+    0.94,
+    0.89,
+    0.9,
+    0.93
+   ],
+   "examples": [
+    {
+     "title": "pixel2motion AI logo animation skill: turn raster logos into smooth SVG animation, animated HTML demos, GIF/vi",
+     "url": "https://github.com/nolangz/pixel2motion",
+     "src": "github",
+     "score": 1922,
+     "at": "2026-06-12T04:25:17Z"
+    },
+    {
+     "title": "vmodal_sdk_flutter V- Modal AI: MultiModal Video Search - SDK Flutter",
+     "url": "https://github.com/v-modal/vmodal_sdk_flutter",
+     "src": "github",
+     "score": 1642,
+     "at": "2026-07-16T12:25:48Z"
+    },
+    {
+     "title": "talivia Open-source, self-hosted revenue-first analytics for founders: web analytics, Session Replay, revenue ",
+     "url": "https://github.com/talivia-group/talivia",
+     "src": "github",
+     "score": 1528,
+     "at": "2026-07-29T07:56:49Z"
+    },
+    {
+     "title": "xerj XERJ is the new way for AI to search data. Its autoindex capability activates agents to know your data wi",
+     "url": "https://github.com/xerj-org/xerj",
+     "src": "github",
+     "score": 1330,
+     "at": "2026-06-30T04:32:45Z"
+    }
+   ]
+  },
+  {
+   "tag": "b2b",
+   "app_launches": 26,
+   "r": 0.831,
+   "p": 0.0055,
+   "lead_weeks": 0,
+   "n": 9,
+   "appWeek": [
+    0,
+    1,
+    3,
+    2,
+    1,
+    2,
+    0,
+    1,
+    15
+   ],
+   "sigWeek": [
+    2.84,
+    2.82,
+    2.91,
+    2.69,
+    2.79,
+    3.01,
+    2.7,
+    3.13,
+    3.48
+   ],
+   "examples": [
+    {
+     "title": "T3MP3ST autonomous red teaming platform; multi-agent offensive-security meta-harness",
+     "url": "https://github.com/elder-plinius/T3MP3ST",
+     "src": "github",
+     "score": 5510,
+     "at": "2026-07-02T17:53:55Z"
+    },
+    {
+     "title": "open-connector Open-source auth gateway connecting 1000+ SaaS providers to AI agents through SDK, CLI, MCP, HT",
+     "url": "https://github.com/oomol-lab/open-connector",
+     "src": "github",
+     "score": 4520,
+     "at": "2026-06-29T10:49:36Z"
+    },
+    {
+     "title": "StaffDeck Enterprise Digital Employee Platform",
+     "url": "https://github.com/OpenBMB/StaffDeck",
+     "src": "github",
+     "score": 1516,
+     "at": "2026-07-13T03:31:47Z"
+    },
+    {
+     "title": "recon-skills Recon & pentest skill pack. CORS, XSS, SQLi, SSRF, RCE, WordPress, MCP, cloud, subdomain takeover",
+     "url": "https://github.com/uphiago/recon-skills",
+     "src": "github",
+     "score": 1058,
+     "at": "2026-06-24T18:19:06Z"
+    }
+   ]
+  },
+  {
+   "tag": "creator",
+   "app_launches": 21,
+   "r": -0.556,
+   "p": 0.1525,
+   "lead_weeks": 1,
+   "n": 8,
+   "appWeek": [
+    1,
+    1,
+    0,
+    2,
+    1,
+    0,
+    0,
+    2,
+    13
+   ],
+   "sigWeek": [
+    0.93,
+    1.09,
+    1.04,
+    1.22,
+    1.04,
+    1.11,
+    1.21,
+    0.89,
+    0.91
+   ],
+   "examples": [
+    {
+     "title": "short-video-generator-AI Free open-source project designed for turning youtube-viedos into viral short videos.",
+     "url": "https://github.com/OStudi/short-video-generator-AI",
+     "src": "github",
+     "score": 1051,
+     "at": "2026-07-01T11:03:04Z"
+    },
+    {
+     "title": "guizang-material-illustration \u5f52\u85cf\u7684\u6750\u8d28\u63d2\u753b skill\uff1a\u751f\u6210\u5e26\u5b57\u89e3\u91ca\u56fe\u3001\u56fe\u8868\u7f8e\u5316\u548c\u53c2\u8003\u8f85\u52a9\u914d\u56fe\u3002",
+     "url": "https://github.com/op7418/guizang-material-illustration",
+     "src": "github",
+     "score": 980,
+     "at": "2026-07-07T13:57:13Z"
+    },
+    {
+     "title": "creatorhub \u591a\u5e73\u53f0\u5185\u5bb9\u76d1\u63a7\u00b7\u91c7\u96c6\u00b7\u642c\u8fd0 \u4e00\u4e2a Web \u9762\u677f\u7ba1\u8d77\u6296\u97f3 / \u5c0f\u7ea2\u4e66 / \u5feb\u624b",
+     "url": "https://github.com/3441293738/creatorhub",
+     "src": "github",
+     "score": 885,
+     "at": "2026-07-03T08:43:10Z"
+    },
+    {
+     "title": "esp32-c3-adblock Pi-hole-class DNS ad-blocker on a $2 ESP32-C3 (no PSRAM): 537k domains as 40-bit FNV-1a hashe",
+     "url": "https://github.com/M-Abozaid/esp32-c3-adblock",
+     "src": "github",
+     "score": 616,
+     "at": "2026-06-19T18:14:43Z"
+    }
+   ]
+  },
+  {
+   "tag": "compliance",
+   "app_launches": 18,
+   "r": 0.49,
+   "p": 0.1805,
+   "lead_weeks": 0,
+   "n": 9,
+   "appWeek": [
+    0,
+    3,
+    3,
+    1,
+    1,
+    0,
+    0,
+    0,
+    10
+   ],
+   "sigWeek": [
+    2.67,
+    3.0,
+    2.65,
+    3.04,
+    3.12,
+    2.9,
+    3.28,
+    3.11,
+    3.48
+   ],
+   "examples": [
+    {
+     "title": "security-audit-skill A coding-agent skill for multi-phase security audits with independently verified, machine",
+     "url": "https://github.com/cloudflare/security-audit-skill",
+     "src": "github",
+     "score": 2820,
+     "at": "2026-06-18T14:08:44Z"
+    },
+    {
+     "title": "spacewasm A flight-compliant WebAssembly interpreter.",
+     "url": "https://github.com/nasa/spacewasm",
+     "src": "github",
+     "score": 1464,
+     "at": "2026-06-24T15:11:27Z"
+    },
+    {
+     "title": "xerj XERJ is the new way for AI to search data. Its autoindex capability activates agents to know your data wi",
+     "url": "https://github.com/xerj-org/xerj",
+     "src": "github",
+     "score": 1330,
+     "at": "2026-06-30T04:32:45Z"
+    },
+    {
+     "title": "AutoCVE Agent-driven automated CVE discovery platform for source code auditing, vulnerability verification, an",
+     "url": "https://github.com/larlarua/AutoCVE",
+     "src": "github",
+     "score": 1266,
+     "at": "2026-06-15T14:50:47Z"
+    }
+   ]
+  },
+  {
+   "tag": "payments",
+   "app_launches": 13,
+   "r": 0.777,
+   "p": 0.0693,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    8
+   ],
+   "sigWeek": [
+    2.02,
+    1.9,
+    1.9,
+    1.92,
+    2.08,
+    2.11,
+    1.89,
+    1.92,
+    2.02
+   ],
+   "examples": [
+    {
+     "title": "internet-court-skill The trust layer for agent-to-agent commerce \u2014 natural-language mandates, ERC-7710 delegat",
+     "url": "https://github.com/internet-court/internet-court-skill",
+     "src": "github",
+     "score": 1628,
+     "at": "2026-06-16T13:20:01Z"
+    },
+    {
+     "title": "talivia Open-source, self-hosted revenue-first analytics for founders: web analytics, Session Replay, revenue ",
+     "url": "https://github.com/talivia-group/talivia",
+     "src": "github",
+     "score": 1528,
+     "at": "2026-07-29T07:56:49Z"
+    },
+    {
+     "title": "Windows-Copilot-API Reverse engineered Windows Copilot into an OpenAI-compatible API. Access GPT-4 and GPT-5 m",
+     "url": "https://github.com/sums001/Windows-Copilot-API",
+     "src": "github",
+     "score": 1196,
+     "at": "2026-06-19T13:24:44Z"
+    },
+    {
+     "title": "Show HN: SaaS payment integration in ~10 lines of code",
+     "url": "https://github.com/paycan-app/paycan",
+     "src": "hn",
+     "score": 7,
+     "at": "2026-08-03T08:49:06Z"
+    }
+   ]
+  },
+  {
+   "tag": "services",
+   "app_launches": 11,
+   "r": -0.453,
+   "p": 0.3068,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    0,
+    1,
+    3
+   ],
+   "sigWeek": [
+    1.68,
+    1.74,
+    2.73,
+    2.5,
+    2.25,
+    2.31,
+    1.9,
+    1.9,
+    1.91
+   ],
+   "examples": [
+    {
+     "title": "vorssaint-utils Free and open-source macOS menu bar toolkit.",
+     "url": "https://github.com/vorssaint/vorssaint-utils",
+     "src": "github",
+     "score": 4962,
+     "at": "2026-06-12T15:25:43Z"
+    },
+    {
+     "title": "engram Evidence-based learning engine for Claude Code \u2014 first-principles curricula, free-recall verification w",
+     "url": "https://github.com/nagisanzenin/engram",
+     "src": "github",
+     "score": 1305,
+     "at": "2026-07-05T09:53:10Z"
+    },
+    {
+     "title": "launch-your-agent Claude Code skills that take a founder from idea to a live Claude Managed Agent: interview, ",
+     "url": "https://github.com/anthropics/launch-your-agent",
+     "src": "github",
+     "score": 928,
+     "at": "2026-06-16T14:49:50Z"
+    },
+    {
+     "title": "MTPROTO_FIX_By_MEKO Universal VPN and MTProto proxy installer & fix \u2013 one\u2011click setup of Telemt, MTG, Erlang a",
+     "url": "https://github.com/Mekotofeuka/MTPROTO_FIX_By_MEKO",
+     "src": "github",
+     "score": 907,
+     "at": "2026-06-23T11:12:12Z"
+    }
+   ]
+  },
+  {
+   "tag": "smb",
+   "app_launches": 9,
+   "r": -0.427,
+   "p": 0.2518,
+   "lead_weeks": 0,
+   "n": 9,
+   "appWeek": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    7
+   ],
+   "sigWeek": [
+    3.95,
+    4.36,
+    3.82,
+    3.91,
+    3.87,
+    3.82,
+    4.09,
+    3.86,
+    3.73
+   ],
+   "examples": [
+    {
+     "title": "crm Comp AI CRM is an open source, CRM designed for AI agents. Agentic-first CRM.",
+     "url": "https://github.com/trycompai/crm",
+     "src": "github",
+     "score": 8082,
+     "at": "2026-07-31T21:38:51Z"
+    },
+    {
+     "title": "Show HN: A local-first, modular replacement for your accounting software",
+     "url": "https://github.com/celerp/celerp",
+     "src": "hn",
+     "score": 2,
+     "at": "2026-08-10T00:04:37Z"
+    },
+    {
+     "title": "Show HN: Martin, A CLI that let's your Agent be your CRM, Built on Jaybase",
+     "url": "https://github.com/kyle-visner/martin",
+     "src": "hn",
+     "score": 2,
+     "at": "2026-08-06T20:51:25Z"
+    },
+    {
+     "title": "Show HN: No-Bullshit CRM \u2013 Fast, simple and local",
+     "url": "https://crm.cintracomunicacao.com.br/",
+     "src": "hn",
+     "score": 2,
+     "at": "2026-08-05T20:14:12Z"
+    }
+   ]
+  },
+  {
+   "tag": "finance",
+   "app_launches": 8,
+   "r": -0.668,
+   "p": 0.0701,
+   "lead_weeks": 1,
+   "n": 8,
+   "appWeek": [
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    6
+   ],
+   "sigWeek": [
+    0.99,
+    1.03,
+    0.9,
+    0.94,
+    1.02,
+    1.05,
+    1.12,
+    0.86,
+    0.86
+   ],
+   "examples": [
+    {
+     "title": "os-taxonomy ",
+     "url": "https://github.com/withmarbleapp/os-taxonomy",
+     "src": "github",
+     "score": 3943,
+     "at": "2026-07-08T09:27:48Z"
+    },
+    {
+     "title": "tickflow-stock-panel TSP\u81ea\u6258\u7ba1\u3001\u96f6\u8fd0\u7ef4\u7684 A \u80a1\u300c\u9009\u80a1 + \u76d1\u63a7 + \u56de\u6d4b\u300d\u91cf\u5316\u5de5\u4f5c\u53f0 | \u57fa\u4e8e TickFlow \u6570\u636e\u6e90  | LLM\u80fd\u529b\u9a71\u4f7f\u7b56\u7565\u5b9a\u5236+\u4e2a\u80a1\u5206\u6790+\u590d\u76d8 | \u81ea\u7531\u63a5\u5165\u7b2c\u4e09\u65b9\u6570\u636e\u6e90\u4e0e",
+     "url": "https://github.com/shy3130/tickflow-stock-panel",
+     "src": "github",
+     "score": 2723,
+     "at": "2026-06-18T06:18:29Z"
+    },
+    {
+     "title": "Show HN: Spltty \u2013 a Markdown-based personal finance CLI built with Claude",
+     "url": "https://tdiniz.dev/thoughts/building-a-personal-finance-tracker-with-claude",
+     "src": "hn",
+     "score": 8,
+     "at": "2026-08-05T18:43:10Z"
+    },
+    {
+     "title": "Show HN: FAIth \u2013 a syntax-free JVM language, compiled by an LLM front-end",
+     "url": "https://github.com/krossovochkin/faith",
+     "src": "hn",
+     "score": 4,
+     "at": "2026-08-09T12:49:36Z"
+    }
+   ]
+  },
+  {
+   "tag": "community",
+   "app_launches": 6,
+   "r": 0.437,
+   "p": 0.2392,
+   "lead_weeks": 0,
+   "n": 9,
+   "appWeek": [
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    3
+   ],
+   "sigWeek": [
+    1.82,
+    0.85,
+    0.36,
+    0.49,
+    0.97,
+    0.97,
+    0.73,
+    1.09,
+    1.34
+   ],
+   "examples": [
+    {
+     "title": "aos-ce AOS Community Edition: the open agent operating system.",
+     "url": "https://github.com/unicity-aos/aos-ce",
+     "src": "github",
+     "score": 8575,
+     "at": "2026-07-12T23:39:52Z"
+    },
+    {
+     "title": "aur-malware-check Detection tools for the June 2026 atomic-lockfile AUR supply-chain attack. Consolidated from",
+     "url": "https://github.com/lenucksi/aur-malware-check",
+     "src": "github",
+     "score": 2130,
+     "at": "2026-06-12T13:17:07Z"
+    },
+    {
+     "title": "optimus-ui 80+ accessible, customizable Angular components under the MIT license. A community-maintained conti",
+     "url": "https://github.com/openng-org/optimus-ui",
+     "src": "github",
+     "score": 496,
+     "at": "2026-06-29T17:24:18Z"
+    },
+    {
+     "title": "Show HN: Coarena - A community-driven arena to benchmark models for computer-use",
+     "url": "https://coarena.ai",
+     "src": "hn",
+     "score": 2,
+     "at": "2026-08-07T19:00:42Z"
+    }
+   ]
+  },
+  {
+   "tag": "commerce",
+   "app_launches": 5,
+   "r": 0.654,
+   "p": 0.1592,
+   "lead_weeks": 3,
+   "n": 6,
+   "appWeek": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    2
+   ],
+   "sigWeek": [
+    0.96,
+    0.96,
+    0.93,
+    0.93,
+    1.12,
+    1.02,
+    0.99,
+    1.05,
+    1.03
+   ],
+   "examples": [
+    {
+     "title": "internet-court-skill The trust layer for agent-to-agent commerce \u2014 natural-language mandates, ERC-7710 delegat",
+     "url": "https://github.com/internet-court/internet-court-skill",
+     "src": "github",
+     "score": 1628,
+     "at": "2026-06-16T13:20:01Z"
+    },
+    {
+     "title": "Show HN: Atomadic- Zero-LLM Sub-200us MCP Action Interlock (Storefront Restored)",
+     "url": "https://atomadic.tech/orchard.html",
+     "src": "hn",
+     "score": 3,
+     "at": "2026-08-02T23:49:40Z"
+    },
+    {
+     "title": "Show HN: TickClip \u2013 An AI shopping agent that can recommend not buying",
+     "url": "https://www.tickclip.ai/",
+     "src": "hn",
+     "score": 2,
+     "at": "2026-08-10T14:42:09Z"
+    },
+    {
+     "title": "Show HN: Clinch \u2013 exit-intent discounts for Shopify with a built-in holdout",
+     "url": "https://getclinch.co",
+     "src": "hn",
+     "score": 1,
+     "at": "2026-08-06T19:05:05Z"
+    }
+   ]
+  },
+  {
+   "tag": "climate",
+   "app_launches": 3,
+   "r": 0.51,
+   "p": 0.1606,
+   "lead_weeks": 0,
+   "n": 9,
+   "appWeek": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+   ],
+   "sigWeek": [
+    3.55,
+    2.63,
+    3.14,
+    2.88,
+    3.07,
+    3.17,
+    2.53,
+    2.92,
+    3.19
+   ],
+   "examples": [
+    {
+     "title": "Solar-Wanderer Solar Wanderer / \u9068\u6e38\u592a\u9633\u7cfb - 1:1 Real-Time Solar System Explorer in the Browser. NASA JPL ephemeris",
+     "url": "https://github.com/hyqzz/Solar-Wanderer",
+     "src": "github",
+     "score": 697,
+     "at": "2026-06-12T06:25:23Z"
+    },
+    {
+     "title": "Show HN: Growth-Ratio Energy Function as Leading Indicator of Agent Task Failure",
+     "url": "https://vishalvermalabs.com/papers/empirical-lyapunov-stability-agent-failure/",
+     "src": "hn",
+     "score": 3,
+     "at": "2026-08-02T17:54:39Z"
+    },
+    {
+     "title": "Show HN: Poker and Liar's Dice over Bluetooth Low Energy",
+     "url": "https://testco.de/airplane-mode-games",
+     "src": "hn",
+     "score": 1,
+     "at": "2026-08-03T20:56:26Z"
+    }
+   ]
+  },
+  {
+   "tag": "supply-chain",
+   "app_launches": 1,
+   "r": 0.735,
+   "p": 0.06,
+   "lead_weeks": 2,
+   "n": 7,
+   "appWeek": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "sigWeek": [
+    0.89,
+    0.79,
+    0.89,
+    1.2,
+    1.27,
+    1.2,
+    1.57,
+    1.09,
+    1.27
+   ],
+   "examples": [
+    {
+     "title": "Show HN: Peko, an End-to-End Platform for Shipping Native Apps",
+     "url": "https://pekoui.com",
+     "src": "hn",
+     "score": 2,
+     "at": "2026-08-03T21:06:50Z"
+    }
+   ]
+  }
+ ]
+}
