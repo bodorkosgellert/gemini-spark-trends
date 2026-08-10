@@ -93,6 +93,9 @@ function StoreLedger() {
             <Link to="/crosswalk" className="hover:text-accent">
               The Crosswalk →
             </Link>
+            <Link to="/graph" className="hover:text-accent">
+              The Web →
+            </Link>
           </div>
           <div className="mt-4 rule-thick" />
           <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-6xl">

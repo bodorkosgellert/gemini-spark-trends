@@ -76,6 +76,9 @@ function Crosswalk() {
               <Link to="/store" className="hover:text-accent">
                 The Store Ledger
               </Link>
+              <Link to="/graph" className="hover:text-accent">
+                The Web
+              </Link>
               <Link to="/radar" className="hover:text-accent">
                 The Radar →
               </Link>
