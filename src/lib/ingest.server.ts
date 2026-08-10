@@ -411,13 +411,15 @@ export async function collectKeyword(
   tags: string[],
   geo = "US",
 ): Promise<KeywordResult> {
-  const [trends, wiki, gh, hn, rd] = await Promise.all([
-    googleTrends(keyword, geo),
-    wikipediaDemand(keyword),
-    githubSupply(keyword),
-    hackerNews(keyword),
-    reddit(keyword),
-  ]);
+  // Sequential with small gaps: the free tiers of these APIs rate-limit hard
+  // when a batch fans out in parallel.
+  const trends = await googleTrends(keyword, geo);
+  const wiki = await wikipediaDemand(keyword);
+  await sleep(300);
+  const gh = await githubSupply(keyword);
+  await sleep(300);
+  const hn = await hackerNews(keyword);
+  const rd = await reddit(keyword);
 
   const githubRepos = gh[0]?.value ?? null;
   const redditPosts = rd[0]?.value ?? null;
