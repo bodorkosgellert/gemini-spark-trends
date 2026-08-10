@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CrosswalkRouteImport } from './routes/crosswalk'
 import { Route as RadarRouteImport } from './routes/radar'
+import { Route as StoreRouteImport } from './routes/store'
 import { Route as ApiPublicHooksIngestRouteImport } from './routes/api/public/hooks/ingest'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const RadarRoute = RadarRouteImport.update({
   path: '/radar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoreRoute = StoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksIngestRoute = ApiPublicHooksIngestRouteImport.update({
   id: '/api/public/hooks/ingest',
   path: '/api/public/hooks/ingest',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/crosswalk': typeof CrosswalkRoute
   '/radar': typeof RadarRoute
+  '/store': typeof StoreRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/crosswalk': typeof CrosswalkRoute
   '/radar': typeof RadarRoute
+  '/store': typeof StoreRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,29 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/crosswalk': typeof CrosswalkRoute
   '/radar': typeof RadarRoute
+  '/store': typeof StoreRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/crosswalk' | '/radar' | '/api/public/hooks/ingest'
+  fullPaths:
+    '/' | '/crosswalk' | '/radar' | '/store' | '/api/public/hooks/ingest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/crosswalk' | '/radar' | '/api/public/hooks/ingest'
-  id: '__root__' | '/' | '/crosswalk' | '/radar' | '/api/public/hooks/ingest'
+  to: '/' | '/crosswalk' | '/radar' | '/store' | '/api/public/hooks/ingest'
+  id:
+    | '__root__'
+    | '/'
+    | '/crosswalk'
+    | '/radar'
+    | '/store'
+    | '/api/public/hooks/ingest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CrosswalkRoute: typeof CrosswalkRoute
   RadarRoute: typeof RadarRoute
+  StoreRoute: typeof StoreRoute
   ApiPublicHooksIngestRoute: typeof ApiPublicHooksIngestRoute
 }
 
@@ -92,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RadarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/store': {
+      id: '/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof StoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/ingest': {
       id: '/api/public/hooks/ingest'
       path: '/api/public/hooks/ingest'
@@ -106,6 +130,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CrosswalkRoute: CrosswalkRoute,
   RadarRoute: RadarRoute,
+  StoreRoute: StoreRoute,
   ApiPublicHooksIngestRoute: ApiPublicHooksIngestRoute,
 }
 export const routeTree = rootRouteImport
