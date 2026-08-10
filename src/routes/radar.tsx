@@ -50,6 +50,7 @@ function Radar() {
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [open, setOpen] = useState<string | null>(null);
+  const [detail, setDetail] = useState<"compact" | "standard" | "full">("standard");
 
   const evidenceBySignal = useMemo(() => {
     const map = new Map<string, EvidenceRow[]>();
@@ -136,6 +137,27 @@ function Radar() {
               );
             })}
           </div>
+          <div className="mt-5 flex items-center gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+              Detail
+            </span>
+            <div className="flex">
+              {(["compact", "standard", "full"] as const).map((level) => (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setDetail(level)}
+                  className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                    detail === level
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+          </div>
         </section>
 
         {signals.length === 0 ? (
@@ -146,7 +168,7 @@ function Radar() {
           <div className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {visible.map((s: SignalRow) => {
               const rows = evidenceBySignal.get(s.id) ?? [];
-              const isOpen = open === s.id;
+              const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
               return (
                 <article key={s.id} className="border-t-2 border-foreground pt-4">
                   <div className="flex items-baseline justify-between gap-3">
@@ -160,9 +182,11 @@ function Radar() {
                   <h2 className="mt-2 font-display text-2xl font-bold capitalize leading-tight">
                     {s.keyword}
                   </h2>
-                  <div className="mt-3 text-muted-foreground">
-                    <Sparkline series={s.series ?? []} />
-                  </div>
+                  {detail !== "compact" && (
+                    <div className="mt-3 text-muted-foreground">
+                      <Sparkline series={s.series ?? []} />
+                    </div>
+                  )}
                   <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-dotted border-border py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     <div>
                       <dt>Demand</dt>
@@ -177,18 +201,24 @@ function Radar() {
                       <dd className="font-display text-lg text-foreground">{s.lead_weeks}w</dd>
                     </div>
                   </dl>
-                  <p className="mt-3 text-[15px] leading-7">{s.why}</p>
+                  {detail !== "compact" && <p className="mt-3 text-[15px] leading-7">{s.why}</p>}
                   <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                     {s.tags.join(" · ")}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(isOpen ? null : s.id)}
-                    className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
-                  >
-                    {isOpen ? "Hide evidence" : `Evidence (${rows.length})`}
-                  </button>
-                  {isOpen && (
+                  {detail !== "compact" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        detail === "full"
+                          ? setOpen(isOpen ? `closed-${s.id}` : null)
+                          : setOpen(isOpen ? null : s.id)
+                      }
+                      className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                    >
+                      {isOpen ? "Hide evidence" : `Evidence (${rows.length})`}
+                    </button>
+                  )}
+                  {detail !== "compact" && isOpen && (
                     <ul className="mt-3 space-y-2 border-t border-dotted border-border pt-3">
                       {rows.map((row, i) => (
                         <li key={`${row.metric}-${i}`} className="text-[13px] leading-5">
