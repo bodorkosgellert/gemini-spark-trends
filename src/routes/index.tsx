@@ -132,9 +132,15 @@ function Index() {
               </p>
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-foreground pt-5">
+              <Link
+                to="/radar"
+                className="bg-foreground px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-background transition-colors hover:bg-accent"
+              >
+                Open the radar
+              </Link>
               <a
                 href="#signals"
-                className="bg-foreground px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-background transition-colors hover:bg-accent"
+                className="border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors hover:bg-foreground hover:text-background"
               >
                 Read today’s edition
               </a>
