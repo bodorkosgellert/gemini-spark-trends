@@ -28,14 +28,17 @@ export const Route = createFileRoute("/crosswalk")({
 type Row = (typeof data.rows)[number];
 
 function Bars({ values, className }: { values: number[]; className?: string }) {
-  const max = Math.max(...values, 1);
+  // Scale between the observed min and max so week-to-week variation is visible
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const span = max - min || 1;
   return (
     <div className={`flex h-8 items-end gap-[2px] ${className ?? ""}`}>
       {values.map((v, i) => (
         <span
           key={i}
           className="flex-1 bg-current"
-          style={{ height: `${Math.max((v / max) * 100, 3)}%` }}
+          style={{ height: `${8 + ((v - min) / span) * 92}%` }}
         />
       ))}
     </div>
