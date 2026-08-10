@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ingest_runs: {
+        Row: {
+          finished_at: string | null
+          id: string
+          keywords_processed: number
+          notes: string | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          keywords_processed?: number
+          notes?: string | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          keywords_processed?: number
+          notes?: string | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      signal_evidence: {
+        Row: {
+          detail: string | null
+          id: string
+          metric: string
+          observed_at: string
+          signal_id: string
+          source: string
+          url: string | null
+          value: number | null
+        }
+        Insert: {
+          detail?: string | null
+          id?: string
+          metric: string
+          observed_at?: string
+          signal_id: string
+          source: string
+          url?: string | null
+          value?: number | null
+        }
+        Update: {
+          detail?: string | null
+          id?: string
+          metric?: string
+          observed_at?: string
+          signal_id?: string
+          source?: string
+          url?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_evidence_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signals: {
+        Row: {
+          category: string
+          created_at: string
+          demand_score: number
+          first_seen_at: string | null
+          id: string
+          keyword: string
+          lead_weeks: number
+          momentum: number
+          opportunity_score: number
+          series: Json
+          slug: string
+          supply_score: number
+          tags: string[]
+          updated_at: string
+          why: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          demand_score?: number
+          first_seen_at?: string | null
+          id?: string
+          keyword: string
+          lead_weeks?: number
+          momentum?: number
+          opportunity_score?: number
+          series?: Json
+          slug: string
+          supply_score?: number
+          tags?: string[]
+          updated_at?: string
+          why?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          demand_score?: number
+          first_seen_at?: string | null
+          id?: string
+          keyword?: string
+          lead_weeks?: number
+          momentum?: number
+          opportunity_score?: number
+          series?: Json
+          slug?: string
+          supply_score?: number
+          tags?: string[]
+          updated_at?: string
+          why?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
