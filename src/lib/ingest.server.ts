@@ -102,6 +102,68 @@ export async function googleTrends(
 }
 
 /* ------------------------------------------------------------------ */
+/* Source 1b — Wikipedia pageviews (demand fallback, always reachable) */
+/* ------------------------------------------------------------------ */
+
+/** Weekly pageview series for the article that best matches the keyword. */
+export async function wikipediaDemand(
+  keyword: string,
+): Promise<{ series: number[]; readings: Reading[] }> {
+  try {
+    const search = await jsonFetch(
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
+        keyword,
+      )}&srlimit=1&format=json&origin=*`,
+    );
+    const title = search?.query?.search?.[0]?.title as string | undefined;
+    if (!title) throw new Error("no article match");
+
+    const end = new Date();
+    const start = new Date(end.getTime() - 364 * 864e5);
+    const stamp = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "") + "00";
+    const data = await jsonFetch(
+      `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(
+        title.replace(/ /g, "_"),
+      )}/daily/${stamp(start)}/${stamp(end)}`,
+    );
+    const daily = (data.items ?? []).map((i: any) => Number(i.views ?? 0)) as number[];
+
+    const series: number[] = [];
+    for (let i = 0; i + 7 <= daily.length; i += 7) {
+      series.push(Math.round(daily.slice(i, i + 7).reduce((a, b) => a + b, 0) / 7));
+    }
+    const peak = Math.max(...series, 1);
+    const normalised = series.map((v) => Math.round((v / peak) * 100));
+
+    return {
+      series: normalised,
+      readings: [
+        {
+          source: "Wikipedia",
+          metric: "weekly_pageviews",
+          value: series.at(-1) ?? 0,
+          detail: `"${title}" — ${series.length} weeks of reader attention, indexed to its own peak`,
+          url: `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`,
+        },
+      ],
+    };
+  } catch (error) {
+    return {
+      series: [],
+      readings: [
+        {
+          source: "Wikipedia",
+          metric: "weekly_pageviews",
+          value: null,
+          detail: `unavailable: ${(error as Error).message}`,
+          url: null,
+        },
+      ],
+    };
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Source 2 — GitHub (supply: how much tooling already exists)         */
 /* ------------------------------------------------------------------ */
 
@@ -208,9 +270,10 @@ export async function hackerNews(keyword: string): Promise<{
 
 export async function reddit(keyword: string): Promise<Reading[]> {
   try {
-    const data = await jsonFetch(
-      `https://www.reddit.com/search.json?q=${encodeURIComponent(keyword)}&sort=new&t=month&limit=100`,
-    );
+    const url = `https://old.reddit.com/search.json?q=${encodeURIComponent(
+      keyword,
+    )}&sort=new&t=month&limit=100`;
+    const data = await jsonFetch(url);
     const children = (data?.data?.children ?? []) as Array<any>;
     const score = children.reduce((sum, c) => sum + Number(c.data?.score ?? 0), 0);
     return [
@@ -337,8 +400,9 @@ export async function collectKeyword(
   tags: string[],
   geo = "US",
 ): Promise<KeywordResult> {
-  const [trends, gh, hn, rd] = await Promise.all([
+  const [trends, wiki, gh, hn, rd] = await Promise.all([
     googleTrends(keyword, geo),
+    wikipediaDemand(keyword),
     githubSupply(keyword),
     hackerNews(keyword),
     reddit(keyword),
@@ -346,8 +410,9 @@ export async function collectKeyword(
 
   const githubRepos = gh[0]?.value ?? null;
   const redditPosts = rd[0]?.value ?? null;
+  const series = trends.series.length >= 8 ? trends.series : wiki.series;
   const scored = score({
-    series: trends.series,
+    series,
     hnRecent: hn.recent,
     redditPosts,
     githubRepos,
@@ -364,8 +429,8 @@ export async function collectKeyword(
     leadWeeks: scored.lead,
     firstSeenAt: hn.firstSeenAt,
     why: explain({ ...scored, lead: scored.lead, firstSeenAt: hn.firstSeenAt }),
-    series: trends.series,
-    readings: [...trends.readings, ...gh, ...hn.readings, ...rd],
+    series,
+    readings: [...trends.readings, ...wiki.readings, ...gh, ...hn.readings, ...rd],
   };
 }
 
