@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CrosswalkRouteImport } from './routes/crosswalk'
+import { Route as GraphRouteImport } from './routes/graph'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as ApiPublicHooksIngestRouteImport } from './routes/api/public/hooks/ingest'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const CrosswalkRoute = CrosswalkRouteImport.update({
   id: '/crosswalk',
   path: '/crosswalk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GraphRoute = GraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RadarRoute = RadarRouteImport.update({
@@ -44,6 +50,7 @@ const ApiPublicHooksIngestRoute = ApiPublicHooksIngestRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/crosswalk': typeof CrosswalkRoute
+  '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/crosswalk': typeof CrosswalkRoute
+  '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/crosswalk': typeof CrosswalkRoute
+  '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
@@ -66,13 +75,25 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/crosswalk' | '/radar' | '/store' | '/api/public/hooks/ingest'
+    | '/'
+    | '/crosswalk'
+    | '/graph'
+    | '/radar'
+    | '/store'
+    | '/api/public/hooks/ingest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/crosswalk' | '/radar' | '/store' | '/api/public/hooks/ingest'
+  to:
+    | '/'
+    | '/crosswalk'
+    | '/graph'
+    | '/radar'
+    | '/store'
+    | '/api/public/hooks/ingest'
   id:
     | '__root__'
     | '/'
     | '/crosswalk'
+    | '/graph'
     | '/radar'
     | '/store'
     | '/api/public/hooks/ingest'
@@ -81,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CrosswalkRoute: typeof CrosswalkRoute
+  GraphRoute: typeof GraphRoute
   RadarRoute: typeof RadarRoute
   StoreRoute: typeof StoreRoute
   ApiPublicHooksIngestRoute: typeof ApiPublicHooksIngestRoute
@@ -100,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/crosswalk'
       fullPath: '/crosswalk'
       preLoaderRoute: typeof CrosswalkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/graph': {
+      id: '/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof GraphRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/radar': {
@@ -129,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CrosswalkRoute: CrosswalkRoute,
+  GraphRoute: GraphRoute,
   RadarRoute: RadarRoute,
   StoreRoute: StoreRoute,
   ApiPublicHooksIngestRoute: ApiPublicHooksIngestRoute,
@@ -136,3 +166,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
