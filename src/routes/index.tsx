@@ -156,6 +156,12 @@ function Index() {
               >
                 The Store Ledger
               </Link>
+              <Link
+                to="/graph"
+                className="border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors hover:bg-foreground hover:text-background"
+              >
+                The Web
+              </Link>
               <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 No account · No card
               </span>
