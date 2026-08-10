@@ -63,7 +63,9 @@ const R_IN = 168;
 
 function polar(i: number, n: number, r: number) {
   const a = (i / n) * Math.PI * 2 - Math.PI / 2;
-  return { x: Math.cos(a) * r, y: Math.sin(a) * r, a };
+  // Round so the SSR string and the client string are byte-identical.
+  const round = (v: number) => Math.round(v * 100) / 100;
+  return { x: round(Math.cos(a) * r), y: round(Math.sin(a) * r), a: round(a) };
 }
 
 function GraphExplorer() {
