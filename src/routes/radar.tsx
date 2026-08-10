@@ -101,7 +101,7 @@ function Radar() {
             Demand scored against the supply already shipped
           </p>
           <div className="mt-5 border-y border-foreground py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
-            Google Trends · GitHub · Hacker News · Reddit
+            Wikipedia attention · GitHub supply · Hacker News t₀ · Google Trends
           </div>
         </header>
 
