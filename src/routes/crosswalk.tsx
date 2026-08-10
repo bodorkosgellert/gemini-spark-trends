@@ -72,9 +72,14 @@ function Crosswalk() {
             <Link to="/" className="hover:text-accent">
               ← Front page
             </Link>
-            <Link to="/radar" className="hover:text-accent">
-              The Radar →
-            </Link>
+            <span className="flex gap-4">
+              <Link to="/store" className="hover:text-accent">
+                The Store Ledger
+              </Link>
+              <Link to="/radar" className="hover:text-accent">
+                The Radar →
+              </Link>
+            </span>
           </div>
           <div className="mt-4 rule-thick" />
           <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-6xl">
