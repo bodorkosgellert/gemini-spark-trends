@@ -144,6 +144,12 @@ function Index() {
               >
                 Read today’s edition
               </a>
+              <Link
+                to="/crosswalk"
+                className="border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors hover:bg-foreground hover:text-background"
+              >
+                The Crosswalk
+              </Link>
               <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 No account · No card
               </span>
