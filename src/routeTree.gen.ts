@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CrosswalkRouteImport } from './routes/crosswalk'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as ApiPublicHooksIngestRouteImport } from './routes/api/public/hooks/ingest'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrosswalkRoute = CrosswalkRouteImport.update({
+  id: '/crosswalk',
+  path: '/crosswalk',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RadarRoute = RadarRouteImport.update({
@@ -31,30 +37,34 @@ const ApiPublicHooksIngestRoute = ApiPublicHooksIngestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/crosswalk': typeof CrosswalkRoute
   '/radar': typeof RadarRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/crosswalk': typeof CrosswalkRoute
   '/radar': typeof RadarRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/crosswalk': typeof CrosswalkRoute
   '/radar': typeof RadarRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/radar' | '/api/public/hooks/ingest'
+  fullPaths: '/' | '/crosswalk' | '/radar' | '/api/public/hooks/ingest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/radar' | '/api/public/hooks/ingest'
-  id: '__root__' | '/' | '/radar' | '/api/public/hooks/ingest'
+  to: '/' | '/crosswalk' | '/radar' | '/api/public/hooks/ingest'
+  id: '__root__' | '/' | '/crosswalk' | '/radar' | '/api/public/hooks/ingest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CrosswalkRoute: typeof CrosswalkRoute
   RadarRoute: typeof RadarRoute
   ApiPublicHooksIngestRoute: typeof ApiPublicHooksIngestRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crosswalk': {
+      id: '/crosswalk'
+      path: '/crosswalk'
+      fullPath: '/crosswalk'
+      preLoaderRoute: typeof CrosswalkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/radar': {
@@ -87,19 +104,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CrosswalkRoute: CrosswalkRoute,
   RadarRoute: RadarRoute,
   ApiPublicHooksIngestRoute: ApiPublicHooksIngestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
