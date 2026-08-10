@@ -33,14 +33,23 @@ export type KeywordResult = {
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
 
-async function jsonFetch(url: string, init?: RequestInit): Promise<any> {
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Fetch JSON, retrying rate-limited responses with backoff. */
+async function jsonFetch(url: string, init?: RequestInit, attempt = 0): Promise<any> {
   const res = await fetch(url, {
     ...init,
     headers: { "user-agent": UA, accept: "application/json", ...(init?.headers ?? {}) },
   });
+  if ((res.status === 429 || res.status === 403) && attempt < 3) {
+    await sleep(2000 * (attempt + 1));
+    return jsonFetch(url, init, attempt + 1);
+  }
   if (!res.ok) throw new Error(`${res.status} ${url.slice(0, 80)}`);
   return res.json();
 }
+
+const WIKI_UA = "TrendSpark/1.0 (demand radar; https://trendspark.lovable.app)";
 
 /* ------------------------------------------------------------------ */
 /* Source 1 — Google Trends (demand / crowding)                        */
@@ -95,7 +104,7 @@ export async function googleTrends(
       metric: "interest_last_12m",
       value: null,
       detail: `unavailable: ${(error as Error).message}`,
-      url: null,
+      url: `https://trends.google.com/trends/explore?geo=${geo}&q=${encodeURIComponent(keyword)}`,
     });
     return { series: [], readings };
   }
@@ -114,6 +123,7 @@ export async function wikipediaDemand(
       `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
         keyword,
       )}&srlimit=1&format=json&origin=*`,
+      { headers: { "user-agent": WIKI_UA } },
     );
     const title = search?.query?.search?.[0]?.title as string | undefined;
     if (!title) throw new Error("no article match");
@@ -125,6 +135,7 @@ export async function wikipediaDemand(
       `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(
         title.replace(/ /g, "_"),
       )}/daily/${stamp(start)}/${stamp(end)}`,
+      { headers: { "user-agent": WIKI_UA } },
     );
     const daily = (data.items ?? []).map((i: any) => Number(i.views ?? 0)) as number[];
 
