@@ -87,7 +87,9 @@ function Radar() {
             <Link to="/" className="hover:text-accent">
               ← Front page
             </Link>
-            <span>Section B</span>
+            <Link to="/crosswalk" className="hover:text-accent">
+              The Crosswalk →
+            </Link>
             <span>
               {lastRun?.finished_at
                 ? `Filed ${new Date(lastRun.finished_at).toUTCString().slice(5, 22)} UTC`
