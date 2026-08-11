@@ -161,40 +161,38 @@ function RadarPage() {
     setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
 
   return (
-    <div className="newsprint min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-6xl px-5 pb-24 pt-8">
-        <header className="text-center">
-          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <Link to="/" className="hover:text-accent">
-              ← Front page
-            </Link>
-            <span className="flex gap-4">
-              <Link to="/crosswalk" className="hover:text-accent">
-                The Crosswalk
-              </Link>
-              <Link to="/store" className="hover:text-accent">
-                The Store Ledger →
-              </Link>
-            </span>
-            <span>
-              {lastRun?.finished_at
-                ? `Filed ${new Date(lastRun.finished_at).toUTCString().slice(5, 22)} UTC`
-                : "Awaiting first run"}
-            </span>
-          </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-7xl">
-            The Radar
-          </h1>
-          <p className="mt-3 font-display text-lg italic text-muted-foreground">
-            Demand scored against the supply already shipped
+    <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
+      <div className="mx-auto max-w-6xl px-5 pb-24 pt-10">
+        <header>
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+            {lastRun?.finished_at
+              ? `Last run ${new Date(lastRun.finished_at).toUTCString().slice(5, 22)} UTC`
+              : "Awaiting first run"}
           </p>
-          <div className="mt-5 border-y border-foreground py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
-            Wikipedia attention · GitHub supply · Hacker News t₀ · Google Trends
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+            Radar
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Demand scored against the supply already shipped · Wikipedia · GitHub · Hacker News ·
+            Tavily
+          </p>
+          <div className="mt-5 flex items-center gap-2">
+            {HEAT_LEGEND.map((l) => (
+              <div key={l.label} className="text-center">
+                <div className="h-5 w-10 rounded-sm border" style={heatStyle(l.index)} />
+                <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                  {l.label}
+                </span>
+              </div>
+            ))}
+            <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Colour = score intensity
+            </span>
           </div>
         </header>
 
-        <section className="mt-8 border-b border-foreground pb-6">
+        <section className="mt-8 border-b border-border pb-6">
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               Search the wire
@@ -203,7 +201,7 @@ function RadarPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="voice, compliance, agents…"
-              className="mt-2 w-full border-b-2 border-foreground bg-transparent pb-2 font-display text-2xl outline-none placeholder:text-muted-foreground/60"
+              className="mt-2 w-full border-b-2 border-primary bg-transparent pb-2 font-display text-2xl outline-none placeholder:text-muted-foreground/60"
             />
           </label>
           <div className="mt-5 flex flex-wrap gap-2">
