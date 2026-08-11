@@ -313,6 +313,7 @@ export async function reddit(keyword: string): Promise<Reading[]> {
 /* Scoring                                                             */
 /* ------------------------------------------------------------------ */
 
+
 function mean(xs: number[]): number {
   return xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length;
 }
