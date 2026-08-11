@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import crosswalk from "@/data/tag-crosswalk.json";
 import store from "@/data/appstore-signals.json";
+import { heatColor, heatIndexFromScore } from "@/lib/heat";
 import { askTrendGraph } from "@/lib/cognee.functions";
 
 const SUGGESTED = [
