@@ -441,7 +441,7 @@ export async function dataForSeoVolume(
           detail:
             volume === null
               ? "no volume reported"
-              : `${volume.toLocaleString()} Google searches/mo${
+              : `${volume.toLocaleString("en-US")} Google searches/mo${
                   competition ? ` — ad competition ${competition}` : ""
                 }`,
           url: null,

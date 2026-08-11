@@ -85,7 +85,7 @@ function Crosswalk() {
             Two months of real launches, read backwards into the signals that came before them
           </p>
           <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            {data.launchesScanned.toLocaleString()} launches scanned · {data.launchesTagged} tagged ·{" "}
+            {data.launchesScanned.toLocaleString("en-US")} launches scanned · {data.launchesTagged} tagged ·{" "}
             {data.weeks.length} weeks · {data.windowStart} → {data.windowEnd}
           </div>
         </header>

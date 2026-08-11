@@ -105,7 +105,7 @@ function StoreLedger() {
             What the App Store already sells, who owns it, and where the shelf is still empty
           </p>
           <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            {data.rows.length} categories · {totalApps.toLocaleString()} listings ·{" "}
+            {data.rows.length} categories · {totalApps.toLocaleString("en-US")} listings ·{" "}
             {data.countries.length} storefronts
           </div>
         </header>
@@ -211,7 +211,7 @@ function StoreLedger() {
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Per entrant
                     <div className="font-display text-lg text-foreground">
-                      {row.demandPerFresh.toLocaleString()}
+                      {row.demandPerFresh.toLocaleString("en-US")}
                     </div>
                   </div>
                   <div
@@ -256,7 +256,7 @@ function StoreLedger() {
                     {row.top.map((app, i) => (
                       <li key={i} className="text-[13px] leading-5">
                         <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                          {app.genre} · {app.ratings.toLocaleString()} ratings ·{" "}
+                          {app.genre} · {app.ratings.toLocaleString("en-US")} ratings ·{" "}
                           {app.rating ? `${app.rating.toFixed(1)}★ · ` : ""}released{" "}
                           {app.released} · updated {app.updated} · {app.price || "—"}
                         </span>
