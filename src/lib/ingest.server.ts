@@ -377,6 +377,84 @@ export async function tavilyCoverage(keyword: string): Promise<Reading[]> {
 /* Scoring                                                             */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Source 6 — DataForSEO (absolute Google search volume)               */
+/* ------------------------------------------------------------------ */
+
+export type DfsResult = {
+  readings: Reading[];
+  /** 12 monthly search-volume points, oldest → newest. */
+  series: number[];
+  volume: number | null;
+};
+
+/**
+ * Google Ads search volume via DataForSEO. Gives absolute monthly searches and
+ * a 12-month history, which is stronger demand evidence than page views.
+ * Location code 2276 = Germany, 2840 = United States.
+ */
+export async function dataForSeoVolume(
+  keyword: string,
+  locationCode = 2840,
+  languageCode = "en",
+): Promise<DfsResult> {
+  const auth = process.env["DATAFORSEO_AUTH"];
+  const empty = (detail: string): DfsResult => ({
+    readings: [
+      { source: "DataForSEO", metric: "monthly_searches", value: null, detail, url: null },
+    ],
+    series: [],
+    volume: null,
+  });
+  if (!auth) return empty("no API key configured");
+  try {
+    const res = await fetch(
+      "https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+      {
+        method: "POST",
+        headers: { authorization: `Basic ${auth}`, "content-type": "application/json" },
+        body: JSON.stringify([
+          { keywords: [keyword], location_code: locationCode, language_code: languageCode },
+        ]),
+      },
+    );
+    const data = (await res.json()) as any;
+    if (data?.status_code !== 20000) {
+      return empty(`unavailable: ${data?.status_message ?? res.status}`);
+    }
+    const item = data?.tasks?.[0]?.result?.[0];
+    if (!item) return empty("no data for this keyword");
+    const months: Array<{ search_volume?: number }> = item.monthly_searches ?? [];
+    const series = months
+      .slice()
+      .reverse()
+      .map((m) => Number(m.search_volume ?? 0));
+    const volume: number | null =
+      typeof item.search_volume === "number" ? item.search_volume : null;
+    const competition = item.competition ? String(item.competition).toLowerCase() : null;
+    return {
+      readings: [
+        {
+          source: "DataForSEO",
+          metric: "monthly_searches",
+          value: volume,
+          detail:
+            volume === null
+              ? "no volume reported"
+              : `${volume.toLocaleString()} Google searches/mo${
+                  competition ? ` — ad competition ${competition}` : ""
+                }`,
+          url: null,
+        },
+      ],
+      series,
+      volume,
+    };
+  } catch (error) {
+    return empty(`unavailable: ${(error as Error).message}`);
+  }
+}
+
 
 function mean(xs: number[]): number {
   return xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -486,11 +564,17 @@ export async function collectKeyword(
   const hn = await hackerNews(keyword);
   const rd = await reddit(keyword);
   const tv = await tavilyCoverage(keyword);
+  const dfs = await dataForSeoVolume(keyword, geo === "DE" ? 2276 : 2840, geo === "DE" ? "de" : "en");
 
   const githubRepos = gh[0]?.value ?? null;
   const redditPosts = rd[0]?.value ?? null;
   const webArticles = tv[0]?.value ?? null;
-  const series = trends.series.length >= 8 ? trends.series : wiki.series;
+  const series =
+    dfs.series.length >= 8
+      ? dfs.series
+      : trends.series.length >= 8
+        ? trends.series
+        : wiki.series;
   const scored = score({
     series,
     hnRecent: hn.recent,
@@ -510,7 +594,15 @@ export async function collectKeyword(
     firstSeenAt: hn.firstSeenAt,
     why: explain({ ...scored, lead: scored.lead, firstSeenAt: hn.firstSeenAt }),
     series,
-    readings: [...trends.readings, ...wiki.readings, ...gh, ...hn.readings, ...rd, ...tv],
+    readings: [
+      ...dfs.readings,
+      ...trends.readings,
+      ...wiki.readings,
+      ...gh,
+      ...hn.readings,
+      ...rd,
+      ...tv,
+    ],
   };
 }
 
