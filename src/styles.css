@@ -163,15 +163,34 @@
 }
 
 @utility rule-thick {
-  border-top: 3px solid var(--color-foreground);
-  border-bottom: 1px solid var(--color-foreground);
-  height: 5px;
+  border-top: 2px solid var(--color-primary);
+  height: 2px;
 }
 
 @utility newsprint {
-  background-image: radial-gradient(
-    color-mix(in oklab, var(--color-foreground) 7%, transparent) 0.5px,
-    transparent 0.5px
-  );
-  background-size: 3px 3px;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-primary) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-primary) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+}
+
+@utility wave-drift {
+  animation: wave-drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes wave-drift {
+  from {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  to {
+    transform: translate3d(-4%, -1.5%, 0) scaleY(1.08);
+  }
 }
