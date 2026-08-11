@@ -171,7 +171,7 @@ function Crosswalk() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       Signal attention
                     </p>
-                    <Bars values={row.sigWeek} className="mt-1 text-muted-foreground" />
+                    <Bars values={row.sigWeek} className="mt-1 text-[color:var(--heat-3)]" />
                   </div>
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
