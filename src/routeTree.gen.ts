@@ -14,6 +14,7 @@ import { Route as CrosswalkRouteImport } from './routes/crosswalk'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as BriefSlugRouteImport } from './routes/brief.$slug'
 import { Route as ApiPublicHooksIngestRouteImport } from './routes/api/public/hooks/ingest'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const StoreRoute = StoreRouteImport.update({
   path: '/store',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BriefSlugRoute = BriefSlugRouteImport.update({
+  id: '/brief/$slug',
+  path: '/brief/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksIngestRoute = ApiPublicHooksIngestRouteImport.update({
   id: '/api/public/hooks/ingest',
   path: '/api/public/hooks/ingest',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
+  '/brief/$slug': typeof BriefSlugRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
+  '/brief/$slug': typeof BriefSlugRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
+  '/brief/$slug': typeof BriefSlugRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/graph'
     | '/radar'
     | '/store'
+    | '/brief/$slug'
     | '/api/public/hooks/ingest'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/graph'
     | '/radar'
     | '/store'
+    | '/brief/$slug'
     | '/api/public/hooks/ingest'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/graph'
     | '/radar'
     | '/store'
+    | '/brief/$slug'
     | '/api/public/hooks/ingest'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   GraphRoute: typeof GraphRoute
   RadarRoute: typeof RadarRoute
   StoreRoute: typeof StoreRoute
+  BriefSlugRoute: typeof BriefSlugRoute
   ApiPublicHooksIngestRoute: typeof ApiPublicHooksIngestRoute
 }
 
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brief/$slug': {
+      id: '/brief/$slug'
+      path: '/brief/$slug'
+      fullPath: '/brief/$slug'
+      preLoaderRoute: typeof BriefSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/ingest': {
       id: '/api/public/hooks/ingest'
       path: '/api/public/hooks/ingest'
@@ -161,18 +181,9 @@ const rootRouteChildren: RootRouteChildren = {
   GraphRoute: GraphRoute,
   RadarRoute: RadarRoute,
   StoreRoute: StoreRoute,
+  BriefSlugRoute: BriefSlugRoute,
   ApiPublicHooksIngestRoute: ApiPublicHooksIngestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
