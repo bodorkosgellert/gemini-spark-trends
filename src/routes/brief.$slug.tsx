@@ -73,12 +73,12 @@ function BriefPage() {
         <h1 className="mt-5 font-display text-5xl font-extrabold capitalize leading-none tracking-tight">
           {data?.brief.headline ?? slug.replace(/-/g, " ")}
         </h1>
-        <p className="mt-3 font-display text-lg italic text-muted-foreground">
+        <p className="mt-3 text-sm text-muted-foreground">
           Build brief for “{data?.keyword ?? slug.replace(/-/g, " ")}”
         </p>
 
         {isFetching && (
-          <p className="mt-10 font-display text-xl italic text-muted-foreground">
+          <p className="mt-10 text-base text-muted-foreground">
             The brief desk is reading the evidence…
           </p>
         )}

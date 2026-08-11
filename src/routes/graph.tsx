@@ -72,7 +72,7 @@ function AskTheGraph() {
       </div>
 
       {ask.isPending && (
-        <p className="mt-4 font-display text-lg italic text-muted-foreground">
+        <p className="mt-4 text-sm text-muted-foreground">
           Walking the graph — this takes a moment on a cold traversal…
         </p>
       )}
@@ -226,7 +226,7 @@ function GraphExplorer() {
           <h1 className="mt-5 font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
             The Web
           </h1>
-          <p className="mt-3 font-display text-lg italic text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Every demand tag wired to the app markets it would ship into
           </p>
           <div className="mt-5 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.3em]">

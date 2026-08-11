@@ -88,7 +88,7 @@ function Crosswalk() {
           <h1 className="mt-5 font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
             The Crosswalk
           </h1>
-          <p className="mt-3 font-display text-lg italic text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Two months of real launches, read backwards into the signals that came before them
           </p>
           <div className="mt-5 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.3em]">

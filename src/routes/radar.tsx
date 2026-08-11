@@ -71,7 +71,7 @@ function InlineBrief({ result }: { result: BriefResult }) {
   return (
     <div className="mt-4 border-t border-dotted border-border pt-3">
       <p className="font-display text-lg font-bold leading-tight">{b.headline}</p>
-      <p className="mt-1 text-[14px] leading-6 italic text-muted-foreground">{b.one_liner}</p>
+      <p className="mt-1 text-[14px] leading-6 text-muted-foreground">{b.one_liner}</p>
       <List title="Hero flow" items={b.hero_flow} />
       <div className="mt-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -249,7 +249,7 @@ function RadarPage() {
         </section>
 
         {signals.length === 0 ? (
-          <p className="mt-12 text-center font-display text-xl italic text-muted-foreground">
+          <p className="mt-12 text-center text-base text-muted-foreground">
             The wire is empty. Run the ingest hook to file the first edition.
           </p>
         ) : (
@@ -375,7 +375,7 @@ function RadarPage() {
         )}
 
         {signals.length > 0 && visible.length === 0 && (
-          <p className="mt-12 text-center font-display text-xl italic text-muted-foreground">
+          <p className="mt-12 text-center text-base text-muted-foreground">
             Nothing on the wire matches that. Try fewer tags.
           </p>
         )}
