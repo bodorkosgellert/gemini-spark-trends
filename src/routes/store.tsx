@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import data from "@/data/appstore-signals.json";
+import { heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 
 export const Route = createFileRoute("/store")({
   component: StoreLedger,
