@@ -86,7 +86,7 @@ function Index() {
       <SiteNav />
 
       <section className="relative overflow-hidden border-b border-border">
-        <BlueWaves className="absolute inset-x-0 bottom-0 h-[70%] w-[130%] opacity-90" />
+        <BlueWaves className="absolute inset-x-0 bottom-[-6%] h-[85%] w-full opacity-100" />
         <div className="relative mx-auto max-w-6xl px-5 pb-28 pt-20 sm:pt-28">
           <h1 className="font-display text-6xl font-extrabold leading-[0.92] tracking-[-0.04em] sm:text-8xl">
             TrendSpark

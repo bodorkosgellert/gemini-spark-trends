@@ -277,7 +277,7 @@ function RadarPage() {
                     {s.keyword}
                   </h2>
                   {detail !== "compact" && (
-                    <div className="mt-3 text-muted-foreground">
+                    <div className="mt-3 text-primary">
                       <Sparkline series={s.series ?? []} />
                     </div>
                   )}
