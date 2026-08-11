@@ -310,6 +310,70 @@ export async function reddit(keyword: string): Promise<Reading[]> {
 }
 
 /* ------------------------------------------------------------------ */
+/* Source 5 — Tavily (live web: is anyone writing about this now?)     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One Tavily search per keyword — the cheapest useful call. Returns how much
+ * fresh web coverage the topic has and the single most relevant source, which
+ * the Build Brief later uses as its "why now" citation.
+ */
+export async function tavilyCoverage(keyword: string): Promise<Reading[]> {
+  const key = process.env["TAVILY_API_KEY"];
+  if (!key) {
+    return [
+      {
+        source: "Tavily",
+        metric: "web_articles_30d",
+        value: null,
+        detail: "no API key configured",
+        url: null,
+      },
+    ];
+  }
+  try {
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        query: keyword,
+        topic: "news",
+        days: 30,
+        max_results: 10,
+        search_depth: "basic",
+      }),
+    });
+    if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 120)}`);
+    const data = (await res.json()) as {
+      results?: Array<{ title?: string; url?: string; score?: number }>;
+    };
+    const results = data.results ?? [];
+    const top = results[0];
+    return [
+      {
+        source: "Tavily",
+        metric: "web_articles_30d",
+        value: results.length,
+        detail: top?.title
+          ? `${results.length} fresh articles — top: "${top.title}"`
+          : `${results.length} fresh articles in the last 30 days`,
+        url: top?.url ?? null,
+      },
+    ];
+  } catch (error) {
+    return [
+      {
+        source: "Tavily",
+        metric: "web_articles_30d",
+        value: null,
+        detail: `unavailable: ${(error as Error).message}`,
+        url: null,
+      },
+    ];
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Scoring                                                             */
 /* ------------------------------------------------------------------ */
 
