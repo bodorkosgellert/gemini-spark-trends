@@ -485,14 +485,16 @@ export async function collectKeyword(
   await sleep(300);
   const hn = await hackerNews(keyword);
   const rd = await reddit(keyword);
+  const tv = await tavilyCoverage(keyword);
 
   const githubRepos = gh[0]?.value ?? null;
   const redditPosts = rd[0]?.value ?? null;
+  const webArticles = tv[0]?.value ?? null;
   const series = trends.series.length >= 8 ? trends.series : wiki.series;
   const scored = score({
     series,
     hnRecent: hn.recent,
-    redditPosts,
+    redditPosts: redditPosts === null ? webArticles : redditPosts + (webArticles ?? 0),
     githubRepos,
   });
 
@@ -508,7 +510,7 @@ export async function collectKeyword(
     firstSeenAt: hn.firstSeenAt,
     why: explain({ ...scored, lead: scored.lead, firstSeenAt: hn.firstSeenAt }),
     series,
-    readings: [...trends.readings, ...wiki.readings, ...gh, ...hn.readings, ...rd],
+    readings: [...trends.readings, ...wiki.readings, ...gh, ...hn.readings, ...rd, ...tv],
   };
 }
 
