@@ -564,11 +564,17 @@ export async function collectKeyword(
   const hn = await hackerNews(keyword);
   const rd = await reddit(keyword);
   const tv = await tavilyCoverage(keyword);
+  const dfs = await dataForSeoVolume(keyword, geo === "DE" ? 2276 : 2840, geo === "DE" ? "de" : "en");
 
   const githubRepos = gh[0]?.value ?? null;
   const redditPosts = rd[0]?.value ?? null;
   const webArticles = tv[0]?.value ?? null;
-  const series = trends.series.length >= 8 ? trends.series : wiki.series;
+  const series =
+    dfs.series.length >= 8
+      ? dfs.series
+      : trends.series.length >= 8
+        ? trends.series
+        : wiki.series;
   const scored = score({
     series,
     hnRecent: hn.recent,
@@ -588,7 +594,15 @@ export async function collectKeyword(
     firstSeenAt: hn.firstSeenAt,
     why: explain({ ...scored, lead: scored.lead, firstSeenAt: hn.firstSeenAt }),
     series,
-    readings: [...trends.readings, ...wiki.readings, ...gh, ...hn.readings, ...rd, ...tv],
+    readings: [
+      ...dfs.readings,
+      ...trends.readings,
+      ...wiki.readings,
+      ...gh,
+      ...hn.readings,
+      ...rd,
+      ...tv,
+    ],
   };
 }
 
