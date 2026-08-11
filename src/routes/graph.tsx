@@ -477,7 +477,10 @@ function GraphExplorer() {
                   <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     lead {c.tag.lead_weeks}w · r {c.tag.r.toFixed(2)}
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground md:text-right">
+                  <span
+                    className="font-mono text-[10px] uppercase tracking-[0.15em] md:text-right"
+                    style={{ color: heatColor(marketHeat(c.market)) }}
+                  >
                     opp {c.market.opportunity} · lock {Math.round(c.market.top3Share * 100)}%
                   </span>
                 </div>
