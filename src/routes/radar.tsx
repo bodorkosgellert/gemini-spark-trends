@@ -35,7 +35,7 @@ export const Route = createFileRoute("/radar")({
   }),
 });
 
-function Sparkline({ series }: { series: number[] }) {
+function Sparkline({ series, heat = 2 }: { series: number[]; heat?: number }) {
   if (series.length < 4) return null;
   const max = Math.max(...series, 1);
   const points = series
@@ -43,7 +43,12 @@ function Sparkline({ series }: { series: number[] }) {
     .join(" ");
   return (
     <svg viewBox="0 0 100 28" preserveAspectRatio="none" className="h-8 w-full">
-      <polyline points={points} fill="none" stroke="currentColor" strokeWidth="1" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke={heatColor(heat)}
+        strokeWidth={1.5 + heat * 0.25}
+      />
     </svg>
   );
 }
