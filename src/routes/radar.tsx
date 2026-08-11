@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { SiteNav } from "@/components/SiteNav";
-import { HEAT_LEGEND, heatIndexFromScore, heatStyle } from "@/lib/heat";
+import { HEAT_LEGEND, heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
 import { ALL_TAGS } from "@/lib/watchlist";
