@@ -47,6 +47,62 @@ function Sparkline({ series }: { series: number[] }) {
 }
 
 function Radar() {
+  return <RadarPage />;
+}
+
+function InlineBrief({ result }: { result: BriefResult }) {
+  const b = result.brief;
+  const List = ({ title, items }: { title: string; items: string[] }) =>
+    items?.length ? (
+      <div className="mt-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          {title}
+        </p>
+        <ul className="mt-1 list-disc space-y-1 pl-4 text-[13px] leading-5">
+          {items.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
+
+  return (
+    <div className="mt-4 border-t border-dotted border-border pt-3">
+      <p className="font-display text-lg font-bold leading-tight">{b.headline}</p>
+      <p className="mt-1 text-[14px] leading-6 italic text-muted-foreground">{b.one_liner}</p>
+      <List title="Hero flow" items={b.hero_flow} />
+      <div className="mt-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          Who pays
+        </p>
+        <p className="text-[13px] leading-5">{b.who_pays}</p>
+        <p className="mt-1 text-[13px] leading-5">{b.pricing}</p>
+      </div>
+      <List title="First week" items={b.first_week} />
+      <List title="Domain knowledge" items={b.domain_knowledge} />
+      <List title="Why this dies" items={b.why_this_dies} />
+      <div className="mt-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          Disproof
+        </p>
+        <p className="text-[13px] leading-5">{b.disproof}</p>
+      </div>
+      <details className="mt-3">
+        <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+          Copyable build prompt
+        </summary>
+        <pre className="mt-2 whitespace-pre-wrap border border-dotted border-border p-2 text-[12px] leading-5">
+          {b.build_prompt}
+        </pre>
+      </details>
+      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        {result.cached ? "Cached brief" : "Freshly generated"}
+      </p>
+    </div>
+  );
+}
+
+function RadarPage() {
   const { signals, evidence, lastRun } = Route.useLoaderData();
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
