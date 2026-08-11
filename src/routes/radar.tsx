@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
 import { ALL_TAGS } from "@/lib/watchlist";
 
@@ -46,11 +47,91 @@ function Sparkline({ series }: { series: number[] }) {
 }
 
 function Radar() {
+  return <RadarPage />;
+}
+
+function InlineBrief({ result }: { result: BriefResult }) {
+  const b = result.brief;
+  const List = ({ title, items }: { title: string; items: string[] }) =>
+    items?.length ? (
+      <div className="mt-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          {title}
+        </p>
+        <ul className="mt-1 list-disc space-y-1 pl-4 text-[13px] leading-5">
+          {items.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
+
+  return (
+    <div className="mt-4 border-t border-dotted border-border pt-3">
+      <p className="font-display text-lg font-bold leading-tight">{b.headline}</p>
+      <p className="mt-1 text-[14px] leading-6 italic text-muted-foreground">{b.one_liner}</p>
+      <List title="Hero flow" items={b.hero_flow} />
+      <div className="mt-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          Who pays
+        </p>
+        <p className="text-[13px] leading-5">{b.who_pays}</p>
+        <p className="mt-1 text-[13px] leading-5">{b.pricing}</p>
+      </div>
+      <List title="First week" items={b.first_week} />
+      <List title="Domain knowledge" items={b.domain_knowledge} />
+      <List title="Why this dies" items={b.why_this_dies} />
+      <div className="mt-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          Disproof
+        </p>
+        <p className="text-[13px] leading-5">{b.disproof}</p>
+      </div>
+      <details className="mt-3">
+        <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+          Copyable build prompt
+        </summary>
+        <pre className="mt-2 whitespace-pre-wrap border border-dotted border-border p-2 text-[12px] leading-5">
+          {b.build_prompt}
+        </pre>
+      </details>
+      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        {result.cached ? "Cached brief" : "Freshly generated"}
+      </p>
+    </div>
+  );
+}
+
+function RadarPage() {
   const { signals, evidence, lastRun } = Route.useLoaderData();
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [detail, setDetail] = useState<"compact" | "standard" | "full">("standard");
+  const [briefs, setBriefs] = useState<Record<string, BriefResult>>({});
+  const [loadingBrief, setLoadingBrief] = useState<string | null>(null);
+  const [briefError, setBriefError] = useState<Record<string, string>>({});
+
+  const loadBrief = async (slug: string) => {
+    if (briefs[slug]) {
+      setBriefs((prev) => {
+        const next = { ...prev };
+        delete next[slug];
+        return next;
+      });
+      return;
+    }
+    setLoadingBrief(slug);
+    setBriefError((prev) => ({ ...prev, [slug]: "" }));
+    try {
+      const result = await getBrief({ data: { slug } });
+      setBriefs((prev) => ({ ...prev, [slug]: result }));
+    } catch (error) {
+      setBriefError((prev) => ({ ...prev, [slug]: (error as Error).message }));
+    } finally {
+      setLoadingBrief(null);
+    }
+  };
 
   const evidenceBySignal = useMemo(() => {
     const map = new Map<string, EvidenceRow[]>();
@@ -212,13 +293,35 @@ function Radar() {
                   <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                     {s.tags.join(" · ")}
                   </p>
-                  <Link
-                    to="/brief/$slug"
-                    params={{ slug: s.slug }}
-                    className="mt-3 inline-block border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background"
-                  >
-                    Build brief →
-                  </Link>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void loadBrief(s.slug)}
+                      disabled={loadingBrief === s.slug}
+                      className="border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background disabled:opacity-50"
+                    >
+                      {loadingBrief === s.slug
+                        ? "Writing brief…"
+                        : briefs[s.slug]
+                          ? "Hide brief"
+                          : "Build brief"}
+                    </button>
+                    <Link
+                      to="/brief/$slug"
+                      params={{ slug: s.slug }}
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                    >
+                      Full page →
+                    </Link>
+                  </div>
+                  {briefError[s.slug] ? (
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+                      {briefError[s.slug]}
+                    </p>
+                  ) : null}
+                  {briefs[s.slug] ? (
+                    <InlineBrief result={briefs[s.slug]!} />
+                  ) : null}
                   {detail !== "compact" && (
                     <button
                       type="button"
