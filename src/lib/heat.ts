@@ -29,15 +29,16 @@ export function heatIndexFromScore(score: number): number {
 }
 
 export function heatColor(index: number): string {
-  return HEAT_STEPS[Math.max(0, Math.min(4, index))];
+  return HEAT_STEPS[Math.max(0, Math.min(4, index))] ?? HEAT_STEPS[0];
 }
 
 export function heatStyle(index: number): React.CSSProperties {
   const i = Math.max(0, Math.min(4, index));
+  const step = HEAT_STEPS[i] ?? HEAT_STEPS[0];
   return {
-    backgroundColor: `color-mix(in oklab, ${HEAT_STEPS[i]} ${18 + i * 18}%, white)`,
+    backgroundColor: `color-mix(in oklab, ${step} ${18 + i * 18}%, white)`,
     color: i >= 3 ? "var(--heat-5)" : "var(--foreground)",
-    borderColor: `color-mix(in oklab, ${HEAT_STEPS[i]} 55%, white)`,
+    borderColor: `color-mix(in oklab, ${step} 55%, white)`,
   };
 }
 
