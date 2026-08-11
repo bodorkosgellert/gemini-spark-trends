@@ -41,6 +41,41 @@ export type Database = {
         }
         Relationships: []
       }
+      signal_briefs: {
+        Row: {
+          brief: Json
+          created_at: string
+          id: string
+          model: string
+          score_bucket: number
+          signal_id: string
+        }
+        Insert: {
+          brief: Json
+          created_at?: string
+          id?: string
+          model: string
+          score_bucket: number
+          signal_id: string
+        }
+        Update: {
+          brief?: Json
+          created_at?: string
+          id?: string
+          model?: string
+          score_bucket?: number
+          signal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_briefs_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       signal_evidence: {
         Row: {
           detail: string | null

@@ -212,6 +212,13 @@ function Radar() {
                   <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                     {s.tags.join(" · ")}
                   </p>
+                  <Link
+                    to="/brief/$slug"
+                    params={{ slug: s.slug }}
+                    className="mt-3 inline-block border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background"
+                  >
+                    Build brief →
+                  </Link>
                   {detail !== "compact" && (
                     <button
                       type="button"
