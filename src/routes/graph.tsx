@@ -294,14 +294,14 @@ function GraphExplorer() {
               const a = tagPos.get(l.tag)!;
               const b = marketPos.get(l.market)!;
               const active = !neighbours || (neighbours.has(l.tag) && neighbours.has(l.market));
+              const m = markets.find((x) => x.query === l.market)!;
               return (
                 <path
                   key={i}
                   d={`M${a.x},${a.y} Q0,0 ${b.x},${b.y}`}
                   fill="none"
-                  stroke="currentColor"
-                  strokeWidth={active && neighbours ? 1.1 : 0.5}
-                  className={active ? "text-foreground" : "text-border"}
+                  stroke={heatColor(marketHeat(m))}
+                  strokeWidth={active && neighbours ? 1.4 : 0.6}
                   opacity={active ? (neighbours ? 0.55 : 0.22) : 0.06}
                 />
               );
@@ -318,7 +318,8 @@ function GraphExplorer() {
                     cx={p.x}
                     cy={p.y}
                     r={r}
-                    className="cursor-pointer fill-accent"
+                    className="cursor-pointer"
+                    style={{ fill: heatColor(marketHeat(m)) }}
                     onClick={() => setFocus(focus === m.query ? null : m.query)}
                   />
                   <text
