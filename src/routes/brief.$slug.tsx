@@ -86,7 +86,7 @@ function BriefPage() {
         )}
 
         {error && (
-          <div className="mt-10 border-2 border-foreground p-5">
+          <div className="mt-10 rounded-lg border border-border bg-secondary/40 p-5">
             <p className="text-[15px] leading-7">{(error as Error).message}</p>
             <button
               type="button"

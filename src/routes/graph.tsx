@@ -29,7 +29,7 @@ function AskTheGraph() {
   };
 
   return (
-    <section className="mt-8 border-2 border-foreground p-5">
+    <section className="mt-8 rounded-lg border border-border bg-secondary/40 p-5">
       <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
         Ask the graph
       </h2>
@@ -65,7 +65,7 @@ function AskTheGraph() {
             key={s}
             type="button"
             onClick={() => submit(s)}
-            className="border border-dotted border-border px-2 py-1 text-left font-mono text-[10px] text-muted-foreground hover:border-foreground hover:text-foreground"
+            className="border border-dotted border-border px-2 py-1 text-left font-mono text-[10px] text-muted-foreground hover:border-primary hover:text-primary"
           >
             {s}
           </button>
@@ -273,10 +273,10 @@ function GraphExplorer() {
           <button
             type="button"
             onClick={() => setLeadingOnly(!leadingOnly)}
-            className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+            className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
               leadingOnly
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
             }`}
           >
             Leading tags only
@@ -284,7 +284,7 @@ function GraphExplorer() {
           <button
             type="button"
             onClick={() => setFocus(null)}
-            className="border border-border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+            className="border border-border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
             Clear focus
           </button>

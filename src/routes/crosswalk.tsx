@@ -127,10 +127,10 @@ function Crosswalk() {
               key={s}
               type="button"
               onClick={() => setSort(s)}
-              className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                 sort === s
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               }`}
             >
               {s === "launches" ? "Volume" : s === "r" ? "Correlation" : "Significance"}
@@ -139,10 +139,10 @@ function Crosswalk() {
           <button
             type="button"
             onClick={() => setOnlySignificant((v) => !v)}
-            className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+            className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
               onlySignificant
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
             }`}
           >
             Leading tags only

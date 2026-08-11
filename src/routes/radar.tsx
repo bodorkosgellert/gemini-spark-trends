@@ -214,10 +214,10 @@ function RadarPage() {
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                  className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                     active
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary hover:text-primary"
                   }`}
                 >
                   {tag}
@@ -235,10 +235,10 @@ function RadarPage() {
                   key={level}
                   type="button"
                   onClick={() => setDetail(level)}
-                  className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                  className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                     detail === level
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                      : "border-border text-muted-foreground hover:border-primary hover:text-primary"
                   }`}
                 >
                   {level}
