@@ -407,6 +407,8 @@ export async function dataForSeoVolume(
     volume: null,
   });
   if (!auth) return empty("no API key configured");
+  const cached = dfsCache.get(dfsKey(keyword, locationCode));
+  if (cached) return cached;
   try {
     const res = await fetch(
       "https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
@@ -458,6 +460,85 @@ export async function dataForSeoVolume(
 
 function mean(xs: number[]): number {
   return xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length;
+}
+
+/* ------------------------------------------------------------------ */
+/* DataForSEO batch cache                                              */
+/* ------------------------------------------------------------------ */
+
+const dfsCache = new Map<string, DfsResult>();
+
+function dfsKey(keyword: string, locationCode: number): string {
+  return `${locationCode}:${keyword.toLowerCase()}`;
+}
+
+function dfsResultFromItem(item: any): DfsResult {
+  const months: Array<{ search_volume?: number }> = item?.monthly_searches ?? [];
+  const series = months
+    .slice()
+    .reverse()
+    .map((m) => Number(m.search_volume ?? 0));
+  const volume: number | null = typeof item?.search_volume === "number" ? item.search_volume : null;
+  const competition = item?.competition ? String(item.competition).toLowerCase() : null;
+  return {
+    readings: [
+      {
+        source: "DataForSEO",
+        metric: "monthly_searches",
+        value: volume,
+        detail:
+          volume === null
+            ? "no volume reported"
+            : `${volume.toLocaleString("en-US")} Google searches/mo${
+                competition ? ` — ad competition ${competition}` : ""
+              }`,
+        url: null,
+      },
+    ],
+    series,
+    volume,
+  };
+}
+
+/**
+ * One paid task for the whole watchlist instead of one per keyword.
+ * DataForSEO bills per task, so batching cuts the run cost by ~20x.
+ */
+export async function prefetchDataForSeo(
+  keywords: string[],
+  locationCode = 2840,
+  languageCode = "en",
+): Promise<{ fetched: number; cost: number; error: string | null }> {
+  const auth = process.env["DATAFORSEO_AUTH"];
+  if (!auth || keywords.length === 0) return { fetched: 0, cost: 0, error: "no API key" };
+  try {
+    const res = await fetch(
+      "https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+      {
+        method: "POST",
+        headers: { authorization: `Basic ${auth}`, "content-type": "application/json" },
+        body: JSON.stringify([
+          {
+            keywords: keywords.slice(0, 700).map((k) => k.toLowerCase()),
+            location_code: locationCode,
+            language_code: languageCode,
+          },
+        ]),
+      },
+    );
+    const data = (await res.json()) as any;
+    if (data?.status_code !== 20000) {
+      return { fetched: 0, cost: 0, error: data?.status_message ?? `http ${res.status}` };
+    }
+    const items: any[] = data?.tasks?.[0]?.result ?? [];
+    for (const item of items) {
+      if (!item?.keyword) continue;
+      dfsCache.set(dfsKey(String(item.keyword), locationCode), dfsResultFromItem(item));
+    }
+    return { fetched: items.length, cost: Number(data?.cost ?? 0), error: null };
+  } catch (error) {
+    return { fetched: 0, cost: 0, error: (error as Error).message };
+  }
 }
 
 /** Consecutive trailing weeks above the trailing-year baseline. */
