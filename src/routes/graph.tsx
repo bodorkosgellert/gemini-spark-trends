@@ -206,6 +206,11 @@ function GraphExplorer() {
   const focusMarket = markets.find((m) => m.query === focus) ?? null;
 
   const maxLaunch = Math.max(...tags.map((t) => t.app_launches), 1);
+  const maxOpp = Math.max(...markets.map((m) => m.opportunity), 1);
+  const maxR = Math.max(...tags.map((t) => t.r), 0.01);
+
+  const tagHeat = (t: TagRow) => Math.min(4, Math.floor((t.app_launches / maxLaunch) * 4));
+  const marketHeat = (m: MarketRow) => heatIndexFromScore(m.opportunity);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
