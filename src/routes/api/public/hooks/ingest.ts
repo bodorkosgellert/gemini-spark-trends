@@ -94,7 +94,42 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
             .eq("id", run.id);
         }
 
-        return Response.json({ processed, failed: failures.length, failures });
+        // Project the freshly scored signals into the Cognee knowledge graph.
+        // Best-effort: a graph failure must never fail the ingest run.
+        let graphed = 0;
+        try {
+          const { syncGraph } = await import("@/lib/cognee.server");
+          const { data: rows } = await supabaseAdmin
+            .from("signals")
+            .select(
+              "id, keyword, category, tags, demand_score, supply_score, opportunity_score, momentum, lead_weeks, why",
+            )
+            .order("opportunity_score", { ascending: false })
+            .limit(60);
+          const { data: evidence } = await supabaseAdmin
+            .from("signal_evidence")
+            .select("signal_id, source, metric, value, detail");
+
+          const result = await syncGraph(
+            (rows ?? []).map((row) => ({
+              keyword: row.keyword,
+              category: row.category,
+              tags: row.tags ?? [],
+              demand: row.demand_score,
+              supply: row.supply_score,
+              opportunity: row.opportunity_score,
+              momentum: row.momentum,
+              leadWeeks: row.lead_weeks,
+              why: row.why,
+              evidence: (evidence ?? []).filter((e) => e.signal_id === row.id),
+            })),
+          );
+          graphed = result.documents;
+        } catch (error) {
+          failures.push(`graph: ${(error as Error).message}`);
+        }
+
+        return Response.json({ processed, graphed, failed: failures.length, failures });
       },
     },
   },

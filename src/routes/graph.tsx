@@ -1,8 +1,97 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import crosswalk from "@/data/tag-crosswalk.json";
 import store from "@/data/appstore-signals.json";
+import { askTrendGraph } from "@/lib/cognee.functions";
+
+const SUGGESTED = [
+  "Which signal has rising demand but almost no supply, and what would you build first?",
+  "Which two signals share the same buyer, and could one product serve both?",
+  "Which signals look crowded and should be avoided this month?",
+];
+
+function AskTheGraph() {
+  const run = useServerFn(askTrendGraph);
+  const [question, setQuestion] = useState("");
+  const ask = useMutation({
+    mutationFn: (q: string) => run({ data: { question: q } }),
+  });
+
+  const submit = (q: string) => {
+    const trimmed = q.trim();
+    if (trimmed.length < 4) return;
+    setQuestion(trimmed);
+    ask.mutate(trimmed);
+  };
+
+  return (
+    <section className="mt-8 border-2 border-foreground p-5">
+      <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+        Ask the graph
+      </h2>
+      <p className="mt-2 text-[15px] leading-7">
+        The rings above are a fixed map. Underneath, every scored signal and its evidence is also
+        written into a knowledge graph, so you can ask it questions the table cannot answer.
+      </p>
+      <form
+        className="mt-4 flex flex-col gap-2 sm:flex-row"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submit(question);
+        }}
+      >
+        <input
+          value={question}
+          onChange={(event) => setQuestion(event.target.value)}
+          placeholder="Which unbuilt market sits next to a rising tag?"
+          className="flex-1 border border-foreground bg-background px-3 py-2 font-mono text-[12px] outline-none placeholder:text-muted-foreground focus:border-accent"
+        />
+        <button
+          type="submit"
+          disabled={ask.isPending}
+          className="border border-foreground px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background disabled:opacity-50"
+        >
+          {ask.isPending ? "Traversing…" : "Ask"}
+        </button>
+      </form>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {SUGGESTED.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => submit(s)}
+            className="border border-dotted border-border px-2 py-1 text-left font-mono text-[10px] text-muted-foreground hover:border-foreground hover:text-foreground"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {ask.isPending && (
+        <p className="mt-4 font-display text-lg italic text-muted-foreground">
+          Walking the graph — this takes a moment on a cold traversal…
+        </p>
+      )}
+      {ask.error && (
+        <p className="mt-4 border-l-2 border-accent pl-3 text-[15px] leading-7">
+          {(ask.error as Error).message}
+        </p>
+      )}
+      {ask.data && !ask.isPending && (
+        <div className="mt-4 border-t border-foreground pt-4">
+          <p className="whitespace-pre-wrap text-[15px] leading-7">{ask.data.answer}</p>
+          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+            Answered from the live signal graph
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
 
 export const Route = createFileRoute("/graph")({
   component: GraphExplorer,
@@ -175,6 +264,8 @@ function GraphExplorer() {
             </p>
           </aside>
         </section>
+
+        <AskTheGraph />
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
