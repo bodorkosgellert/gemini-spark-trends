@@ -57,7 +57,7 @@ export async function buildBriefForSlug(slug: string): Promise<BriefResult> {
       signal_id: signal.id,
       score_bucket: bucket,
       model: BRIEF_MODEL,
-      brief: brief as unknown as Record<string, unknown>,
+      brief: JSON.parse(JSON.stringify(brief)),
       created_at: createdAt,
     },
     { onConflict: "signal_id,score_bucket" },
