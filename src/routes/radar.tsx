@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
 import { ALL_TAGS } from "@/lib/watchlist";
 
@@ -51,6 +52,30 @@ function Radar() {
   const [tags, setTags] = useState<string[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [detail, setDetail] = useState<"compact" | "standard" | "full">("standard");
+  const [briefs, setBriefs] = useState<Record<string, BriefResult>>({});
+  const [loadingBrief, setLoadingBrief] = useState<string | null>(null);
+  const [briefError, setBriefError] = useState<Record<string, string>>({});
+
+  const loadBrief = async (slug: string) => {
+    if (briefs[slug]) {
+      setBriefs((prev) => {
+        const next = { ...prev };
+        delete next[slug];
+        return next;
+      });
+      return;
+    }
+    setLoadingBrief(slug);
+    setBriefError((prev) => ({ ...prev, [slug]: "" }));
+    try {
+      const result = await getBrief({ data: { slug } });
+      setBriefs((prev) => ({ ...prev, [slug]: result }));
+    } catch (error) {
+      setBriefError((prev) => ({ ...prev, [slug]: (error as Error).message }));
+    } finally {
+      setLoadingBrief(null);
+    }
+  };
 
   const evidenceBySignal = useMemo(() => {
     const map = new Map<string, EvidenceRow[]>();
@@ -212,13 +237,35 @@ function Radar() {
                   <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                     {s.tags.join(" · ")}
                   </p>
-                  <Link
-                    to="/brief/$slug"
-                    params={{ slug: s.slug }}
-                    className="mt-3 inline-block border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background"
-                  >
-                    Build brief →
-                  </Link>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void loadBrief(s.slug)}
+                      disabled={loadingBrief === s.slug}
+                      className="border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background disabled:opacity-50"
+                    >
+                      {loadingBrief === s.slug
+                        ? "Writing brief…"
+                        : briefs[s.slug]
+                          ? "Hide brief"
+                          : "Build brief"}
+                    </button>
+                    <Link
+                      to="/brief/$slug"
+                      params={{ slug: s.slug }}
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                    >
+                      Full page →
+                    </Link>
+                  </div>
+                  {briefError[s.slug] ? (
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+                      {briefError[s.slug]}
+                    </p>
+                  ) : null}
+                  {briefs[s.slug] ? (
+                    <InlineBrief result={briefs[s.slug]!} />
+                  ) : null}
                   {detail !== "compact" && (
                     <button
                       type="button"
