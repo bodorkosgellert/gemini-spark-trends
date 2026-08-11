@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import data from "@/data/tag-crosswalk.json";
+import { heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 
 export const Route = createFileRoute("/crosswalk")({
   component: Crosswalk,
@@ -28,20 +29,26 @@ export const Route = createFileRoute("/crosswalk")({
 
 type Row = (typeof data.rows)[number];
 
-function Bars({ values, className }: { values: number[]; className?: string }) {
+function Bars({ values }: { values: number[] }) {
   // Scale between the observed min and max so week-to-week variation is visible
-  const max = Math.max(...values);
+  const max = Math.max(...values, 1);
   const min = Math.min(...values);
   const span = max - min || 1;
   return (
-    <div className={`flex h-8 items-end gap-[2px] ${className ?? ""}`}>
-      {values.map((v, i) => (
-        <span
-          key={i}
-          className="flex-1 bg-current"
-          style={{ height: `${8 + ((v - min) / span) * 92}%` }}
-        />
-      ))}
+    <div className="flex h-8 items-end gap-[2px]">
+      {values.map((v, i) => {
+        const heat = Math.min(4, Math.floor(((v - min) / span) * 4));
+        return (
+          <span
+            key={i}
+            className="flex-1"
+            style={{
+              height: `${8 + ((v - min) / span) * 92}%`,
+              backgroundColor: heatColor(heat),
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -137,6 +144,9 @@ function Crosswalk() {
           {rows.map((row) => {
             const v = verdict(row);
             const isOpen = open === row.tag;
+            const launchHeat = Math.min(4, Math.floor((row.app_launches / 50) * 4));
+            const rHeat = Math.min(4, Math.floor(Math.max(0, row.r) * 4));
+            const leadHeat = Math.min(4, Math.floor(row.lead_weeks / 1.5));
             return (
               <article key={row.tag} className="border-b border-border py-4">
                 <div className="grid grid-cols-2 items-center gap-4 md:grid-cols-[1.3fr_repeat(4,0.6fr)_1fr]">
@@ -145,11 +155,21 @@ function Crosswalk() {
                   </h2>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Launches
-                    <div className="font-display text-lg text-foreground">{row.app_launches}</div>
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(launchHeat) }}
+                    >
+                      {row.app_launches}
+                    </div>
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     r
-                    <div className="font-display text-lg text-foreground">{row.r.toFixed(2)}</div>
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(rHeat) }}
+                    >
+                      {row.r.toFixed(2)}
+                    </div>
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     p
@@ -157,10 +177,16 @@ function Crosswalk() {
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Lead
-                    <div className="font-display text-lg text-foreground">{row.lead_weeks}w</div>
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(leadHeat) }}
+                    >
+                      {row.lead_weeks}w
+                    </div>
                   </div>
                   <div
-                    className={`font-mono text-[10px] uppercase tracking-[0.2em] ${v.tone} md:text-right`}
+                    className={`rounded-sm px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] md:text-right ${v.tone}`}
+                    style={v.label === "Significant lead" ? heatStyle(4) : undefined}
                   >
                     {v.label}
                   </div>
@@ -171,13 +197,17 @@ function Crosswalk() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       Signal attention
                     </p>
-                    <Bars values={row.sigWeek} className="mt-1 text-[color:var(--heat-3)]" />
+                    <div className="mt-1">
+                      <Bars values={row.sigWeek} />
+                    </div>
                   </div>
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       Launches shipped
                     </p>
-                    <Bars values={row.appWeek} className="mt-1 text-primary" />
+                    <div className="mt-1">
+                      <Bars values={row.appWeek} />
+                    </div>
                   </div>
                 </div>
 

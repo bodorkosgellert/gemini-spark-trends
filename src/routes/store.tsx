@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import data from "@/data/appstore-signals.json";
+import { heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 
 export const Route = createFileRoute("/store")({
   component: StoreLedger,
@@ -50,17 +51,25 @@ function YearBars({ hist }: { hist: Record<string, number> }) {
     .map(Number)
     .filter((y) => y >= 2012)
     .sort((a, b) => a - b);
-  const max = Math.max(...years.map((y) => hist[String(y)] ?? 0), 1);
+  const values = years.map((y) => hist[String(y)] ?? 0);
+  const max = Math.max(...values, 1);
   return (
     <div className="flex h-8 items-end gap-[2px]">
-      {years.map((y) => (
-        <span
-          key={y}
-          title={`${y}: ${hist[String(y)]} apps`}
-          className="flex-1 bg-current"
-          style={{ height: `${8 + ((hist[String(y)] ?? 0) / max) * 92}%` }}
-        />
-      ))}
+      {years.map((y, i) => {
+        const v = values[i] ?? 0;
+        const heat = Math.min(4, Math.floor((v / max) * 4));
+        return (
+          <span
+            key={y}
+            title={`${y}: ${v} apps`}
+            className="flex-1"
+            style={{
+              height: `${8 + (v / max) * 92}%`,
+              backgroundColor: heatColor(heat),
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -162,12 +171,18 @@ function StoreLedger() {
           {rows.map((row) => {
             const v = verdict(row);
             const isOpen = open === row.query;
+            const oppHeat = heatIndexFromScore(row.opportunity);
+            const freshHeat = Math.min(4, Math.floor(row.freshRate * 10));
+            const lockHeat = 4 - Math.min(4, Math.floor(row.top3Share * 4));
             return (
               <article key={row.query} className="border-b border-border py-4">
                 <div className="grid grid-cols-2 items-center gap-4 md:grid-cols-[1.4fr_repeat(4,0.6fr)_1fr]">
                   <h2 className="font-display text-2xl font-bold capitalize leading-tight">
                     {row.query}
-                    <span className="ml-2 font-mono text-[11px] font-normal text-primary">
+                    <span
+                      className="ml-2 rounded-sm border px-1.5 py-0.5 font-mono text-[11px] font-normal"
+                      style={heatStyle(oppHeat)}
+                    >
                       {row.opportunity}
                     </span>
                   </h2>
@@ -177,13 +192,19 @@ function StoreLedger() {
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Fresh
-                    <div className="font-display text-lg text-foreground">
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(freshHeat) }}
+                    >
                       {Math.round(row.freshRate * 100)}%
                     </div>
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Lock
-                    <div className="font-display text-lg text-foreground">
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(lockHeat) }}
+                    >
                       {Math.round(row.top3Share * 100)}%
                     </div>
                   </div>

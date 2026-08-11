@@ -116,12 +116,15 @@ function Index() {
 
       <section className="border-b border-border bg-secondary/40">
         <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-px px-5 py-8 sm:grid-cols-4">
-          {ledger.map((item) => (
+          {ledger.map((item, i) => (
             <div key={item.label} className="px-2">
               <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                 {item.label}
               </dt>
-              <dd className="mt-1 font-display text-3xl font-bold tracking-tight text-primary">
+              <dd
+                className="mt-1 inline-block rounded-sm border px-2 py-0.5 font-display text-3xl font-bold tracking-tight"
+                style={heatStyle([3, 4, 2, 4][i] ?? 3)}
+              >
                 {item.value}
               </dd>
             </div>

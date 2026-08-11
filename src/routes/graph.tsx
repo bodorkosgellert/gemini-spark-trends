@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import crosswalk from "@/data/tag-crosswalk.json";
 import store from "@/data/appstore-signals.json";
+import { heatColor, heatIndexFromScore } from "@/lib/heat";
 import { askTrendGraph } from "@/lib/cognee.functions";
 
 const SUGGESTED = [
@@ -205,6 +206,11 @@ function GraphExplorer() {
   const focusMarket = markets.find((m) => m.query === focus) ?? null;
 
   const maxLaunch = Math.max(...tags.map((t) => t.app_launches), 1);
+  const maxOpp = Math.max(...markets.map((m) => m.opportunity), 1);
+  const maxR = Math.max(...tags.map((t) => t.r), 0.01);
+
+  const tagHeat = (t: TagRow) => Math.min(4, Math.floor((t.app_launches / maxLaunch) * 4));
+  const marketHeat = (m: MarketRow) => heatIndexFromScore(m.opportunity);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -288,14 +294,14 @@ function GraphExplorer() {
               const a = tagPos.get(l.tag)!;
               const b = marketPos.get(l.market)!;
               const active = !neighbours || (neighbours.has(l.tag) && neighbours.has(l.market));
+              const m = markets.find((x) => x.query === l.market)!;
               return (
                 <path
                   key={i}
                   d={`M${a.x},${a.y} Q0,0 ${b.x},${b.y}`}
                   fill="none"
-                  stroke="currentColor"
-                  strokeWidth={active && neighbours ? 1.1 : 0.5}
-                  className={active ? "text-foreground" : "text-border"}
+                  stroke={heatColor(marketHeat(m))}
+                  strokeWidth={active && neighbours ? 1.4 : 0.6}
                   opacity={active ? (neighbours ? 0.55 : 0.22) : 0.06}
                 />
               );
@@ -312,7 +318,8 @@ function GraphExplorer() {
                     cx={p.x}
                     cy={p.y}
                     r={r}
-                    className="cursor-pointer fill-accent"
+                    className="cursor-pointer"
+                    style={{ fill: heatColor(marketHeat(m)) }}
                     onClick={() => setFocus(focus === m.query ? null : m.query)}
                   />
                   <text
@@ -331,6 +338,7 @@ function GraphExplorer() {
               const p = tagPos.get(t.tag)!;
               const leads = t.r > 0 && t.p <= 0.1;
               const r = 3 + (t.app_launches / maxLaunch) * 10;
+              const rHeat = Math.min(4, Math.floor((Math.max(0, t.r) / maxR) * 4));
               return (
                 <g
                   key={t.tag}
@@ -344,7 +352,8 @@ function GraphExplorer() {
                     r={r}
                     stroke="currentColor"
                     strokeWidth={1.2}
-                    className={leads ? "fill-foreground" : "fill-background"}
+                    style={{ fill: leads ? heatColor(rHeat) : undefined }}
+                    className={leads ? "fill-current" : "fill-background"}
                   />
                   <text
                     x={p.x}
@@ -468,7 +477,10 @@ function GraphExplorer() {
                   <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     lead {c.tag.lead_weeks}w · r {c.tag.r.toFixed(2)}
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground md:text-right">
+                  <span
+                    className="font-mono text-[10px] uppercase tracking-[0.15em] md:text-right"
+                    style={{ color: heatColor(marketHeat(c.market)) }}
+                  >
                     opp {c.market.opportunity} · lock {Math.round(c.market.top3Share * 100)}%
                   </span>
                 </div>
