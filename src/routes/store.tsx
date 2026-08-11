@@ -171,12 +171,18 @@ function StoreLedger() {
           {rows.map((row) => {
             const v = verdict(row);
             const isOpen = open === row.query;
+            const oppHeat = heatIndexFromScore(row.opportunity);
+            const freshHeat = Math.min(4, Math.floor(row.freshRate * 10));
+            const lockHeat = 4 - Math.min(4, Math.floor(row.top3Share * 4));
             return (
               <article key={row.query} className="border-b border-border py-4">
                 <div className="grid grid-cols-2 items-center gap-4 md:grid-cols-[1.4fr_repeat(4,0.6fr)_1fr]">
                   <h2 className="font-display text-2xl font-bold capitalize leading-tight">
                     {row.query}
-                    <span className="ml-2 font-mono text-[11px] font-normal text-primary">
+                    <span
+                      className="ml-2 rounded-sm border px-1.5 py-0.5 font-mono text-[11px] font-normal"
+                      style={heatStyle(oppHeat)}
+                    >
                       {row.opportunity}
                     </span>
                   </h2>
@@ -186,13 +192,19 @@ function StoreLedger() {
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Fresh
-                    <div className="font-display text-lg text-foreground">
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(freshHeat) }}
+                    >
                       {Math.round(row.freshRate * 100)}%
                     </div>
                   </div>
                   <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     Lock
-                    <div className="font-display text-lg text-foreground">
+                    <div
+                      className="font-display text-lg"
+                      style={{ color: heatColor(lockHeat) }}
+                    >
                       {Math.round(row.top3Share * 100)}%
                     </div>
                   </div>
