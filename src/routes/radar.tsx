@@ -11,7 +11,7 @@ export const Route = createFileRoute("/radar")({
   loader: () => listSignals(),
   component: Radar,
   errorComponent: () => (
-    <div className="newsprint min-h-screen bg-background p-10 text-center font-display text-2xl">
+    <div className="min-h-screen bg-background p-10 text-center font-display text-2xl">
       The presses jammed. Reload to try this edition again.
     </div>
   ),
@@ -90,7 +90,7 @@ function InlineBrief({ result }: { result: BriefResult }) {
         <p className="text-[13px] leading-5">{b.disproof}</p>
       </div>
       <details className="mt-3">
-        <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+        <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
           Copyable build prompt
         </summary>
         <pre className="mt-2 whitespace-pre-wrap border border-dotted border-border p-2 text-[12px] leading-5">
@@ -216,7 +216,7 @@ function RadarPage() {
                   onClick={() => toggleTag(tag)}
                   className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                     active
-                      ? "border-foreground bg-foreground text-background"
+                      ? "border-primary bg-primary text-primary-foreground"
                       : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
                   }`}
                 >
@@ -237,7 +237,7 @@ function RadarPage() {
                   onClick={() => setDetail(level)}
                   className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                     detail === level
-                      ? "border-foreground bg-foreground text-background"
+                      ? "border-primary bg-primary text-primary-foreground"
                       : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
                   }`}
                 >
@@ -306,7 +306,7 @@ function RadarPage() {
                       type="button"
                       onClick={() => void loadBrief(s.slug)}
                       disabled={loadingBrief === s.slug}
-                      className="border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background disabled:opacity-50"
+                      className="border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
                     >
                       {loadingBrief === s.slug
                         ? "Writing brief…"
@@ -317,13 +317,13 @@ function RadarPage() {
                     <Link
                       to="/brief/$slug"
                       params={{ slug: s.slug }}
-                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
                     >
                       Full page →
                     </Link>
                   </div>
                   {briefError[s.slug] ? (
-                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
                       {briefError[s.slug]}
                     </p>
                   ) : null}
@@ -338,7 +338,7 @@ function RadarPage() {
                           ? setOpen(isOpen ? `closed-${s.id}` : null)
                           : setOpen(isOpen ? null : s.id)
                       }
-                      className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                      className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
                     >
                       {isOpen ? "Hide evidence" : `Evidence (${rows.length})`}
                     </button>
@@ -380,7 +380,7 @@ function RadarPage() {
           </p>
         )}
 
-        <footer className="mt-16 border-t-2 border-foreground pt-5 text-center">
+        <footer className="mt-16 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Opportunity = demand discounted by the tooling already shipped. Not investment advice.
           </p>

@@ -38,9 +38,9 @@ const COUNTRY_NAMES: Record<string, string> = {
 
 function verdict(row: Row) {
   if (row.top3Share >= 0.8) return { label: "Locked by incumbents", tone: "text-muted-foreground" };
-  if (row.freshRate >= 0.4) return { label: "Being rebuilt now", tone: "text-accent" };
+  if (row.freshRate >= 0.4) return { label: "Being rebuilt now", tone: "text-primary" };
   if (row.freshRate <= 0.12 && row.ratingsTotal > 500_000)
-    return { label: "Stale but proven", tone: "text-accent" };
+    return { label: "Stale but proven", tone: "text-primary" };
   return { label: "Contested", tone: "text-foreground" };
 }
 
@@ -83,36 +83,36 @@ function StoreLedger() {
   const totalApps = (data.rows as Row[]).reduce((s, r) => s + r.supply, 0);
 
   return (
-    <div className="newsprint min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
         <header className="text-center">
           <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <Link to="/" className="hover:text-accent">
+            <Link to="/" className="hover:text-primary">
               ← Front page
             </Link>
-            <Link to="/crosswalk" className="hover:text-accent">
+            <Link to="/crosswalk" className="hover:text-primary">
               The Crosswalk →
             </Link>
-            <Link to="/graph" className="hover:text-accent">
+            <Link to="/graph" className="hover:text-primary">
               The Web →
             </Link>
           </div>
           <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-6xl">
+          <h1 className="mt-5 font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
             The Store Ledger
           </h1>
           <p className="mt-3 font-display text-lg italic text-muted-foreground">
             What the App Store already sells, who owns it, and where the shelf is still empty
           </p>
-          <div className="mt-5 border-y border-foreground py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <div className="mt-5 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
             {data.rows.length} categories · {totalApps.toLocaleString()} listings ·{" "}
             {data.countries.length} storefronts
           </div>
         </header>
 
-        <section className="mt-8 grid gap-6 border-b border-foreground pb-6 md:grid-cols-[2fr_1fr]">
+        <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
           <p className="text-[16px] leading-7">
-            <span className="float-left mr-2 font-display text-6xl font-black leading-[0.8]">T</span>
+            <span className="float-left mr-2 font-display text-6xl font-extrabold leading-[0.8]">T</span>
             he Radar measures whether people are paying attention. This ledger measures whether anyone
             has already built the thing. For every category we query six European storefronts, collect
             every listing Apple returns, and read four numbers off them: total supply, the share of
@@ -158,7 +158,7 @@ function StoreLedger() {
               onClick={() => setSort(key)}
               className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                 sort === key
-                  ? "border-foreground bg-foreground text-background"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
               }`}
             >
@@ -167,7 +167,7 @@ function StoreLedger() {
           ))}
         </div>
 
-        <div className="mt-6 border-t-2 border-foreground">
+        <div className="mt-6 border-t border-border">
           {rows.map((row) => {
             const v = verdict(row);
             const isOpen = open === row.query;
@@ -176,7 +176,7 @@ function StoreLedger() {
                 <div className="grid grid-cols-2 items-center gap-4 md:grid-cols-[1.4fr_repeat(4,0.6fr)_1fr]">
                   <h2 className="font-display text-2xl font-bold capitalize leading-tight">
                     {row.query}
-                    <span className="ml-2 font-mono text-[11px] font-normal text-accent">
+                    <span className="ml-2 font-mono text-[11px] font-normal text-primary">
                       {row.opportunity}
                     </span>
                   </h2>
@@ -235,7 +235,7 @@ function StoreLedger() {
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : row.query)}
-                  className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                  className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
                 >
                   {isOpen ? "Hide incumbents" : `Who holds the shelf (${row.top.length})`}
                 </button>
@@ -271,8 +271,8 @@ function StoreLedger() {
           })}
         </div>
 
-        <section className="mt-12 border-t-2 border-foreground pt-6">
-          <h2 className="font-display text-3xl font-black">Today at the top of the charts</h2>
+        <section className="mt-12 border-t border-border pt-6">
+          <h2 className="font-display text-3xl font-extrabold">Today at the top of the charts</h2>
           <p className="mt-2 max-w-2xl text-[15px] leading-7 text-muted-foreground">
             The fifty free apps currently ranking highest in each storefront, reduced to their
             category mix. Where a country's mix differs from its neighbours, local demand is doing
@@ -307,7 +307,7 @@ function StoreLedger() {
           </div>
         </section>
 
-        <footer className="mt-12 border-t-2 border-foreground pt-5 text-center">
+        <footer className="mt-12 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Ledger compiled {new Date(data.generatedAt).toUTCString().slice(5, 16)} · sources: Apple
             iTunes Search API, Apple App Store charts feed
