@@ -1,6 +1,5 @@
 # Trend Spark
 
-hello. I am at a hackathon in Berlin summerup can you tell me how long it would take to get a webapp out of this do you have tips how to win the hackathon or generate profits? I have two pdfs with gemini since the beginning of the hackathon for context https://github.com/bodorkosgellert/trendspark
 
 This project was built with [Lovable](https://lovable.dev).
 
