@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
@@ -46,7 +47,7 @@ function Bars({ values, className }: { values: number[]; className?: string }) {
 }
 
 function verdict(row: Row) {
-  if (row.p <= 0.05 && row.r > 0) return { label: "Significant lead", tone: "text-accent" };
+  if (row.p <= 0.05 && row.r > 0) return { label: "Significant lead", tone: "text-primary" };
   if (row.p <= 0.15 && row.r > 0) return { label: "Suggestive", tone: "text-foreground" };
   if (row.r < -0.5) return { label: "Runs opposite", tone: "text-muted-foreground" };
   return { label: "Noise", tone: "text-muted-foreground" };
@@ -65,41 +66,26 @@ function Crosswalk() {
   }, [sort, onlySignificant]);
 
   return (
-    <div className="newsprint min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
-        <header className="text-center">
-          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <Link to="/" className="hover:text-accent">
-              ← Front page
-            </Link>
-            <span className="flex gap-4">
-              <Link to="/store" className="hover:text-accent">
-                The Store Ledger
-              </Link>
-              <Link to="/graph" className="hover:text-accent">
-                The Web
-              </Link>
-              <Link to="/radar" className="hover:text-accent">
-                The Radar →
-              </Link>
-            </span>
-          </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-6xl">
+        <header>
+          
+          <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             The Crosswalk
           </h1>
-          <p className="mt-3 font-display text-lg italic text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Two months of real launches, read backwards into the signals that came before them
           </p>
-          <div className="mt-5 border-y border-foreground py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {data.launchesScanned.toLocaleString()} launches scanned · {data.launchesTagged} tagged ·{" "}
             {data.weeks.length} weeks · {data.windowStart} → {data.windowEnd}
           </div>
         </header>
 
-        <section className="mt-8 grid gap-6 border-b border-foreground pb-6 md:grid-cols-[2fr_1fr]">
+        <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
           <p className="text-[16px] leading-7">
-            <span className="float-left mr-2 font-display text-6xl font-black leading-[0.8]">W</span>
+            <span className="float-left mr-2 font-display text-6xl font-extrabold leading-[0.8]">W</span>
             e pulled every Show HN post and every GitHub repository above fifteen stars created in the
             last sixty days, tagged each one from its title, description and topics, then lined the
             weekly launch counts up against the weekly attention behind our own demand tags. For each
@@ -125,10 +111,10 @@ function Crosswalk() {
               key={s}
               type="button"
               onClick={() => setSort(s)}
-              className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                 sort === s
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               }`}
             >
               {s === "launches" ? "Volume" : s === "r" ? "Correlation" : "Significance"}
@@ -137,17 +123,17 @@ function Crosswalk() {
           <button
             type="button"
             onClick={() => setOnlySignificant((v) => !v)}
-            className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+            className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
               onlySignificant
-                ? "border-foreground bg-foreground text-background"
-                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
             }`}
           >
             Leading tags only
           </button>
         </div>
 
-        <div className="mt-6 border-t-2 border-foreground">
+        <div className="mt-6 border-t border-border">
           {rows.map((row) => {
             const v = verdict(row);
             const isOpen = open === row.tag;
@@ -185,13 +171,13 @@ function Crosswalk() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       Signal attention
                     </p>
-                    <Bars values={row.sigWeek} className="mt-1 text-muted-foreground" />
+                    <Bars values={row.sigWeek} className="mt-1 text-[color:var(--heat-3)]" />
                   </div>
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       Launches shipped
                     </p>
-                    <Bars values={row.appWeek} className="mt-1 text-accent" />
+                    <Bars values={row.appWeek} className="mt-1 text-primary" />
                   </div>
                 </div>
 
@@ -199,7 +185,7 @@ function Crosswalk() {
                   <button
                     type="button"
                     onClick={() => setOpen(isOpen ? null : row.tag)}
-                    className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                    className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
                   >
                     {isOpen ? "Hide launches" : `Matched launches (${row.examples.length})`}
                   </button>
@@ -233,7 +219,7 @@ function Crosswalk() {
           })}
         </div>
 
-        <footer className="mt-12 border-t-2 border-foreground pt-5 text-center">
+        <footer className="mt-12 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Backfill compiled {new Date(data.generatedAt).toUTCString().slice(5, 16)} · sources: Hacker
             News Algolia, GitHub Search, Wikimedia Pageviews

@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -30,8 +31,8 @@ export const Route = createFileRoute("/brief/$slug")({
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-foreground pt-4">
-      <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">{title}</h2>
+    <section className="border-t border-border pt-4">
+      <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">{title}</h2>
       <div className="mt-2 text-[15px] leading-7">{children}</div>
     </section>
   );
@@ -60,36 +61,37 @@ function BriefPage() {
   });
 
   return (
-    <div className="newsprint min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-3xl px-5 pb-24 pt-8">
         <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-          <Link to="/radar" className="hover:text-accent">
+          <Link to="/radar" className="hover:text-primary">
             ← The Radar
           </Link>
           <span>{data ? (data.cached ? "Filed earlier" : "Written just now") : "Brief desk"}</span>
         </div>
-        <div className="mt-4 rule-thick" />
+        
 
-        <h1 className="mt-5 font-display text-5xl font-black capitalize leading-none tracking-tight">
+        <h1 className="mt-5 font-display text-5xl font-extrabold capitalize leading-none tracking-tight">
           {data?.brief.headline ?? slug.replace(/-/g, " ")}
         </h1>
-        <p className="mt-3 font-display text-lg italic text-muted-foreground">
+        <p className="mt-3 text-sm text-muted-foreground">
           Build brief for “{data?.keyword ?? slug.replace(/-/g, " ")}”
         </p>
 
         {isFetching && (
-          <p className="mt-10 font-display text-xl italic text-muted-foreground">
+          <p className="mt-10 text-base text-muted-foreground">
             The brief desk is reading the evidence…
           </p>
         )}
 
         {error && (
-          <div className="mt-10 border-2 border-foreground p-5">
+          <div className="mt-10 rounded-lg border border-border bg-secondary/40 p-5">
             <p className="text-[15px] leading-7">{(error as Error).message}</p>
             <button
               type="button"
               onClick={() => refetch()}
-              className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+              className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
             >
               Try again
             </button>
@@ -98,7 +100,7 @@ function BriefPage() {
 
         {data && !isFetching && (
           <div className="mt-8 space-y-7">
-            <dl className="grid grid-cols-4 gap-2 border-y border-foreground py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+            <dl className="grid grid-cols-4 gap-2 border-y border-border py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
               {[
                 ["Demand", data.demand],
                 ["Supply", data.supply],
@@ -141,13 +143,13 @@ function BriefPage() {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
               >
                 {copied ? "Copied" : "Copy prompt"}
               </button>
             </Block>
 
-            <p className="border-t-2 border-foreground pt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+            <p className="border-t border-border pt-4 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               Written from live evidence · cached until the opportunity score moves 10 points · not
               investment advice
             </p>

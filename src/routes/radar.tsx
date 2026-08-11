@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { SiteNav } from "@/components/SiteNav";
+import { HEAT_LEGEND, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
 import { ALL_TAGS } from "@/lib/watchlist";
@@ -9,7 +11,7 @@ export const Route = createFileRoute("/radar")({
   loader: () => listSignals(),
   component: Radar,
   errorComponent: () => (
-    <div className="newsprint min-h-screen bg-background p-10 text-center font-display text-2xl">
+    <div className="min-h-screen bg-background p-10 text-center font-display text-2xl">
       The presses jammed. Reload to try this edition again.
     </div>
   ),
@@ -69,7 +71,7 @@ function InlineBrief({ result }: { result: BriefResult }) {
   return (
     <div className="mt-4 border-t border-dotted border-border pt-3">
       <p className="font-display text-lg font-bold leading-tight">{b.headline}</p>
-      <p className="mt-1 text-[14px] leading-6 italic text-muted-foreground">{b.one_liner}</p>
+      <p className="mt-1 text-[14px] leading-6 text-muted-foreground">{b.one_liner}</p>
       <List title="Hero flow" items={b.hero_flow} />
       <div className="mt-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
@@ -88,7 +90,7 @@ function InlineBrief({ result }: { result: BriefResult }) {
         <p className="text-[13px] leading-5">{b.disproof}</p>
       </div>
       <details className="mt-3">
-        <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+        <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
           Copyable build prompt
         </summary>
         <pre className="mt-2 whitespace-pre-wrap border border-dotted border-border p-2 text-[12px] leading-5">
@@ -161,40 +163,38 @@ function RadarPage() {
     setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
 
   return (
-    <div className="newsprint min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-6xl px-5 pb-24 pt-8">
-        <header className="text-center">
-          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <Link to="/" className="hover:text-accent">
-              ← Front page
-            </Link>
-            <span className="flex gap-4">
-              <Link to="/crosswalk" className="hover:text-accent">
-                The Crosswalk
-              </Link>
-              <Link to="/store" className="hover:text-accent">
-                The Store Ledger →
-              </Link>
-            </span>
-            <span>
-              {lastRun?.finished_at
-                ? `Filed ${new Date(lastRun.finished_at).toUTCString().slice(5, 22)} UTC`
-                : "Awaiting first run"}
-            </span>
-          </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-7xl">
-            The Radar
-          </h1>
-          <p className="mt-3 font-display text-lg italic text-muted-foreground">
-            Demand scored against the supply already shipped
+    <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
+      <div className="mx-auto max-w-6xl px-5 pb-24 pt-10">
+        <header>
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+            {lastRun?.finished_at
+              ? `Last run ${new Date(lastRun.finished_at).toUTCString().slice(5, 22)} UTC`
+              : "Awaiting first run"}
           </p>
-          <div className="mt-5 border-y border-foreground py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
-            Wikipedia attention · GitHub supply · Hacker News t₀ · Google Trends
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+            Radar
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Demand scored against the supply already shipped · Wikipedia · GitHub · Hacker News ·
+            Tavily
+          </p>
+          <div className="mt-5 flex items-center gap-2">
+            {HEAT_LEGEND.map((l) => (
+              <div key={l.label} className="text-center">
+                <div className="h-5 w-10 rounded-sm border" style={heatStyle(l.index)} />
+                <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+                  {l.label}
+                </span>
+              </div>
+            ))}
+            <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Colour = score intensity
+            </span>
           </div>
         </header>
 
-        <section className="mt-8 border-b border-foreground pb-6">
+        <section className="mt-8 border-b border-border pb-6">
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               Search the wire
@@ -203,7 +203,7 @@ function RadarPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="voice, compliance, agents…"
-              className="mt-2 w-full border-b-2 border-foreground bg-transparent pb-2 font-display text-2xl outline-none placeholder:text-muted-foreground/60"
+              className="mt-2 w-full border-b-2 border-primary bg-transparent pb-2 font-display text-2xl outline-none placeholder:text-muted-foreground/60"
             />
           </label>
           <div className="mt-5 flex flex-wrap gap-2">
@@ -214,10 +214,10 @@ function RadarPage() {
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                  className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                     active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-primary hover:text-primary"
                   }`}
                 >
                   {tag}
@@ -235,10 +235,10 @@ function RadarPage() {
                   key={level}
                   type="button"
                   onClick={() => setDetail(level)}
-                  className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                  className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
                     detail === level
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-primary hover:text-primary"
                   }`}
                 >
                   {level}
@@ -249,7 +249,7 @@ function RadarPage() {
         </section>
 
         {signals.length === 0 ? (
-          <p className="mt-12 text-center font-display text-xl italic text-muted-foreground">
+          <p className="mt-12 text-center text-base text-muted-foreground">
             The wire is empty. Run the ingest hook to file the first edition.
           </p>
         ) : (
@@ -258,20 +258,26 @@ function RadarPage() {
               const rows = evidenceBySignal.get(s.id) ?? [];
               const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
               return (
-                <article key={s.id} className="border-t-2 border-foreground pt-4">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+                <article
+                  key={s.id}
+                  className="rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-[0_1px_24px_-10px_var(--heat-4)]"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       {s.category}
                     </span>
-                    <span className="font-display text-3xl font-bold leading-none">
+                    <span
+                      className="rounded-sm border px-2 py-0.5 font-mono text-sm font-semibold"
+                      style={heatStyle(heatIndexFromScore(s.opportunity_score))}
+                    >
                       {s.opportunity_score}
                     </span>
                   </div>
-                  <h2 className="mt-2 font-display text-2xl font-bold capitalize leading-tight">
+                  <h2 className="mt-2 font-display text-xl font-bold capitalize leading-snug tracking-tight">
                     {s.keyword}
                   </h2>
                   {detail !== "compact" && (
-                    <div className="mt-3 text-muted-foreground">
+                    <div className="mt-3 text-primary">
                       <Sparkline series={s.series ?? []} />
                     </div>
                   )}
@@ -289,8 +295,10 @@ function RadarPage() {
                       <dd className="font-display text-lg text-foreground">{s.lead_weeks}w</dd>
                     </div>
                   </dl>
-                  {detail !== "compact" && <p className="mt-3 text-[15px] leading-7">{s.why}</p>}
-                  <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  {detail !== "compact" && (
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{s.why}</p>
+                  )}
+                  <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
                     {s.tags.join(" · ")}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -298,7 +306,7 @@ function RadarPage() {
                       type="button"
                       onClick={() => void loadBrief(s.slug)}
                       disabled={loadingBrief === s.slug}
-                      className="border border-foreground px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background disabled:opacity-50"
+                      className="border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
                     >
                       {loadingBrief === s.slug
                         ? "Writing brief…"
@@ -309,13 +317,13 @@ function RadarPage() {
                     <Link
                       to="/brief/$slug"
                       params={{ slug: s.slug }}
-                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                      className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
                     >
                       Full page →
                     </Link>
                   </div>
                   {briefError[s.slug] ? (
-                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
                       {briefError[s.slug]}
                     </p>
                   ) : null}
@@ -330,7 +338,7 @@ function RadarPage() {
                           ? setOpen(isOpen ? `closed-${s.id}` : null)
                           : setOpen(isOpen ? null : s.id)
                       }
-                      className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-accent hover:underline"
+                      className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
                     >
                       {isOpen ? "Hide evidence" : `Evidence (${rows.length})`}
                     </button>
@@ -367,12 +375,12 @@ function RadarPage() {
         )}
 
         {signals.length > 0 && visible.length === 0 && (
-          <p className="mt-12 text-center font-display text-xl italic text-muted-foreground">
+          <p className="mt-12 text-center text-base text-muted-foreground">
             Nothing on the wire matches that. Try fewer tags.
           </p>
         )}
 
-        <footer className="mt-16 border-t-2 border-foreground pt-5 text-center">
+        <footer className="mt-16 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Opportunity = demand discounted by the tooling already shipped. Not investment advice.
           </p>

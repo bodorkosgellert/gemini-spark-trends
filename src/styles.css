@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-display: "Playfair Display", "Times New Roman", serif;
-  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-serif: "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -26,6 +27,11 @@
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+  --color-heat-5: var(--heat-5);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
@@ -68,31 +74,37 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.965 0.011 85);
-  --foreground: oklch(0.19 0.008 60);
-  --card: oklch(0.982 0.008 85);
-  --card-foreground: oklch(0.19 0.008 60);
-  --popover: oklch(0.982 0.008 85);
-  --popover-foreground: oklch(0.19 0.008 60);
-  --primary: oklch(0.19 0.008 60);
-  --primary-foreground: oklch(0.965 0.011 85);
-  --secondary: oklch(0.93 0.013 85);
-  --secondary-foreground: oklch(0.19 0.008 60);
-  --muted: oklch(0.93 0.013 85);
-  --muted-foreground: oklch(0.47 0.012 70);
-  --accent: oklch(0.46 0.18 25);
-  --accent-foreground: oklch(0.98 0.008 85);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.78 0.014 75);
-  --input: oklch(0.78 0.014 75);
-  --ring: oklch(0.46 0.18 25);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.375rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.19 0.02 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.02 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.02 255);
+  --primary: oklch(0.55 0.22 259);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.968 0.008 255);
+  --secondary-foreground: oklch(0.28 0.03 258);
+  --muted: oklch(0.968 0.008 255);
+  --muted-foreground: oklch(0.53 0.02 257);
+  --accent: oklch(0.55 0.22 259);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.58 0.21 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.905 0.012 255);
+  --input: oklch(0.905 0.012 255);
+  --ring: oklch(0.55 0.22 259);
+  /* Heat scale: brighter / more saturated blue = fresher, higher intensity */
+  --heat-1: oklch(0.93 0.03 255);
+  --heat-2: oklch(0.85 0.07 256);
+  --heat-3: oklch(0.72 0.13 257);
+  --heat-4: oklch(0.62 0.19 258);
+  --heat-5: oklch(0.5 0.23 262);
+  --chart-1: oklch(0.55 0.22 259);
+  --chart-2: oklch(0.68 0.15 245);
+  --chart-3: oklch(0.42 0.16 265);
+  --chart-4: oklch(0.78 0.1 240);
+  --chart-5: oklch(0.6 0.11 230);
   --sidebar: oklch(0.984 0.003 247.858);
   --sidebar-foreground: oklch(0.129 0.042 264.695);
   --sidebar-primary: oklch(0.208 0.042 265.755);
@@ -151,15 +163,34 @@
 }
 
 @utility rule-thick {
-  border-top: 3px solid var(--color-foreground);
-  border-bottom: 1px solid var(--color-foreground);
-  height: 5px;
+  border-top: 2px solid var(--color-primary);
+  height: 2px;
 }
 
 @utility newsprint {
-  background-image: radial-gradient(
-    color-mix(in oklab, var(--color-foreground) 7%, transparent) 0.5px,
-    transparent 0.5px
-  );
-  background-size: 3px 3px;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-primary) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-primary) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+}
+
+@utility wave-drift {
+  animation: wave-drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes wave-drift {
+  from {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  to {
+    transform: translate3d(-4%, -1.5%, 0) scaleY(1.08);
+  }
 }

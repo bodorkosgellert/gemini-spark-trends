@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -28,8 +29,8 @@ function AskTheGraph() {
   };
 
   return (
-    <section className="mt-8 border-2 border-foreground p-5">
-      <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+    <section className="mt-8 rounded-lg border border-border bg-secondary/40 p-5">
+      <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
         Ask the graph
       </h2>
       <p className="mt-2 text-[15px] leading-7">
@@ -47,12 +48,12 @@ function AskTheGraph() {
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
           placeholder="Which unbuilt market sits next to a rising tag?"
-          className="flex-1 border border-foreground bg-background px-3 py-2 font-mono text-[12px] outline-none placeholder:text-muted-foreground focus:border-accent"
+          className="flex-1 border border-border bg-background px-3 py-2 font-mono text-[12px] outline-none placeholder:text-muted-foreground focus:border-accent"
         />
         <button
           type="submit"
           disabled={ask.isPending}
-          className="border border-foreground px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background disabled:opacity-50"
+          className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
         >
           {ask.isPending ? "Traversing…" : "Ask"}
         </button>
@@ -64,7 +65,7 @@ function AskTheGraph() {
             key={s}
             type="button"
             onClick={() => submit(s)}
-            className="border border-dotted border-border px-2 py-1 text-left font-mono text-[10px] text-muted-foreground hover:border-foreground hover:text-foreground"
+            className="border border-dotted border-border px-2 py-1 text-left font-mono text-[10px] text-muted-foreground hover:border-primary hover:text-primary"
           >
             {s}
           </button>
@@ -72,17 +73,17 @@ function AskTheGraph() {
       </div>
 
       {ask.isPending && (
-        <p className="mt-4 font-display text-lg italic text-muted-foreground">
+        <p className="mt-4 text-sm text-muted-foreground">
           Walking the graph — this takes a moment on a cold traversal…
         </p>
       )}
       {ask.error && (
-        <p className="mt-4 border-l-2 border-accent pl-3 text-[15px] leading-7">
+        <p className="mt-4 border-l-2 border-primary pl-3 text-[15px] leading-7">
           {(ask.error as Error).message}
         </p>
       )}
       {ask.data && !ask.isPending && (
-        <div className="mt-4 border-t border-foreground pt-4">
+        <div className="mt-4 border-t border-border pt-4">
           <p className="whitespace-pre-wrap text-[15px] leading-7">{ask.data.answer}</p>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Answered from the live signal graph
@@ -206,37 +207,25 @@ function GraphExplorer() {
   const maxLaunch = Math.max(...tags.map((t) => t.app_launches), 1);
 
   return (
-    <div className="newsprint min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
-        <header className="text-center">
-          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <Link to="/" className="hover:text-accent">
-              ← Front page
-            </Link>
-            <span className="flex gap-4">
-              <Link to="/crosswalk" className="hover:text-accent">
-                The Crosswalk
-              </Link>
-              <Link to="/store" className="hover:text-accent">
-                The Store Ledger →
-              </Link>
-            </span>
-          </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-black leading-none tracking-tight sm:text-6xl">
+        <header>
+          
+          <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             The Web
           </h1>
-          <p className="mt-3 font-display text-lg italic text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Every demand tag wired to the app markets it would ship into
           </p>
-          <div className="mt-5 border-y border-foreground py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {tags.length} tags · {markets.length} markets · {links.length} edges
           </div>
         </header>
 
-        <section className="mt-8 grid gap-6 border-b border-foreground pb-6 md:grid-cols-[2fr_1fr]">
+        <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
           <p className="text-[16px] leading-7">
-            <span className="float-left mr-2 font-display text-6xl font-black leading-[0.8]">T</span>
+            <span className="float-left mr-2 font-display text-6xl font-extrabold leading-[0.8]">T</span>
             he Crosswalk told us which themes attention moves ahead of. The Store Ledger told us
             which shelves are already full. Neither is useful alone: a tag that leads by three weeks
             is worthless if it lands in a market three incumbents have locked, and an empty shelf is
@@ -271,10 +260,10 @@ function GraphExplorer() {
           <button
             type="button"
             onClick={() => setLeadingOnly(!leadingOnly)}
-            className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+            className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
               leadingOnly
-                ? "border-foreground bg-foreground text-background"
-                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
             }`}
           >
             Leading tags only
@@ -282,18 +271,18 @@ function GraphExplorer() {
           <button
             type="button"
             onClick={() => setFocus(null)}
-            className="border border-border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
+            className="border border-border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
             Clear focus
           </button>
           {focus && (
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
               Focused: {focus}
             </span>
           )}
         </div>
 
-        <div className="mt-6 overflow-x-auto border-y border-foreground py-4">
+        <div className="mt-6 overflow-x-auto border-y border-border py-4">
           <svg viewBox="-380 -380 760 760" className="mx-auto h-[640px] w-full max-w-[760px]">
             {links.map((l, i) => {
               const a = tagPos.get(l.tag)!;
@@ -372,10 +361,10 @@ function GraphExplorer() {
         </div>
 
         {(focusTag || focusMarket) && (
-          <section className="mt-6 border-b border-foreground pb-6">
+          <section className="mt-6 border-b border-border pb-6">
             {focusTag && (
               <div>
-                <h2 className="font-display text-3xl font-black capitalize">{focusTag.tag}</h2>
+                <h2 className="font-display text-3xl font-extrabold capitalize">{focusTag.tag}</h2>
                 <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   {focusTag.app_launches} launches · r {focusTag.r.toFixed(2)} · p{" "}
                   {focusTag.p.toFixed(3)} · lead {focusTag.lead_weeks}w
@@ -396,7 +385,7 @@ function GraphExplorer() {
                         <button
                           type="button"
                           onClick={() => setFocus(q)}
-                          className="font-display text-lg font-bold capitalize hover:text-accent"
+                          className="font-display text-lg font-bold capitalize hover:text-primary"
                         >
                           {q}
                         </button>
@@ -413,7 +402,7 @@ function GraphExplorer() {
 
             {focusMarket && (
               <div>
-                <h2 className="font-display text-3xl font-black capitalize">{focusMarket.query}</h2>
+                <h2 className="font-display text-3xl font-extrabold capitalize">{focusMarket.query}</h2>
                 <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   opportunity {focusMarket.opportunity} · {focusMarket.supply} listings ·{" "}
                   {Math.round(focusMarket.freshRate * 100)}% fresh · top-3 hold{" "}
@@ -446,13 +435,13 @@ function GraphExplorer() {
         )}
 
         <section className="mt-10">
-          <h2 className="font-display text-3xl font-black">The cells worth building</h2>
+          <h2 className="font-display text-3xl font-extrabold">The cells worth building</h2>
           <p className="mt-2 max-w-2xl text-[15px] leading-7 text-muted-foreground">
             Every edge where the tag leads attention (positive r, p ≤ 0.1) and the market still
             scores above forty on opportunity. This is the shortlist the rest of the paper exists to
             produce.
           </p>
-          <div className="mt-5 border-t-2 border-foreground">
+          <div className="mt-5 border-t border-border">
             {links
               .map((l) => ({
                 tag: (crosswalk.rows as TagRow[]).find((t) => t.tag === l.tag)!,
@@ -470,7 +459,7 @@ function GraphExplorer() {
                   key={i}
                   className="grid grid-cols-2 items-baseline gap-3 border-b border-border py-3 md:grid-cols-[1fr_1fr_1fr_1fr]"
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
                     {c.tag.tag}
                   </span>
                   <span className="font-display text-xl font-bold capitalize">
@@ -487,7 +476,7 @@ function GraphExplorer() {
           </div>
         </section>
 
-        <footer className="mt-12 border-t-2 border-foreground pt-5 text-center">
+        <footer className="mt-12 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString()} launches)
             and the Store Ledger ({new Date(store.generatedAt).toUTCString().slice(5, 16)}) · edges
