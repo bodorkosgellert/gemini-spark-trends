@@ -262,6 +262,9 @@ function RadarPage() {
             {visible.map((s: SignalRow) => {
               const rows = evidenceBySignal.get(s.id) ?? [];
               const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
+              const oppHeat = heatIndexFromScore(s.opportunity_score);
+              const demandHeat = heatIndexFromScore(s.demand_score);
+              const leadHeat = Math.min(4, Math.floor(s.lead_weeks / 2));
               return (
                 <article
                   key={s.id}
@@ -273,7 +276,7 @@ function RadarPage() {
                     </span>
                     <span
                       className="rounded-sm border px-2 py-0.5 font-mono text-sm font-semibold"
-                      style={heatStyle(heatIndexFromScore(s.opportunity_score))}
+                      style={heatStyle(oppHeat)}
                     >
                       {s.opportunity_score}
                     </span>
@@ -282,14 +285,19 @@ function RadarPage() {
                     {s.keyword}
                   </h2>
                   {detail !== "compact" && (
-                    <div className="mt-3 text-primary">
-                      <Sparkline series={s.series ?? []} />
+                    <div className="mt-3">
+                      <Sparkline series={s.series ?? []} heat={oppHeat} />
                     </div>
                   )}
                   <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-dotted border-border py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     <div>
                       <dt>Demand</dt>
-                      <dd className="font-display text-lg text-foreground">{s.demand_score}</dd>
+                      <dd
+                        className="font-display text-lg"
+                        style={{ color: heatColor(demandHeat) }}
+                      >
+                        {s.demand_score}
+                      </dd>
                     </div>
                     <div>
                       <dt>Supply</dt>
@@ -297,7 +305,12 @@ function RadarPage() {
                     </div>
                     <div>
                       <dt>Lead</dt>
-                      <dd className="font-display text-lg text-foreground">{s.lead_weeks}w</dd>
+                      <dd
+                        className="font-display text-lg"
+                        style={{ color: heatColor(leadHeat) }}
+                      >
+                        {s.lead_weeks}w
+                      </dd>
                     </div>
                   </dl>
                   {detail !== "compact" && (
