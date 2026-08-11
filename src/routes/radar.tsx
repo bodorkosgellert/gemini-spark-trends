@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { SiteNav } from "@/components/SiteNav";
+import { HEAT_LEGEND, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
 import { ALL_TAGS } from "@/lib/watchlist";
@@ -256,16 +258,22 @@ function RadarPage() {
               const rows = evidenceBySignal.get(s.id) ?? [];
               const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
               return (
-                <article key={s.id} className="border-t-2 border-foreground pt-4">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+                <article
+                  key={s.id}
+                  className="rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-[0_1px_24px_-10px_var(--heat-4)]"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       {s.category}
                     </span>
-                    <span className="font-display text-3xl font-bold leading-none">
+                    <span
+                      className="rounded-sm border px-2 py-0.5 font-mono text-sm font-semibold"
+                      style={heatStyle(heatIndexFromScore(s.opportunity_score))}
+                    >
                       {s.opportunity_score}
                     </span>
                   </div>
-                  <h2 className="mt-2 font-display text-2xl font-bold capitalize leading-tight">
+                  <h2 className="mt-2 font-display text-xl font-bold capitalize leading-snug tracking-tight">
                     {s.keyword}
                   </h2>
                   {detail !== "compact" && (
@@ -287,8 +295,10 @@ function RadarPage() {
                       <dd className="font-display text-lg text-foreground">{s.lead_weeks}w</dd>
                     </div>
                   </dl>
-                  {detail !== "compact" && <p className="mt-3 text-[15px] leading-7">{s.why}</p>}
-                  <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  {detail !== "compact" && (
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{s.why}</p>
+                  )}
+                  <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
                     {s.tags.join(" · ")}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
