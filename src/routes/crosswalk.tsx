@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
@@ -66,15 +67,16 @@ function Crosswalk() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
-        <header className="text-center">
+        <header>
           <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             <Link to="/" className="hover:text-primary">
               ← Front page
             </Link>
             <span className="flex gap-4">
               <Link to="/store" className="hover:text-primary">
-                The Store Ledger
+                Store Ledger
               </Link>
               <Link to="/graph" className="hover:text-primary">
                 The Web
@@ -84,14 +86,14 @@ function Crosswalk() {
               </Link>
             </span>
           </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
+          
+          <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             The Crosswalk
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             Two months of real launches, read backwards into the signals that came before them
           </p>
-          <div className="mt-5 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {data.launchesScanned.toLocaleString()} launches scanned · {data.launchesTagged} tagged ·{" "}
             {data.weeks.length} weeks · {data.windowStart} → {data.windowEnd}
           </div>

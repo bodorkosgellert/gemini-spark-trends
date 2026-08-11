@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/brief/$slug")({
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-foreground pt-4">
+    <section className="border-t border-border pt-4">
       <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">{title}</h2>
       <div className="mt-2 text-[15px] leading-7">{children}</div>
     </section>
@@ -61,6 +62,7 @@ function BriefPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-3xl px-5 pb-24 pt-8">
         <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
           <Link to="/radar" className="hover:text-primary">
@@ -68,7 +70,7 @@ function BriefPage() {
           </Link>
           <span>{data ? (data.cached ? "Filed earlier" : "Written just now") : "Brief desk"}</span>
         </div>
-        <div className="mt-4 rule-thick" />
+        
 
         <h1 className="mt-5 font-display text-5xl font-extrabold capitalize leading-none tracking-tight">
           {data?.brief.headline ?? slug.replace(/-/g, " ")}

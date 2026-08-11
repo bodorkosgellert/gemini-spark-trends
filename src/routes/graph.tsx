@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -77,12 +78,12 @@ function AskTheGraph() {
         </p>
       )}
       {ask.error && (
-        <p className="mt-4 border-l-2 border-accent pl-3 text-[15px] leading-7">
+        <p className="mt-4 border-l-2 border-primary pl-3 text-[15px] leading-7">
           {(ask.error as Error).message}
         </p>
       )}
       {ask.data && !ask.isPending && (
-        <div className="mt-4 border-t border-foreground pt-4">
+        <div className="mt-4 border-t border-border pt-4">
           <p className="whitespace-pre-wrap text-[15px] leading-7">{ask.data.answer}</p>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Answered from the live signal graph
@@ -207,8 +208,9 @@ function GraphExplorer() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
-        <header className="text-center">
+        <header>
           <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             <Link to="/" className="hover:text-primary">
               ← Front page
@@ -222,14 +224,14 @@ function GraphExplorer() {
               </Link>
             </span>
           </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
+          
+          <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             The Web
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             Every demand tag wired to the app markets it would ship into
           </p>
-          <div className="mt-5 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {tags.length} tags · {markets.length} markets · {links.length} edges
           </div>
         </header>

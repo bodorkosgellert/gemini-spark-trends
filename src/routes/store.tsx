@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
@@ -84,8 +85,9 @@ function StoreLedger() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
-        <header className="text-center">
+        <header>
           <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             <Link to="/" className="hover:text-primary">
               ← Front page
@@ -97,14 +99,14 @@ function StoreLedger() {
               The Web →
             </Link>
           </div>
-          <div className="mt-4 rule-thick" />
-          <h1 className="mt-5 font-display text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
-            The Store Ledger
+          
+          <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+            Store Ledger
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             What the App Store already sells, who owns it, and where the shelf is still empty
           </p>
-          <div className="mt-5 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.3em]">
+          <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {data.rows.length} categories · {totalApps.toLocaleString()} listings ·{" "}
             {data.countries.length} storefronts
           </div>
@@ -280,7 +282,7 @@ function StoreLedger() {
           </p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {data.charts.map((c) => (
-              <div key={c.country} className="border-t border-foreground pt-3">
+              <div key={c.country} className="border-t border-border pt-3">
                 <h3 className="font-display text-xl font-bold">
                   {COUNTRY_NAMES[c.country] ?? c.country.toUpperCase()}
                 </h3>
