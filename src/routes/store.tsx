@@ -51,17 +51,25 @@ function YearBars({ hist }: { hist: Record<string, number> }) {
     .map(Number)
     .filter((y) => y >= 2012)
     .sort((a, b) => a - b);
-  const max = Math.max(...years.map((y) => hist[String(y)] ?? 0), 1);
+  const values = years.map((y) => hist[String(y)] ?? 0);
+  const max = Math.max(...values, 1);
   return (
     <div className="flex h-8 items-end gap-[2px]">
-      {years.map((y) => (
-        <span
-          key={y}
-          title={`${y}: ${hist[String(y)]} apps`}
-          className="flex-1 bg-current"
-          style={{ height: `${8 + ((hist[String(y)] ?? 0) / max) * 92}%` }}
-        />
-      ))}
+      {years.map((y, i) => {
+        const v = values[i] ?? 0;
+        const heat = Math.min(4, Math.floor((v / max) * 4));
+        return (
+          <span
+            key={y}
+            title={`${y}: ${v} apps`}
+            className="flex-1"
+            style={{
+              height: `${8 + (v / max) * 92}%`,
+              backgroundColor: heatColor(heat),
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
