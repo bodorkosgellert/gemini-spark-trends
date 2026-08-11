@@ -17,7 +17,9 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           });
         }
 
-        const { collectKeyword, slugify } = await import("@/lib/ingest.server");
+        const { collectKeyword, slugify, prefetchDataForSeo } = await import(
+          "@/lib/ingest.server"
+        );
         const { WATCHLIST } = await import("@/lib/watchlist");
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -38,6 +40,10 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
         const batch = WATCHLIST.slice(0, limit);
         let processed = 0;
         const failures: string[] = [];
+
+        // One paid DataForSEO task covers the whole batch.
+        const dfs = await prefetchDataForSeo(batch.map((item) => item.keyword));
+        if (dfs.error) failures.push(`dataforseo: ${dfs.error}`);
 
         for (const item of batch) {
           try {
@@ -129,7 +135,14 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           failures.push(`graph: ${(error as Error).message}`);
         }
 
-        return Response.json({ processed, graphed, failed: failures.length, failures });
+        return Response.json({
+          processed,
+          graphed,
+          searchVolumeKeywords: dfs.fetched,
+          searchVolumeCostUsd: dfs.cost,
+          failed: failures.length,
+          failures,
+        });
       },
     },
   },

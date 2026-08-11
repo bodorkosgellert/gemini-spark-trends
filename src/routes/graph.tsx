@@ -416,7 +416,7 @@ function GraphExplorer() {
                   opportunity {focusMarket.opportunity} · {focusMarket.supply} listings ·{" "}
                   {Math.round(focusMarket.freshRate * 100)}% fresh · top-3 hold{" "}
                   {Math.round(focusMarket.top3Share * 100)}% ·{" "}
-                  {focusMarket.demandPerFresh.toLocaleString()} ratings per new entrant
+                  {focusMarket.demandPerFresh.toLocaleString("en-US")} ratings per new entrant
                 </p>
                 <p className="mt-3 max-w-2xl text-[15px] leading-7">
                   Tags feeding this shelf:{" "}
@@ -430,7 +430,7 @@ function GraphExplorer() {
                   {focusMarket.top.slice(0, 4).map((app, i) => (
                     <li key={i} className="text-[13px] leading-5">
                       <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                        {app.ratings.toLocaleString()} ratings · released {app.released}
+                        {app.ratings.toLocaleString("en-US")} ratings · released {app.released}
                       </span>
                       <br />
                       {app.name}
@@ -490,7 +490,7 @@ function GraphExplorer() {
 
         <footer className="mt-12 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString()} launches)
+            Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString("en-US")} launches)
             and the Store Ledger ({new Date(store.generatedAt).toUTCString().slice(5, 16)}) · edges
             are hand-mapped, not inferred
           </p>
