@@ -338,6 +338,7 @@ function GraphExplorer() {
               const p = tagPos.get(t.tag)!;
               const leads = t.r > 0 && t.p <= 0.1;
               const r = 3 + (t.app_launches / maxLaunch) * 10;
+              const rHeat = Math.min(4, Math.floor((Math.max(0, t.r) / maxR) * 4));
               return (
                 <g
                   key={t.tag}
@@ -351,7 +352,8 @@ function GraphExplorer() {
                     r={r}
                     stroke="currentColor"
                     strokeWidth={1.2}
-                    className={leads ? "fill-foreground" : "fill-background"}
+                    style={{ fill: leads ? heatColor(rHeat) : undefined }}
+                    className={leads ? "fill-current" : "fill-background"}
                   />
                   <text
                     x={p.x}
