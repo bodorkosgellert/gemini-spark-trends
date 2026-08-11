@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-display: "Playfair Display", "Times New Roman", serif;
-  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-serif: "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
