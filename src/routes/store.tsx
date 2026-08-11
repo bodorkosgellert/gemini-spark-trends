@@ -88,17 +88,6 @@ function StoreLedger() {
       <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
         <header>
-          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <Link to="/" className="hover:text-primary">
-              ← Front page
-            </Link>
-            <Link to="/crosswalk" className="hover:text-primary">
-              The Crosswalk →
-            </Link>
-            <Link to="/graph" className="hover:text-primary">
-              The Web →
-            </Link>
-          </div>
           
           <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             Store Ledger
@@ -216,7 +205,7 @@ function StoreLedger() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       Releases by year
                     </p>
-                    <div className="mt-1 text-muted-foreground">
+                    <div className="mt-1 text-primary">
                       <YearBars hist={row.yearHist as Record<string, number>} />
                     </div>
                   </div>
