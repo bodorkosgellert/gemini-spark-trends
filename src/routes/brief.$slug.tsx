@@ -1,3 +1,4 @@
+import { CheckItYourself } from "@/components/CheckItYourself";
 import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -78,6 +79,10 @@ function BriefPage() {
         <p className="mt-3 text-sm text-muted-foreground">
           Build brief for “{data?.keyword ?? slug.replace(/-/g, " ")}”
         </p>
+
+        <div className="mt-6 max-w-md">
+          <CheckItYourself keyword={data?.keyword ?? slug.replace(/-/g, " ")} />
+        </div>
 
         {isFetching && (
           <p className="mt-10 text-base text-muted-foreground">

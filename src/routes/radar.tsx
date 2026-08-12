@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { CheckItYourself } from "@/components/CheckItYourself";
 import { SiteNav } from "@/components/SiteNav";
 import {
   CITED_FINAL_VERSION_HINT,
@@ -508,6 +509,7 @@ function RadarPage() {
                       Full page →
                     </Link>
                   </div>
+                  {detail !== "compact" ? <CheckItYourself keyword={s.keyword} /> : null}
                   {briefError[s.slug] ? (
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
                       {briefError[s.slug]}

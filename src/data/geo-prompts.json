@@ -139,7 +139,8 @@
       "keyword": "mcp server",
       "country": "US",
       "language": "en",
-      "control": true,
+      "_controlDemoted": "Was a control on the 2026-08-12 run; that was a bad call. 'Best MCP server for a database' is a genuinely fragmented field (Postgres MCP Pro, Supabase MCP, Neon MCP...), so 'fragmented' is the correct answer, not a calibration failure. e-invoicing-germany is the reliable control.",
+      "control": false,
       "prompts": [
         { "archetype": "A1", "text": "Best MCP server for connecting an AI assistant to a database" },
         { "archetype": "A2", "text": "Tool to host and monitor MCP servers in production" },

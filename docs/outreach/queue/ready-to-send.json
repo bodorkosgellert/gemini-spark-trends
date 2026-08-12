@@ -1,0 +1,205 @@
+{
+  "meta": {
+    "from_example": "Gellért <hello@YOURDOMAIN.com>",
+    "reply_to_example": "hello@YOURDOMAIN.com",
+    "rate_limit_note": "Max ~15–20/day on a new domain. Fill to/email before sending.",
+    "snapshot": "appstore-signals.json 2026-08-10",
+    "product_url": "https://trendspark2026.lovable.app"
+  },
+  "messages": [
+    {
+      "id": "A01",
+      "wave": "personalized",
+      "file": "personalized/01-prowarm.md",
+      "to": "",
+      "subject": "Quick read on ProWarm vs heat-pump shelf (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A02",
+      "wave": "personalized",
+      "file": "personalized/02-roofsnoop.md",
+      "to": "",
+      "subject": "App Store shelf note on balcony/roof solar — dated 10 Aug 2026",
+      "status": "needs_email"
+    },
+    {
+      "id": "A03",
+      "wave": "personalized",
+      "file": "personalized/03-sunquest.md",
+      "to": "",
+      "subject": "Quick read on SunQuest vs solar shelf (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A04",
+      "wave": "personalized",
+      "file": "personalized/04-renogy.md",
+      "to": "",
+      "subject": "App Store shelf note on balcony solar — dated 10 Aug 2026",
+      "status": "needs_email"
+    },
+    {
+      "id": "A05",
+      "wave": "personalized",
+      "file": "personalized/05-soliscloud.md",
+      "to": "",
+      "subject": "Shelf note: SolisCloud in balcony-solar App Store pull (10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A06",
+      "wave": "personalized",
+      "file": "personalized/06-invoice2go.md",
+      "to": "",
+      "subject": "App Store shelf note on freelancer invoicing — dated 10 Aug 2026",
+      "status": "needs_email"
+    },
+    {
+      "id": "A07",
+      "wave": "personalized",
+      "file": "personalized/07-invoice-simple.md",
+      "to": "",
+      "subject": "Quick read on your invoice app vs shelf (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A08",
+      "wave": "personalized",
+      "file": "personalized/08-invoice-fly.md",
+      "to": "",
+      "subject": "App Store shelf note — Invoice Fly (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A09",
+      "wave": "personalized",
+      "file": "personalized/09-structured.md",
+      "to": "",
+      "subject": "Shelf note on habit / planner apps — dated 10 Aug 2026",
+      "status": "needs_email_or_linkedin",
+      "channel_hint": "DE GmbH — LinkedIn if no consent email"
+    },
+    {
+      "id": "A10",
+      "wave": "personalized",
+      "file": "personalized/10-kwit.md",
+      "to": "",
+      "subject": "Quick read on Kwit vs habit-tracker shelf (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A11",
+      "wave": "personalized",
+      "file": "personalized/11-mobicia.md",
+      "to": "",
+      "subject": "App Store shelf note on public transport — dated 10 Aug 2026",
+      "status": "needs_email"
+    },
+    {
+      "id": "A12",
+      "wave": "personalized",
+      "file": "personalized/12-mapway.md",
+      "to": "",
+      "subject": "Shelf note — Tube Map vs public-transport apps (10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A13",
+      "wave": "personalized",
+      "file": "personalized/13-komoot.md",
+      "to": "",
+      "subject": "Cycling-nav shelf note (dated 10 Aug 2026)",
+      "status": "needs_email_or_linkedin",
+      "channel_hint": "komoot GmbH — LinkedIn preferred"
+    },
+    {
+      "id": "A14",
+      "wave": "personalized",
+      "file": "personalized/14-fietsnetwerk.md",
+      "to": "",
+      "subject": "Quick read on Fietsnetwerk vs cycling shelf (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A15",
+      "wave": "personalized",
+      "file": "personalized/15-repairbuddy.md",
+      "to": "",
+      "subject": "App Store shelf note on repair / fix apps — dated 10 Aug 2026",
+      "status": "needs_email"
+    },
+    {
+      "id": "A16",
+      "wave": "personalized",
+      "file": "personalized/16-talk-ai.md",
+      "to": "",
+      "subject": "Shelf note on AI chat apps — dated 10 Aug 2026",
+      "status": "needs_email"
+    },
+    {
+      "id": "A17",
+      "wave": "personalized",
+      "file": "personalized/17-genie.md",
+      "to": "",
+      "subject": "App Store shelf note — Genie vs AI chat (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A18",
+      "wave": "personalized",
+      "file": "personalized/18-utilita.md",
+      "to": "",
+      "subject": "Energy-tracker shelf note (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A19",
+      "wave": "personalized",
+      "file": "personalized/19-dyme.md",
+      "to": "",
+      "subject": "Shelf note — Dyme vs energy/budget apps (dated 10 Aug 2026)",
+      "status": "needs_email"
+    },
+    {
+      "id": "A20",
+      "wave": "personalized",
+      "file": "personalized/20-mse.md",
+      "to": "",
+      "subject": "Budget-tracking shelf note (dated 10 Aug 2026)",
+      "status": "needs_email"
+    }
+  ],
+  "semi_batches": [
+    {
+      "id": "B-balcony",
+      "template": "semi/balcony-solar.md",
+      "tracker_rows": "B01-B08",
+      "slots": 8
+    },
+    {
+      "id": "B-heat",
+      "template": "semi/heat-pump.md",
+      "tracker_rows": "B09-B16",
+      "slots": 8
+    },
+    {
+      "id": "B-invoice",
+      "template": "semi/invoice-freelancer.md",
+      "tracker_rows": "B17-B24",
+      "slots": 8
+    },
+    {
+      "id": "B-habit",
+      "template": "semi/habit-tracker.md",
+      "tracker_rows": "B25-B32",
+      "slots": 8
+    },
+    {
+      "id": "B-rag",
+      "template": "semi/rag-chatbot.md",
+      "tracker_rows": "B33-B40",
+      "slots": 8
+    }
+  ]
+}

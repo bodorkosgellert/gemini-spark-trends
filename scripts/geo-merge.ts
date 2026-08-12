@@ -35,6 +35,19 @@ type RunResult = {
 
 type Run = { startedAt: string; model: string; engine: string; results: RunResult[] };
 
+/**
+ * The `cited` list is the auditable artifact; the shape label is a claim about it.
+ * A row asserting "fragmented" or "dominated" while listing nothing cannot be
+ * checked, so it is demoted to "none". Conservative on purpose — an unverifiable
+ * citation claim is exactly what must not reach a Radar badge or an outreach email.
+ */
+function normalize(ex: {
+  citationShape: Shape;
+  cited: string[];
+}): Shape {
+  return ex.cited.length === 0 ? "none" : ex.citationShape;
+}
+
 /** Most common value, ties broken by the more conservative (more-cited) shape. */
 function majorityShape(shapes: Shape[]): Shape {
   const rank: Record<Shape, number> = { dominated: 3, fragmented: 2, none: 1 };
@@ -106,12 +119,12 @@ function main() {
         const ex = rows.map((r) => r.extraction!);
         return {
           engine,
-          shape: majorityShape(ex.map((e) => e.citationShape)),
+          shape: majorityShape(ex.map(normalize)),
           answerType: majorityType(ex.map((e) => e.answerType)),
           cited: [...new Set(ex.flatMap((e) => e.cited))],
           localCited: ex.some((e) => e.localCited),
           notes: ex.map((e) => e.note),
-          shapes: ex.map((e) => e.citationShape),
+          shapes: ex.map(normalize),
         };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
@@ -126,24 +139,37 @@ function main() {
     const engineDisagreement =
       perEngine.length > 1 && new Set(perEngine.map((e) => e.shape)).size > 1;
 
-    // Prompt-level instability is a different thing — say it in prose, don't
-    // overload engineDisagreement with it.
-    const promptsUnstable = perEngine.some((e) => new Set(e.shapes).size > 1);
+    const answerType = majorityType(perEngine.map((e) => e.answerType));
+
+    // Row-level consistency. `cited` holds products OR directories/domains, and
+    // answerType says which. So "none" alongside cited directories is coherent
+    // (repair cafés: real listings, no product) — but "none" alongside cited
+    // *products* is not: some phrasing did surface products, others missed them.
+    // That is an unstable field, which is "fragmented", not empty.
+    const unstableProducts = shape === "none" && answerType === "product" && cited.length > 0;
+    const finalShape: Shape = unstableProducts ? "fragmented" : shape;
+
+    // Prompt-level instability is a different thing from engine disagreement —
+    // say it in prose, don't overload engineDisagreement with it.
+    const promptsUnstable =
+      unstableProducts || perEngine.some((e) => new Set(e.shapes).size > 1);
+    // Some prompts return a throwaway note; take the first substantive one.
+    const notes = perEngine.flatMap((e) => e.notes).map((n) => n.trim());
     const note =
-      (perEngine[0]!.notes[0] ?? "").trim() +
-      (promptsUnstable ? " Prompts within this niche disagreed on shape." : "");
+      (notes.find((n) => n.length > 40) ?? notes.find((n) => n.length > 0) ?? "") +
+      (promptsUnstable ? " Prompt phrasings disagreed on shape for this niche." : "");
 
     const row = {
       slug: niche.slug,
       keyword: niche.keyword,
-      gap: gapLevel(shape, localCited),
+      gap: gapLevel(finalShape, localCited),
       status: "anthropic",
       prompt: niche.prompts[0]!.text,
       cited: cited.slice(0, 8),
       localCited,
       note,
-      citationShape: shape,
-      answerType: majorityType(perEngine.map((e) => e.answerType)),
+      citationShape: finalShape,
+      answerType,
       engines: engines.slice(),
       engineDisagreement,
     };
@@ -153,7 +179,7 @@ function main() {
     written += 1;
 
     console.log(
-      `  ${niche.slug.padEnd(26)} ${row.gap.padEnd(6)} ${shape.padEnd(10)} ` +
+      `  ${niche.slug.padEnd(26)} ${row.gap.padEnd(6)} ${finalShape.padEnd(10)} ` +
         `${row.answerType.padEnd(9)} cited=${cited.length}` +
         (engineDisagreement ? " ENGINES-DISAGREE" : ""),
     );

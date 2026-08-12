@@ -104,6 +104,8 @@ type PromptResult = {
   /** Raw answer text, kept so a row is auditable later rather than trusted blind. */
   answer: string;
   searchQueries: string[];
+  /** Text emitted before the final answer, kept for auditing the search loop. */
+  interim?: string[];
   error?: string;
 };
 
@@ -126,7 +128,8 @@ async function runPrompt(
   };
 
   try {
-    const response = await client.messages.create({
+    const response = await withRetry(() =>
+      client.messages.create({
       model,
       max_tokens: 8000,
       system: EXTRACT_SYSTEM,
@@ -137,8 +140,9 @@ async function runPrompt(
           role: "user",
           content: `Country context: ${niche.country}. Answer language: ${niche.language}.\n\nQuestion: ${p.text}`,
         },
-      ],
-    });
+        ],
+      }),
+    );
 
     // Server tools run in a loop; pause_turn means it hit the iteration cap mid-search.
     if (response.stop_reason === "pause_turn") {
@@ -148,20 +152,41 @@ async function runPrompt(
       return { ...base, error: "refusal" };
     }
 
+    // The server-tool loop can emit a text block per iteration, so several JSON
+    // documents arrive concatenated. Only the LAST one reflects the finished
+    // answer — joining them all produces `{...}\n\n{...}`, which will not parse.
+    const texts: string[] = [];
     for (const block of response.content) {
-      if (block.type === "text") base.answer += block.text;
+      if (block.type === "text") texts.push(block.text);
       if (block.type === "server_tool_use" && block.name === "web_search") {
         const q = (block.input as { query?: string })?.query;
         if (q) base.searchQueries.push(q);
       }
     }
+    base.answer = texts.at(-1)?.trim() ?? "";
+    base.interim = texts.slice(0, -1);
 
-    // With output_config.format the text is the JSON document.
     base.extraction = JSON.parse(base.answer);
     return base;
   } catch (error) {
     return { ...base, error: (error as Error).message };
   }
+}
+
+/** 529/429 are transient; anything else is a real failure and should surface fast. */
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await fn();
+    } catch (error) {
+      last = error;
+      const status = (error as { status?: number }).status;
+      if (status !== 529 && status !== 429) throw error;
+      await new Promise((r) => setTimeout(r, 2000 * 2 ** i));
+    }
+  }
+  throw last;
 }
 
 /** Bounded concurrency — enough to be quick, low enough not to trip rate limits. */

@@ -2,127 +2,119 @@
 
 Consult this before writing or sending cold email. Not legal advice.
 
-## Goal
+## Goal (interest first)
 
-Sell-before-build learning: dated **€39 / ~$45** niche dossiers from real shelf + demand readings — not waitlist vanity, not fabricated regional demos.
+Gauge whether builders care about a **city-first demand radar** that turns noisy signals into a clear product idea.  
+Payment / paid dossier comes **only after** someone shows interest — not in the first email.
 
 ## Channels by country
 
 | Channel | Markets |
 |---------|---------|
-| Email (opt-out B2B style) | US, UK (companies not sole traders), IE, NL, FR, AU |
-| LinkedIn handwritten | DE, AT, CH, IT, ES, PL, CZ, and other opt-in defaults |
+| Email | United States, United Kingdom (companies), Ireland, Netherlands, France, Australia |
+| LinkedIn handwritten | Germany, Austria, Switzerland, Italy, Spain, Poland, Czechia, and other opt-in defaults |
 | In person | Berlin / Pitch Day (highest conversion) |
 
-You are in Berlin → GDPR still applies to processing (Art. 3). If using Apollo-style lists, note source in the footer (Art. 14 spirit).
+You are in Berlin → European privacy rules still apply to processing. If using Apollo-style lists, note source in the footer.
 
 ## Do not
 
+- Lead with a price or payment link in the first email.
 - Mail-merge “searches are up in {{country}}” as personalisation.
-- Send fabricated per-region Radar scores.
-- Email DE/AT/CH/IT/ES/PL cold without consent.
-- Lead with TAM / “financial potential” you cannot check.
-- Claim local−global Δ in copy until that number exists in the web app.
+- Send fabricated per-region scores.
+- Email Germany / Austria / Switzerland / Italy / Spain / Poland cold without consent.
+- Use jargon or abbreviations the reader must decode (write “artificial intelligence citation gap” only if you explain it; prefer plain words).
+- Claim numbers that are not in the live web app.
 
 ## Do
 
-- Customise on **App Store shelf / category / seller**, not passport.
-- Date every finding. Label demo GEO overlays as demo.
-- Show **€39** before asking for a call.
-- Be transparent: SummerUP hackathon, Pitch Day ~14 Aug 2026.
+- Keep the first email **short** (~90–120 seconds to read). Focus on problem → what TrendSpark does → one concrete niche finding → ask for interest or feedback.
+- Customise on **shelf / category / seller**, not passport.
+- Date every finding.
+- Be transparent: SummerUP at CODE Berlin; Pitch Day around 14 August 2026.
+- Link the live site so they can click around the four main tabs.
 
-## Prospect sources
-
-1. **`src/data/appstore-signals.json`** — `top[].seller`, `released`, category `query`, six storefronts.
-2. Apollo / Hunter — founder/CEO in US/UK/NL, indie tools (enrich emails carefully).
-3. LinkedIn — opt-in countries; hand messages only.
-4. Product Hunt / company contact pages for the same niches.
-
-**First wave size:** 25–40 personalized emails (not 500).  
-**Rough conversion:** open 40–60%, reply 5–15%, pay 1–5% → ~0–2 dossiers from 40 sends. Pitch Day > cold email.
-
-## Batching (accelerate customisation)
-
-Group by **category** (e.g. balcony solar, repair, heat pump, invoice):
-
-1. One DataForSEO / Radar pull per group (~cents).
-2. One dossier skeleton per group.
-3. Per email: swap seller, app name, country store, dated shelf line only.
-
-Example: 5 groups × 6 sellers = 30 sends in one evening.
-
-## Sender infrastructure
-
-| Tool | Free tier (order of magnitude) | Use when |
-|------|--------------------------------|----------|
-| **Resend** (recommended) | ~3k/mo, often 100/day | Dev-friendly, domain DNS |
-| Brevo | ~300/day | Want UI/CRM, EU posture |
-| Postmark | ~100/mo test | Pay later for deliverability |
-| Gmail | Manual | &lt;30 hand emails this week |
-
-- From: `you@yourdomain.com` (preferred) or real-name Gmail — never no-reply.
-- Footer: name, Berlin, postal line (US/CAN-SPAM), how you found them, unsubscribe.
-- CRM: spreadsheet (name, company, source, market, sent, reply).
-
-## Sequence per prospect
-
-1. Find via Store ledger (recent release, category you measure).
-2. Optional: one real volume reading for their keywords.
-3. Send **finding**, not pitch (shelf + trend + dated).
-4. State €39 / $45 → Stripe Payment Link or “reply YES / invoice”.
-5. Link to web Radar/brief (SSR preview), not Expo shell.
-
-## Subject lines
-
-- `App Store shelf note on [Category] — dated [DD Mon YYYY]`
-- `Quick read on [App] vs demand (dated)`
-
-## Body template
+## Short first-email template (Richard direction)
 
 ```
-Hi [Name],
+Hi {{first_name}},
 
-I’m Gellért — building TrendSpark at SummerUP (CODE Berlin; Pitch Day ~14 Aug).
-I found [App Name] via the [DE/US/UK] App Store ([genre], released [Month Year]).
+I am Gellért. Like many builders I struggled to find a real product idea in a niche that is not already crowded.
 
-Quick finding (not a generic “your market is hot”):
-• In our [category] shelf read, top-3 apps hold ~[X]% of ratings; fresh-12m rate ~[Y]%.
-• Search interest for “[keyword]” is [±N]% vs its own earlier baseline (snapshot [date]).
-• When people ask AI for a product in this niche, answers often cite [blogs / directories / brands…] — not a clear local winner. (Demo GEO labels called out if still demo.)
+I built TrendSpark to solve that — for myself, and now for others who ship apps.
 
-TrendSpark scores city demand against what’s already shipped, then writes a build brief.
-Humans browse free; a one-page dossier for your niche is €39 ($45) — dated scores, shelf reading, caveat.
+TrendSpark reads the most useful public sources for app and product work, spots early demand signals, compares that to what already sits on the store shelves, and turns it into a concrete concept you can evaluate.
 
-If useful: reply “dossier” and I’ll send a Stripe link + PDF.
-If not: reply “pass”.
+One example from our {{niche}} reading (dated {{date}}):
+{{one_plain_finding}}
 
-How I found you: public App Store seller listing for [App].
+Try it here (early stage — feedback helps more than polish):
+https://trendspark2026.lovable.app
+
+On the site you will see four tabs:
+• Radar — demand signals ranked
+• Store — what already shipped in that niche
+• Graph — how themes connect to markets
+• Suggest — leave an idea or reaction
+
+If this is useful, reply “interested”.
+If not, reply “pass” or ignore.
+
+How I found you: {{source_line}}.
 Unsubscribe: reply “stop”.
 
 Gellért
 Berlin
-[postal address if emailing US]
-[Radar or brief URL]
+(optional one line: SummerUP / CODE Berlin)
 ```
 
-## Pricing stance
+**No price in this email.** If they reply interested → send a short second note with what a paid one-pager would include and the price then.
 
-- One price in **EUR** (€39); ~$45 optional for US readers.
-- Sell the **dated one-pager** now; don’t sell “platform access” yet.
-- Stripe Payment Link is enough — no in-app billing required for Pitch Day.
+## Subject lines (plain)
 
-## Markets to start (three only)
+- `A faster way to spot an open product niche`
+- `TrendSpark — early look + your niche`
+- `Quick note on {{niche}} demand vs what already shipped`
 
-1. **US** — open channel, English, largest.
-2. **UK** — corporate subscribers, English, timezone.
-3. **NL or AU** — open-ish, English fluency; AU = second timezone.
+## What customers see (four tabs)
 
-Plus Berlin in person.
+| Tab | In easy words |
+|-----|----------------|
+| Radar | Here you see demand signals ranked |
+| Store | Here you see which apps already own the shelf |
+| Graph | Here you see how themes wire into markets |
+| Suggest | Here you can leave feedback or an idea |
 
-## Related repo docs
+Pitch / slide version of the same story: problem → TrendSpark → one finding → four tabs → “early stage, try it, give feedback” → feedback form / code on last slide. Keep spoken pitch under about three minutes; email uses only the first part.
 
-- `docs/SITEFIRE-CITATION-GAP.md` — GEO overlay (not live API).
-- `docs/SITEFIRE-PROMPT-SET.md` — prompts; product-intent &gt; open-ended debate.
-- `AGENTS.md` — stack and live gates.
+## Sequence
+
+1. Short interest email (template above).
+2. If “interested” → share live link again + optional dated one-pager offer (price only here).
+3. If they pay or stay warm → Stripe link / invoice later. Do not invent the payment model in cold mail until the team locks it.
+
+## Sender: private Gmail vs automated
+
+| Choice | When |
+|--------|------|
+| **Domain + Resend / Brevo** (recommended) | Sending globally at any real volume; keeps your personal inbox clean |
+| Domain mailbox in Apple Mail / Outlook | First 20–30 hand sends this week |
+| Personal Gmail | Only tiny tests; burns personal reputation and looks less serious |
+
+For “mostly not Germany, global email”: use a **product domain**, not private Gmail. Cap about 15–20/day on a new domain.
+
+## Batching
+
+Group by niche (balcony solar, heat pump, invoice, habit, …). Same finding block; swap name, app, seller only.
+
+**First wave:** 25–40 short personalized emails.
+
+## Ready files
+
+- `docs/outreach/SHORT-TEMPLATE.md` — copy-paste short email
+- `docs/outreach/semi/` — niche variants (interest-first)
+- `docs/outreach/tracker.csv` — send tracking
+- `docs/outreach/SEND.md` — how to send without personal Gmail
+- `docs/outreach/visuals/` — screenshots of the live tabs
 
 Updated: 2026-08-12.

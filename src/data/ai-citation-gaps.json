@@ -1,6 +1,6 @@
 {
   "updatedAt": "2026-08-12",
-  "notes": "Fill from Sitefire trial Analyze results. Replace demo rows with status sitefire. slug must match signals.slug (keyword lowercased, spaces -> -).",
+  "notes": "Rows with status \"anthropic\" come from scripts/geo-sweep.ts (self-run, search-grounded) — not third-party measurement. \"sitefire\" rows are preserved and outrank a sweep. \"demo\" rows are placeholders and must never be presented as findings.",
   "schema": {
     "slug": "must match signals.slug",
     "keyword": "watchlist keyword",
@@ -20,70 +20,296 @@
       "slug": "balcony-solar",
       "keyword": "balcony solar",
       "gap": "medium",
-      "status": "demo",
-      "prompt": "Best Balkonkraftwerk apps for Germany to track savings and registration?",
-      "cited": ["generic energy blogs", "hardware vendors"],
-      "localCited": false,
-      "note": "Hardware cited; thin software for Anmeldung + savings tracking.",
-      "citationShape": "none",
-      "answerType": "hardware",
-      "engines": [],
+      "status": "anthropic",
+      "prompt": "Best app to track balcony solar output and savings in Germany",
+      "cited": [
+        "Solakon",
+        "SolarMan",
+        "Deye Solar Go",
+        "Sunny Portal (SMA)",
+        "Solar.web (Fronius)",
+        "Anker",
+        "EcoFlow",
+        "Growatt ShinePhone"
+      ],
+      "localCited": true,
+      "note": "Die passende App richtet sich meist nach dem verbauten Wechselrichter (z. B. Sunny Portal für SMA, Solar.web für Fronius, SolarMan für Deye/Growatt-Geräte), während Solakon als eigenständige Balkonkraftwerk-App und PVOutput als herstellerunabhängige Community-Plattform gelten; ein klarer Testsieger existiert nicht.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
       "engineDisagreement": false
     },
     {
       "slug": "e-invoicing-germany",
       "keyword": "e invoicing germany",
       "gap": "low",
-      "status": "demo",
-      "prompt": "Which tools should a German GmbH use for mandatory e-invoicing?",
-      "cited": ["DATEV", "sevDesk", "Lexoffice"],
+      "status": "anthropic",
+      "prompt": "Which tool should a German GmbH use for mandatory e-invoicing?",
+      "cited": [
+        "lexoffice",
+        "sevdesk",
+        "easybill",
+        "FastBill",
+        "DATEV",
+        "Lexware",
+        "DATEV Unternehmen online",
+        "BuchhaltungsButler"
+      ],
       "localCited": true,
-      "note": "Crowded AI answers — demand may still rise but AI gap is low. Use as a calibration control.",
+      "note": "Antwort auf Deutsch verfasst, die mehrere gängige deutsche E-Rechnungs-Tools ohne einen klar dominanten Favoriten nennt, je nach GmbH-Größe. Prompt phrasings disagreed on shape for this niche.",
       "citationShape": "dominated",
       "answerType": "product",
-      "engines": [],
+      "engines": [
+        "anthropic"
+      ],
       "engineDisagreement": false
     },
     {
       "slug": "repair-cafe",
       "keyword": "repair cafe",
       "gap": "high",
-      "status": "demo",
-      "prompt": "App to find and schedule neighbourhood repair cafés in Berlin?",
-      "cited": [],
-      "localCited": false,
-      "note": "AI gives directories/lists; no strong product citation — classic whitespace.",
+      "status": "anthropic",
+      "prompt": "App to find repair cafés near me in Berlin",
+      "cited": [
+        "reparatur-initiativen.de",
+        "repaircafe.org",
+        "smarticular.net/zerowastemap",
+        "repaircafe.org/de"
+      ],
+      "localCited": true,
+      "note": "Es gibt keine dedizierte Repair-Café-App; die Suche erfolgt über Webverzeichnisse wie reparatur-initiativen.de oder repaircafe.org, die auch Berliner Standorte auflisten.",
       "citationShape": "none",
       "answerType": "directory",
-      "engines": [],
+      "engines": [
+        "anthropic"
+      ],
       "engineDisagreement": false
     },
     {
       "slug": "ai-receptionist",
       "keyword": "ai receptionist",
-      "gap": "low",
-      "status": "demo",
-      "prompt": "Best AI phone receptionist for a small Berlin clinic?",
-      "cited": ["US voice-agent SaaS"],
-      "localCited": false,
-      "note": "Global winners cited; DE/clinic packaging may still be open (treat as medium if you confirm in Sitefire).",
-      "citationShape": "dominated",
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best AI phone receptionist for a small clinic in Germany",
+      "cited": [
+        "Vitas (telefonassistent.de)",
+        "PraxisConcierge",
+        "Medflex",
+        "321 MED",
+        "DocMedico",
+        "Ordicall",
+        "Placetel AI",
+        "Zeeg"
+      ],
+      "localCited": true,
+      "note": "Several Germany-focused AI phone-receptionist vendors for medical practices were identified, none clearly dominant, alongside general GDPR-compliance considerations relevant to clinics.",
+      "citationShape": "fragmented",
       "answerType": "product",
-      "engines": [],
+      "engines": [
+        "anthropic"
+      ],
       "engineDisagreement": false
     },
     {
       "slug": "heat-pump-installer",
       "keyword": "heat pump installer",
-      "gap": "high",
-      "status": "demo",
-      "prompt": "How do I compare heat pump installers near me and track Förderantrag status?",
-      "cited": ["energy advice sites"],
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best app to compare heat pump installer quotes in Germany",
+      "cited": [
+        "heizungsfinder.de",
+        "checkfox.de",
+        "Thermondo",
+        "enwendo.de",
+        "waermepumpen-angebotsvergleich.de",
+        "Aroundhome",
+        "Verivox",
+        "Enpal"
+      ],
+      "localCited": true,
+      "note": "Es gibt keine einzelne dominante deutsche App nur für den Wärmepumpen-Angebotsvergleich; stattdessen findet man mehrere webbasierte Vergleichs- bzw. Vermittlungsportale, die eher Verzeichnisse/Lead-Generierungsdienste als eigenständige Vergleichs-Apps sind.",
+      "citationShape": "fragmented",
+      "answerType": "directory",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "ai-for-bookkeeping",
+      "keyword": "ai for bookkeeping",
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best AI bookkeeping app for a German freelancer",
+      "cited": [
+        "sevdesk",
+        "Lexware Office (lexoffice)",
+        "BuchhaltungsButler",
+        "FastBill",
+        "easybill",
+        "WISO MeinBüro",
+        "Belegepilot",
+        "BelegAgent"
+      ],
+      "localCited": true,
+      "note": "Mehrere deutsche Anbieter wurden in aktuellen Vergleichen 2024/2025 genannt, wobei sevdesk und Lexware Office am häufigsten als Top-Empfehlung für Freiberufler auftauchen, ohne dass ein einzelnes Tool klar dominiert.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "eu-ai-act-compliance",
+      "keyword": "eu ai act compliance",
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best tool to document EU AI Act compliance for a small software company",
+      "cited": [
+        "OneTrust",
+        "Vanta",
+        "Drata",
+        "Credo AI",
+        "Holistic AI",
+        "Saidot",
+        "Modulos",
+        "Trail"
+      ],
+      "localCited": true,
+      "note": "Several AI-governance platforms (including Munich-based Trail) offer combined EU AI Act risk classification and technical-documentation generation, but no single tool clearly dominates the space. Prompt phrasings disagreed on shape for this niche.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "digital-product-passport",
+      "keyword": "digital product passport",
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best digital product passport software for an EU manufacturer",
+      "cited": [
+        "Spherity",
+        "iPoint-systems",
+        "osapiens",
+        "Circularise",
+        "Circulor",
+        "T-Systems",
+        "Siemens",
+        "Avery Dennison"
+      ],
+      "localCited": true,
+      "note": "The DPP software market is fragmented, with several German (Spherity, iPoint-systems, osapiens, T-Systems, Siemens) and other EU/global vendors competing and no single dominant leader.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "agentic-commerce",
+      "keyword": "agentic commerce",
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best platform to let an AI agent buy on behalf of a customer",
+      "cited": [
+        "Stripe (Agentic Commerce Protocol)",
+        "OpenAI ChatGPT Instant Checkout",
+        "PayPal Agentic Toolkit",
+        "Visa Intelligent Commerce",
+        "Mastercard Agent Pay",
+        "Google AP2 (Agent Payments Protocol)",
+        "Crossmint",
+        "Stripe"
+      ],
+      "localCited": true,
+      "note": "The AI-agent-purchasing space in late 2025/early 2026 is genuinely fragmented across competing card-network protocols, payment processors, and startups rather than having one dominant winner.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "voice-ai-agent",
+      "keyword": "voice ai agent",
+      "gap": "low",
+      "status": "anthropic",
+      "prompt": "Best voice AI agent platform for German-language customer calls",
+      "cited": [
+        "Parloa",
+        "Cognigy",
+        "Synthflow",
+        "Retell AI",
+        "Bland AI",
+        "Aircall",
+        "JustCall",
+        "PolyAI"
+      ],
       "localCited": false,
-      "note": "Advice cited; weak product for quote + subsidy workflow.",
-      "citationShape": "none",
-      "answerType": "advice",
-      "engines": [],
+      "note": "Parloa is a Berlin-based platform that repeatedly comes up as the leading choice for enterprise German-language voice AI, with Cognigy cited as its closest DACH-market competitor; other tools (Retell AI, Synthflow, VoiceGenie, Autocalls, Leaping AI, Famulor) support German but are generally positioned as broader multilingual or US-centric alternatives rather than German-market leaders. Prompt phrasings disagreed on shape for this niche.",
+      "citationShape": "dominated",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "synthetic-data",
+      "keyword": "synthetic data",
+      "gap": "high",
+      "status": "anthropic",
+      "prompt": "Best synthetic data tool for GDPR-safe testing",
+      "cited": [
+        "Synthea",
+        "Tonic.ai",
+        "Gretel.ai",
+        "MOSTLY AI",
+        "Syntho",
+        "GenRocket",
+        "K2View",
+        "Hazy"
+      ],
+      "localCited": false,
+      "note": "Several synthetic data platforms serve health-sector test environments, with EU-headquartered vendors like MOSTLY AI and Syntho often highlighted for GDPR-aligned use in German/European contexts, but no single tool dominates. Prompt phrasings disagreed on shape for this niche.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "mcp-server",
+      "keyword": "mcp server",
+      "gap": "medium",
+      "status": "anthropic",
+      "prompt": "Best MCP server for connecting an AI assistant to a database",
+      "cited": [
+        "Docker MCP Gateway",
+        "Portkey MCP Gateway",
+        "MintMCP",
+        "Composio",
+        "Smithery",
+        "Glama",
+        "Cloudflare Workers",
+        "TrueFoundry"
+      ],
+      "localCited": true,
+      "note": "US-based question yielded a crowded, fragmented field of MCP hosting/gateway/monitoring vendors rather than one dominant answer. Prompt phrasings disagreed on shape for this niche.",
+      "citationShape": "fragmented",
+      "answerType": "product",
+      "engines": [
+        "anthropic"
+      ],
       "engineDisagreement": false
     }
   ]

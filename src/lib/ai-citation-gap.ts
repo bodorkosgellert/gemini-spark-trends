@@ -15,7 +15,10 @@ export type AiCitationGap = {
   slug: string;
   keyword: string;
   gap: AiGapLevel;
-  status: "demo" | "sitefire";
+  /** demo = placeholder, never a finding. sitefire = third-party measurement.
+   *  anthropic = our own search-grounded sweep (scripts/geo-sweep.ts) — real, but
+   *  self-collected, so it carries less weight than sitefire externally. */
+  status: "demo" | "sitefire" | "anthropic";
   prompt: string;
   cited: string[];
   localCited: boolean;
