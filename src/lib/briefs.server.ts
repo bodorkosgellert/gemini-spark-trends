@@ -21,7 +21,9 @@ export type Brief = {
   build_prompt: string;
 };
 
-const MODEL = "google/gemini-2.5-flash";
+/** Prefer Anthropic (SummerUP / Cursor). Lovable gateway kept as optional fallback. */
+const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
+const LOVABLE_MODEL = "google/gemini-2.5-flash";
 
 export const scoreBucket = (opportunity: number) => Math.round(opportunity / 10);
 
@@ -29,9 +31,9 @@ const SYSTEM = `You are a blunt product strategist writing a build brief for a s
 You are given a demand signal with scores and raw evidence from public sources.
 Be concrete and specific to this keyword. No generic startup advice, no hype, no filler.
 Always include the strongest counter-arguments: a brief without a credible failure case is worthless.
-Respond with json only, matching the requested keys exactly.`;
+Respond with a single JSON object only (no markdown fences), matching the requested keys exactly.`;
 
-export async function generateBrief(input: {
+function buildUserPrompt(input: {
   keyword: string;
   category: string;
   tags: string[];
@@ -41,15 +43,12 @@ export async function generateBrief(input: {
   leadWeeks: number;
   why: string | null;
   evidence: Array<{ source: string; metric: string; value: number | null; detail: string | null }>;
-}): Promise<Brief> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
-
+}): string {
   const evidenceText = input.evidence
     .map((e) => `- ${e.source} / ${e.metric}: ${e.value ?? "n/a"} — ${e.detail ?? ""}`)
     .join("\n");
 
-  const prompt = `Signal: "${input.keyword}"
+  return `Signal: "${input.keyword}"
 Category: ${input.category}
 Tags: ${input.tags.join(", ")}
 Scores (0-100): demand ${input.demand}, supply/crowding ${input.supply}, opportunity ${input.opportunity}
@@ -70,33 +69,15 @@ domain_knowledge (array of 3-4 things you must know or learn that a generic buil
 why_this_dies (array of exactly 3 strongest reasons this fails),
 disproof (what evidence, concretely, would prove the idea wrong within two weeks),
 build_prompt (a single paste-ready prompt for an AI coding tool that would produce a working v1 of this).`;
+}
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { "content-type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({
-      model: MODEL,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: prompt },
-      ],
-    }),
-  });
-
-  if (res.status === 429) throw new Error("The brief desk is rate limited. Try again in a minute.");
-  if (res.status === 402) throw new Error("AI credits exhausted. Top up to keep writing briefs.");
-  if (!res.ok) throw new Error(`Brief generation failed (${res.status})`);
-
-  const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  const text = payload.choices?.[0]?.message?.content ?? "";
+function parseBriefJson(text: string, fallbackKeyword: string): Brief {
   const parsed = JSON.parse(text.replace(/^```json\s*|```$/g, "").trim()) as Partial<Brief>;
-
   const arr = (v: unknown): string[] =>
     Array.isArray(v) ? v.map((x) => String(x)).filter(Boolean) : [];
 
   return {
-    headline: String(parsed.headline ?? input.keyword),
+    headline: String(parsed.headline ?? fallbackKeyword),
     one_liner: String(parsed.one_liner ?? ""),
     hero_flow: arr(parsed.hero_flow),
     who_pays: String(parsed.who_pays ?? ""),
@@ -109,4 +90,89 @@ build_prompt (a single paste-ready prompt for an AI coding tool that would produ
   };
 }
 
-export const BRIEF_MODEL = MODEL;
+async function generateBriefAnthropic(
+  apiKey: string,
+  system: string,
+  prompt: string,
+  keyword: string,
+): Promise<Brief> {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: 2048,
+      system,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (res.status === 429) throw new Error("The brief desk is rate limited. Try again in a minute.");
+  if (res.status === 402) throw new Error("Anthropic credits exhausted. Check your console billing.");
+  if (!res.ok) throw new Error(`Brief generation failed (${res.status})`);
+
+  const payload = (await res.json()) as {
+    content?: Array<{ type?: string; text?: string }>;
+  };
+  const text = payload.content?.find((c) => c.type === "text")?.text ?? "";
+  return parseBriefJson(text, keyword);
+}
+
+async function generateBriefLovable(
+  apiKey: string,
+  system: string,
+  prompt: string,
+  keyword: string,
+): Promise<Brief> {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", "Lovable-API-Key": apiKey },
+    body: JSON.stringify({
+      model: LOVABLE_MODEL,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: prompt },
+      ],
+    }),
+  });
+
+  if (res.status === 429) throw new Error("The brief desk is rate limited. Try again in a minute.");
+  if (res.status === 402) throw new Error("Lovable AI credits exhausted. Set ANTHROPIC_API_KEY instead.");
+  if (!res.ok) throw new Error(`Brief generation failed (${res.status})`);
+
+  const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  const text = payload.choices?.[0]?.message?.content ?? "";
+  return parseBriefJson(text, keyword);
+}
+
+export async function generateBrief(input: {
+  keyword: string;
+  category: string;
+  tags: string[];
+  demand: number;
+  supply: number;
+  opportunity: number;
+  leadWeeks: number;
+  why: string | null;
+  evidence: Array<{ source: string; metric: string; value: number | null; detail: string | null }>;
+}): Promise<Brief> {
+  const anthropicKey = process.env["ANTHROPIC_API_KEY"];
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  if (!anthropicKey && !lovableKey) {
+    throw new Error("Missing ANTHROPIC_API_KEY (preferred) or LOVABLE_API_KEY");
+  }
+
+  const prompt = buildUserPrompt(input);
+
+  if (anthropicKey) {
+    return generateBriefAnthropic(anthropicKey, SYSTEM, prompt, input.keyword);
+  }
+  return generateBriefLovable(lovableKey!, SYSTEM, prompt, input.keyword);
+}
+
+export const BRIEF_MODEL = process.env["ANTHROPIC_API_KEY"] ? ANTHROPIC_MODEL : LOVABLE_MODEL;

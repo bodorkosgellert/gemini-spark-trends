@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { SiteNav } from "@/components/SiteNav";
+import { gapLabel, getAiCitationGap } from "@/lib/ai-citation-gap";
 import { HEAT_LEGEND, heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
@@ -113,6 +114,7 @@ function RadarPage() {
   const { signals, evidence, lastRun } = Route.useLoaderData();
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [onlyAiGap, setOnlyAiGap] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [detail, setDetail] = useState<"compact" | "standard" | "full">("standard");
   const [briefs, setBriefs] = useState<Record<string, BriefResult>>({});
@@ -160,9 +162,12 @@ function RadarPage() {
         (s.why ?? "").toLowerCase().includes(q) ||
         s.tags.some((t) => t.toLowerCase().includes(q));
       const matchesTags = tags.length === 0 || tags.every((t) => s.tags.includes(t));
-      return matchesQuery && matchesTags;
+      const gap = getAiCitationGap(s.slug, s.keyword);
+      const matchesGap =
+        !onlyAiGap || (gap != null && (gap.gap === "high" || gap.gap === "medium"));
+      return matchesQuery && matchesTags && matchesGap;
     });
-  }, [signals, query, tags]);
+  }, [signals, query, tags, onlyAiGap]);
 
   const toggleTag = (tag: string) =>
     setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
@@ -182,7 +187,7 @@ function RadarPage() {
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Demand scored against the supply already shipped · Wikipedia · GitHub · Hacker News ·
-            Tavily
+            Tavily · Sitefire AI-gap overlay
           </p>
           <div className="mt-5 flex items-center gap-2">
             {HEAT_LEGEND.map((l) => (
@@ -229,6 +234,17 @@ function RadarPage() {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setOnlyAiGap((v) => !v)}
+              className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                onlyAiGap
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+              }`}
+            >
+              ai-gap
+            </button>
           </div>
           <div className="mt-5 flex items-center gap-3">
             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
@@ -261,6 +277,7 @@ function RadarPage() {
           <div className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {visible.map((s: SignalRow) => {
               const rows = evidenceBySignal.get(s.id) ?? [];
+              const aiGap = getAiCitationGap(s.slug, s.keyword);
               const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
               const oppHeat = heatIndexFromScore(s.opportunity_score);
               const demandHeat = heatIndexFromScore(s.demand_score);
@@ -284,6 +301,27 @@ function RadarPage() {
                   <h2 className="mt-2 font-display text-xl font-bold capitalize leading-snug tracking-tight">
                     {s.keyword}
                   </h2>
+                  {aiGap ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] ${
+                          aiGap.gap === "high"
+                            ? "border-primary text-primary"
+                            : aiGap.gap === "medium"
+                              ? "border-border text-foreground"
+                              : "border-border text-muted-foreground"
+                        }`}
+                      >
+                        {gapLabel(aiGap.gap)}
+                        {aiGap.status === "demo" ? " · demo" : ""}
+                      </span>
+                      {!aiGap.localCited ? (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                          no local cite
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
                   {detail !== "compact" && (
                     <div className="mt-3">
                       <Sparkline series={s.series ?? []} heat={oppHeat} />
@@ -316,6 +354,19 @@ function RadarPage() {
                   {detail !== "compact" && (
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">{s.why}</p>
                   )}
+                  {detail !== "compact" && aiGap ? (
+                    <p className="mt-2 text-[13px] leading-5 text-muted-foreground">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
+                        AI citation · {aiGap.prompt.slice(0, 72)}
+                        {aiGap.prompt.length > 72 ? "…" : ""}
+                      </span>
+                      <br />
+                      {aiGap.note}
+                      {aiGap.cited.length
+                        ? ` Cited: ${aiGap.cited.slice(0, 3).join(", ")}.`
+                        : " No strong product citations."}
+                    </p>
+                  ) : null}
                   <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
                     {s.tags.join(" · ")}
                   </p>

@@ -1,0 +1,56 @@
+{
+  "updatedAt": "2026-08-11",
+  "notes": "Fill from Sitefire trial Analyze results. Replace demo rows with status sitefire. slug must match signals.slug.",
+  "gaps": [
+    {
+      "slug": "balcony-solar",
+      "keyword": "balcony solar",
+      "gap": "medium",
+      "status": "demo",
+      "prompt": "Best Balkonkraftwerk apps for Germany to track savings and registration?",
+      "cited": ["generic energy blogs", "hardware vendors"],
+      "localCited": false,
+      "note": "Hardware cited; thin software for Anmeldung + savings tracking."
+    },
+    {
+      "slug": "e-invoicing-germany",
+      "keyword": "e invoicing germany",
+      "gap": "low",
+      "status": "demo",
+      "prompt": "Which tools should a German GmbH use for mandatory e-invoicing?",
+      "cited": ["DATEV", "sevDesk", "Lexoffice"],
+      "localCited": true,
+      "note": "Crowded AI answers — demand may still rise but AI gap is low."
+    },
+    {
+      "slug": "repair-cafe",
+      "keyword": "repair cafe",
+      "gap": "high",
+      "status": "demo",
+      "prompt": "App to find and schedule neighbourhood repair cafés in Berlin?",
+      "cited": [],
+      "localCited": false,
+      "note": "AI gives directories/lists; no strong product citation — classic whitespace."
+    },
+    {
+      "slug": "ai-receptionist",
+      "keyword": "ai receptionist",
+      "gap": "low",
+      "status": "demo",
+      "prompt": "Best AI phone receptionist for a small Berlin clinic?",
+      "cited": ["US voice-agent SaaS"],
+      "localCited": false,
+      "note": "Global winners cited; DE/clinic packaging may still be open (treat as medium if you confirm in Sitefire)."
+    },
+    {
+      "slug": "heat-pump-installer",
+      "keyword": "heat pump installer",
+      "gap": "high",
+      "status": "demo",
+      "prompt": "How do I compare heat pump installers near me and track Förderantrag status?",
+      "cited": ["energy advice sites"],
+      "localCited": false,
+      "note": "Advice cited; weak product for quote + subsidy workflow."
+    }
+  ]
+}

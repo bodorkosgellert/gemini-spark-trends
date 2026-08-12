@@ -49,7 +49,19 @@ export async function buildBriefForSlug(slug: string): Promise<BriefResult> {
     .select("source, metric, value, detail")
     .eq("signal_id", signal.id);
 
-  const brief = await generateBrief({ ...base, evidence: evidence ?? [] });
+  const { getAiCitationGap } = await import("./ai-citation-gap");
+  const aiGap = getAiCitationGap(slug, signal.keyword);
+  const evidenceRows = [...(evidence ?? [])];
+  if (aiGap) {
+    evidenceRows.push({
+      source: "Sitefire",
+      metric: `ai_citation_gap_${aiGap.gap}`,
+      value: aiGap.gap === "high" ? 90 : aiGap.gap === "medium" ? 55 : 20,
+      detail: `${aiGap.note} Prompt: ${aiGap.prompt}. Cited: ${aiGap.cited.join(", ") || "none"}. localCited=${aiGap.localCited} (${aiGap.status})`,
+    });
+  }
+
+  const brief = await generateBrief({ ...base, evidence: evidenceRows });
   const createdAt = new Date().toISOString();
 
   await supabaseAdmin.from("signal_briefs").upsert(
