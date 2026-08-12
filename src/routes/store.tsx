@@ -112,8 +112,7 @@ function StoreLedger() {
 
         <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
           <p className="text-[16px] leading-7">
-            <span className="float-left mr-2 font-display text-6xl font-extrabold leading-[0.8]">T</span>
-            he Radar measures whether people are paying attention. This ledger measures whether anyone
+            The Radar measures whether people are paying attention. This ledger measures whether anyone
             has already built the thing. For every category we query six European storefronts, collect
             every listing Apple returns, and read four numbers off them: total supply, the share of
             that supply released in the last twelve months, the total rating count behind the whole

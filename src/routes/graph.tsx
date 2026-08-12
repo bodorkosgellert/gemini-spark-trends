@@ -8,6 +8,7 @@ import crosswalk from "@/data/tag-crosswalk.json";
 import store from "@/data/appstore-signals.json";
 import { heatColor, heatIndexFromScore } from "@/lib/heat";
 import { askTrendGraph } from "@/lib/cognee.functions";
+import { edgesToMap, listSignalEdges } from "@/lib/edges.functions";
 
 const SUGGESTED = [
   "Which signal has rising demand but almost no supply, and what would you build first?",
@@ -96,6 +97,7 @@ function AskTheGraph() {
 }
 
 export const Route = createFileRoute("/graph")({
+  loader: () => listSignalEdges(),
   component: GraphExplorer,
   head: () => ({
     meta: [
@@ -120,10 +122,11 @@ export const Route = createFileRoute("/graph")({
 type TagRow = (typeof crosswalk.rows)[number];
 type MarketRow = (typeof store.rows)[number];
 
-// Which demand tags plausibly feed which App Store shelf. Hand-mapped from the
-// tag vocabulary used in the Crosswalk study; an edge means "a builder working
-// this tag would ship into this market".
-const EDGES: Record<string, string[]> = {
+// Fallback only. `signal_edges` in Postgres is the source of truth (Approach C); this map
+// keeps the page renderable before the migration is applied or if the key is cold.
+// Hand-mapped from the tag vocabulary used in the Crosswalk study; an edge means "a builder
+// working this tag would ship into this market".
+const FALLBACK_EDGES: Record<string, string[]> = {
   agents: ["ai agent", "rag chatbot", "note taking ai"],
   developer: ["ai agent", "rag chatbot", "password manager"],
   local: ["local events", "public transport", "repair cafe", "cycling navigation", "dog walking"],
@@ -159,9 +162,34 @@ function polar(i: number, n: number, r: number) {
   return { x: round(Math.cos(a) * r), y: round(Math.sin(a) * r), a: round(a) };
 }
 
+const COUNTRY_NAMES: Record<string, string> = {
+  de: "Germany",
+  fr: "France",
+  gb: "United Kingdom",
+  es: "Spain",
+  it: "Italy",
+  nl: "Netherlands",
+};
+
+type GeoScope = "all" | keyof typeof COUNTRY_NAMES;
+
+function localHits(m: MarketRow, geo: Exclude<GeoScope, "all">): number {
+  const pc = m.perCountry as Record<string, number> | undefined;
+  return pc?.[geo] ?? 0;
+}
+
 function GraphExplorer() {
+  const { edges: edgeRows, source: edgeSource } = Route.useLoaderData();
   const [focus, setFocus] = useState<string | null>(null);
   const [leadingOnly, setLeadingOnly] = useState(false);
+  /** Storefront lens — re-weights outer nodes by one country; does not explode the graph. */
+  const [geo, setGeo] = useState<GeoScope>("all");
+
+  // Table wins when it has rows; otherwise the in-file map keeps the rings drawn.
+  const EDGES = useMemo(
+    () => (edgeSource === "table" ? edgesToMap(edgeRows) : FALLBACK_EDGES),
+    [edgeRows, edgeSource],
+  );
 
   const tags = useMemo(() => {
     const rows = crosswalk.rows as TagRow[];
@@ -169,10 +197,13 @@ function GraphExplorer() {
     return [...kept].sort((a, b) => b.app_launches - a.app_launches);
   }, [leadingOnly]);
 
-  const markets = useMemo(
-    () => [...(store.rows as MarketRow[])].sort((a, b) => b.opportunity - a.opportunity),
-    [],
-  );
+  const markets = useMemo(() => {
+    const rows = [...(store.rows as MarketRow[])];
+    if (geo === "all") return rows.sort((a, b) => b.opportunity - a.opportunity);
+    return rows
+      .filter((m) => localHits(m, geo) > 0)
+      .sort((a, b) => localHits(b, geo) - localHits(a, geo));
+  }, [geo]);
 
   const tagPos = useMemo(
     () => new Map(tags.map((t, i) => [t.tag, polar(i, tags.length, R_IN)])),
@@ -188,7 +219,7 @@ function GraphExplorer() {
     for (const t of tags)
       for (const m of EDGES[t.tag] ?? []) if (marketPos.has(m)) out.push({ tag: t.tag, market: m });
     return out;
-  }, [tags, marketPos]);
+  }, [tags, marketPos, EDGES]);
 
   const neighbours = useMemo(() => {
     if (!focus) return null;
@@ -207,10 +238,21 @@ function GraphExplorer() {
 
   const maxLaunch = Math.max(...tags.map((t) => t.app_launches), 1);
   const maxOpp = Math.max(...markets.map((m) => m.opportunity), 1);
+  const maxLocal = Math.max(
+    ...markets.map((m) => (geo === "all" ? m.opportunity : localHits(m, geo))),
+    1,
+  );
   const maxR = Math.max(...tags.map((t) => t.r), 0.01);
 
   const tagHeat = (t: TagRow) => Math.min(4, Math.floor((t.app_launches / maxLaunch) * 4));
-  const marketHeat = (m: MarketRow) => heatIndexFromScore(m.opportunity);
+  const marketHeat = (m: MarketRow) =>
+    geo === "all"
+      ? heatIndexFromScore(m.opportunity)
+      : Math.min(4, Math.floor((localHits(m, geo) / maxLocal) * 4));
+  const marketRadius = (m: MarketRow) => {
+    if (geo === "all") return 8 + (m.opportunity / maxOpp) * 18;
+    return 8 + (localHits(m, geo) / maxLocal) * 18;
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -223,16 +265,19 @@ function GraphExplorer() {
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             Every demand tag wired to the app markets it would ship into
+            {geo === "all"
+              ? ""
+              : ` · outer ring sized by ${COUNTRY_NAMES[geo]} storefront hits`}
           </p>
           <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {tags.length} tags · {markets.length} markets · {links.length} edges
+            {edgeSource === "table" ? " · edges from Postgres" : " · edges from fallback map"}
           </div>
         </header>
 
         <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
           <p className="text-[16px] leading-7">
-            <span className="float-left mr-2 font-display text-6xl font-extrabold leading-[0.8]">T</span>
-            he Crosswalk told us which themes attention moves ahead of. The Store Ledger told us
+            The Crosswalk told us which themes attention moves ahead of. The Store Ledger told us
             which shelves are already full. Neither is useful alone: a tag that leads by three weeks
             is worthless if it lands in a market three incumbents have locked, and an empty shelf is
             worthless if nobody is looking at it. This page joins the two. The inner ring is the tag
@@ -257,12 +302,46 @@ function GraphExplorer() {
               <span className="text-foreground">Best cells</span> — a filled tag joined to a large
               outer node: a lead time pointing at an unbuilt shelf.
             </p>
+            <p className="mt-2">
+              <span className="text-foreground">Storefront</span> — pick a country to re-weight the
+              outer ring by that storefront’s hit counts (same markets, different lens). Not a
+              continent drill-down — we only have six EU storefronts in the ledger.
+            </p>
           </aside>
         </section>
 
-        <AskTheGraph />
-
         <div className="mt-6 flex flex-wrap items-center gap-3">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Storefront
+          </span>
+          <button
+            type="button"
+            onClick={() => setGeo("all")}
+            className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+              geo === "all"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+            }`}
+          >
+            All six
+          </button>
+          {(Object.keys(COUNTRY_NAMES) as (keyof typeof COUNTRY_NAMES)[]).map((cc) => (
+            <button
+              key={cc}
+              type="button"
+              onClick={() => setGeo(cc)}
+              className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                geo === cc
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+              }`}
+            >
+              {cc}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => setLeadingOnly(!leadingOnly)}
@@ -309,7 +388,7 @@ function GraphExplorer() {
 
             {markets.map((m) => {
               const p = marketPos.get(m.query)!;
-              const r = 3 + (m.opportunity / 100) * 9;
+              const r = marketRadius(m) * 0.55;
               const deg = (p.a * 180) / Math.PI;
               const flip = p.x < 0;
               return (
@@ -369,6 +448,8 @@ function GraphExplorer() {
           </svg>
         </div>
 
+        <AskTheGraph />
+
         {(focusTag || focusMarket) && (
           <section className="mt-6 border-b border-border pb-6">
             {focusTag && (
@@ -417,6 +498,9 @@ function GraphExplorer() {
                   {Math.round(focusMarket.freshRate * 100)}% fresh · top-3 hold{" "}
                   {Math.round(focusMarket.top3Share * 100)}% ·{" "}
                   {focusMarket.demandPerFresh.toLocaleString("en-US")} ratings per new entrant
+                  {geo !== "all"
+                    ? ` · ${COUNTRY_NAMES[geo]} hits ${localHits(focusMarket, geo)}`
+                    : ""}
                 </p>
                 <p className="mt-3 max-w-2xl text-[15px] leading-7">
                   Tags feeding this shelf:{" "}
@@ -492,7 +576,10 @@ function GraphExplorer() {
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString("en-US")} launches)
             and the Store Ledger ({new Date(store.generatedAt).toUTCString().slice(5, 16)}) · edges
-            are hand-mapped, not inferred
+            {edgeSource === "table"
+              ? ` from signal_edges (${edgeRows.length} rows)`
+              : " from the in-file fallback map"}
+            , hand-mapped, not inferred
           </p>
         </footer>
       </div>

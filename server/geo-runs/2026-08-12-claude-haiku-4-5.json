@@ -1,0 +1,36 @@
+{
+  "startedAt": "2026-08-12T19:57:00.422Z",
+  "model": "claude-haiku-4-5",
+  "engine": "anthropic",
+  "results": [
+    {
+      "slug": "balcony-solar",
+      "keyword": "balcony solar",
+      "archetype": "A1",
+      "prompt": "Best app to track balcony solar output and savings in Germany",
+      "country": "DE",
+      "language": "de",
+      "extraction": {
+        "citationShape": "fragmented",
+        "answerType": "product",
+        "cited": [
+          "SolarMan",
+          "AEconversion Monitoring",
+          "Solakon",
+          "Deye Cloud",
+          "Hoymiles S-Miles Cloud",
+          "APsystems EMA",
+          "SolarEdge",
+          "Enphase Enlighten"
+        ],
+        "localCited": true,
+        "note": "Balkonkraftwerk-Monitoring-Apps sind hersteller- oder wechselrichterabhängig; keine einzelne App dominiert als universelle Lösung für alle Systeme."
+      },
+      "answer": "{\"citationShape\": \"fragmented\", \"answerType\": \"product\", \"cited\": [\"SolarMan\", \"AEconversion Monitoring\", \"Solakon\", \"Deye Cloud\", \"Hoymiles S-Miles Cloud\", \"APsystems EMA\", \"SolarEdge\", \"Enphase Enlighten\"], \"localCited\": true, \"note\": \"Balkonkraftwerk-Monitoring-Apps sind hersteller- oder wechselrichterabhängig; keine einzelne App dominiert als universelle Lösung für alle Systeme.\"}",
+      "searchQueries": [
+        "balcony solar output tracking app Germany",
+        "Balkonkraftwerk Monitoring App Deutschland"
+      ]
+    }
+  ]
+}

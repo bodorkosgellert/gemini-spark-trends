@@ -44,21 +44,48 @@ export const Route = createFileRoute("/radar")({
   }),
 });
 
+function seriesDelta(series: number[]): { pct: number; label: string } | null {
+  if (series.length < 8) return null;
+  const recent = series.slice(-4);
+  const prior = series.slice(0, -4);
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const r = mean(recent);
+  const p = mean(prior);
+  if (p <= 0.5) return null;
+  const pct = Math.round(((r - p) / p) * 100);
+  const label = pct > 0 ? `+${pct}% vs earlier` : pct < 0 ? `${pct}% vs earlier` : "flat vs earlier";
+  return { pct, label };
+}
+
 function Sparkline({ series, heat = 2 }: { series: number[]; heat?: number }) {
   if (series.length < 4) return null;
   const max = Math.max(...series, 1);
+  const min = Math.min(...series, 0);
+  const span = Math.max(max - min, 1);
   const points = series
-    .map((v, i) => `${(i / (series.length - 1)) * 100},${28 - (v / max) * 26}`)
+    .map((v, i) => `${(i / (series.length - 1)) * 100},${26 - ((v - min) / span) * 22}`)
     .join(" ");
+  const delta = seriesDelta(series);
   return (
-    <svg viewBox="0 0 100 28" preserveAspectRatio="none" className="h-8 w-full">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={heatColor(heat)}
-        strokeWidth={1.5 + heat * 0.25}
-      />
-    </svg>
+    <div>
+      <svg viewBox="0 0 100 28" preserveAspectRatio="none" className="h-8 w-full" aria-hidden>
+        <polyline
+          points={points}
+          fill="none"
+          stroke={heatColor(heat)}
+          strokeWidth={1.5 + heat * 0.25}
+        />
+      </svg>
+      {delta ? (
+        <p
+          className={`mt-1 font-mono text-[10px] uppercase tracking-[0.14em] ${
+            delta.pct > 0 ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          Signal change · {delta.label}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -191,6 +218,15 @@ function RadarPage() {
             {lastRun?.finished_at
               ? `Last run ${new Date(lastRun.finished_at).toUTCString().slice(5, 22)} UTC`
               : "Awaiting first run"}
+            {" · "}
+            {signals.length} signals
+            {(() => {
+              const gapped = signals.filter((s) => {
+                const g = getAiCitationGap(s.slug, s.keyword)?.gap;
+                return g === "high" || g === "medium";
+              }).length;
+              return gapped > 0 ? ` · ${gapped} with AI-gap overlay` : "";
+            })()}
           </p>
           <h1 className="mt-2 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             Radar

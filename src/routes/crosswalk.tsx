@@ -92,8 +92,7 @@ function Crosswalk() {
 
         <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
           <p className="text-[16px] leading-7">
-            <span className="float-left mr-2 font-display text-6xl font-extrabold leading-[0.8]">W</span>
-            e pulled every Show HN post and every GitHub repository above fifteen stars created in the
+            We pulled every Show HN post and every GitHub repository above fifteen stars created in the
             last sixty days, tagged each one from its title, description and topics, then lined the
             weekly launch counts up against the weekly attention behind our own demand tags. For each
             tag we take the lag between zero and three weeks that maximises correlation, and report

@@ -38,7 +38,7 @@
 | Tavily 8k (`SUMMERUPTAVILY`) | News context / event blacklist |
 | n8n Cloud Pro | Daily ingest cron after Pitch Day |
 | cognee $100 | Archive memory of kept tags |
-| Sliplane €250 | Host if Lovable host is limiting |
+| Sliplane €250 | Host if Lovable host is limiting. Perks page shows exhausted; Gellért holds a printed code from the desk (2026-08-12) — redeem it, don't rely on the page. |
 | DataForSEO (paid/trial) | Absolute volume + city Δ, not free Trends scrape |
 | Sitefire 7d | Manual AI citation gap → `src/data/ai-citation-gaps.json` ([docs](./docs/SITEFIRE-CITATION-GAP.md)) |
 

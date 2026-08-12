@@ -1,0 +1,150 @@
+{
+  "updatedAt": "2026-08-12",
+  "notes": "Machine-readable copy of docs/SITEFIRE-PROMPT-SET.md. Deliberately the SAME 12 niches x 3 prompts that are live in Sitefire, so the self-run sweep and the Sitefire run are directly comparable. slug must match signals.slug. Archetypes: A1 direct product intent, A2 compound workflow, A4 local-language twin.",
+  "niches": [
+    {
+      "slug": "balcony-solar",
+      "keyword": "balcony solar",
+      "country": "DE",
+      "language": "de",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best app to track balcony solar output and savings in Germany" },
+        { "archetype": "A2", "text": "App that tracks Balkonkraftwerk savings and handles Marktstammdatenregister registration" },
+        { "archetype": "A4", "text": "Welche App zeigt die Ersparnis meines Balkonkraftwerks und übernimmt die Anmeldung?" }
+      ]
+    },
+    {
+      "slug": "heat-pump-installer",
+      "keyword": "heat pump installer",
+      "country": "DE",
+      "language": "de",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best app to compare heat pump installer quotes in Germany" },
+        { "archetype": "A2", "text": "Tool that collects heat pump quotes and tracks the BEG/KfW Förderantrag status in one place" },
+        { "archetype": "A4", "text": "Welche Software vergleicht Wärmepumpen-Angebote und verfolgt den Förderantrag?" }
+      ]
+    },
+    {
+      "slug": "repair-cafe",
+      "keyword": "repair cafe",
+      "country": "DE",
+      "language": "de",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "App to find repair cafés near me in Berlin" },
+        { "archetype": "A2", "text": "App that finds a repair café and books a slot for a specific broken appliance" },
+        { "archetype": "A4", "text": "Gibt es eine App für Repair-Café-Termine und Reparaturanfragen in Berlin?" }
+      ]
+    },
+    {
+      "slug": "ai-for-bookkeeping",
+      "keyword": "ai for bookkeeping",
+      "country": "DE",
+      "language": "de",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best AI bookkeeping app for a German freelancer" },
+        { "archetype": "A2", "text": "Tool that reads receipts with AI and exports them in DATEV format for the Steuerberater" },
+        { "archetype": "A4", "text": "Welche KI-Buchhaltungs-App erstellt die Umsatzsteuervoranmeldung und exportiert nach DATEV?" }
+      ]
+    },
+    {
+      "slug": "e-invoicing-germany",
+      "keyword": "e invoicing germany",
+      "country": "DE",
+      "language": "de",
+      "control": true,
+      "prompts": [
+        { "archetype": "A1", "text": "Which tool should a German GmbH use for mandatory e-invoicing?" },
+        { "archetype": "A2", "text": "Software that creates ZUGFeRD/XRechnung invoices and archives them GoBD-compliant" },
+        { "archetype": "A4", "text": "Welche Software erstellt XRechnung und archiviert GoBD-konform?" }
+      ]
+    },
+    {
+      "slug": "ai-receptionist",
+      "keyword": "ai receptionist",
+      "country": "DE",
+      "language": "en",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best AI phone receptionist for a small clinic in Germany" },
+        { "archetype": "A2", "text": "AI phone answering service that books appointments into an existing practice calendar in German" },
+        { "archetype": "A4", "text": "AI receptionist for a Berlin hair salon that takes German calls while staff are busy" }
+      ]
+    },
+    {
+      "slug": "eu-ai-act-compliance",
+      "keyword": "eu ai act compliance",
+      "country": "DE",
+      "language": "en",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best tool to document EU AI Act compliance for a small software company" },
+        { "archetype": "A2", "text": "Software that classifies our AI system's risk tier and generates the technical documentation" },
+        { "archetype": "A4", "text": "EU AI Act compliance tool for a 10-person SaaS startup with one AI feature" }
+      ]
+    },
+    {
+      "slug": "digital-product-passport",
+      "keyword": "digital product passport",
+      "country": "DE",
+      "language": "en",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best digital product passport software for an EU manufacturer" },
+        { "archetype": "A2", "text": "Tool that collects supplier material data and generates the digital product passport QR code" },
+        { "archetype": "A4", "text": "Digital product passport tool for a small furniture maker exporting into the EU" }
+      ]
+    },
+    {
+      "slug": "agentic-commerce",
+      "keyword": "agentic commerce",
+      "country": "US",
+      "language": "en",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best platform to let an AI agent buy on behalf of a customer" },
+        { "archetype": "A2", "text": "Tool that lets my store accept agent-initiated checkout and reconcile those payments" },
+        { "archetype": "A4", "text": "Agentic commerce tooling for a small Shopify merchant" }
+      ]
+    },
+    {
+      "slug": "voice-ai-agent",
+      "keyword": "voice ai agent",
+      "country": "US",
+      "language": "en",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best voice AI agent platform for German-language customer calls" },
+        { "archetype": "A2", "text": "Voice AI that handles inbound calls and writes the outcome into a CRM in German" },
+        { "archetype": "A4", "text": "Voice AI agent for a German Handwerker business to capture job requests by phone" }
+      ]
+    },
+    {
+      "slug": "synthetic-data",
+      "keyword": "synthetic data",
+      "country": "US",
+      "language": "en",
+      "control": false,
+      "prompts": [
+        { "archetype": "A1", "text": "Best synthetic data tool for GDPR-safe testing" },
+        { "archetype": "A2", "text": "Tool that generates synthetic patient data and documents GDPR compliance for an audit" },
+        { "archetype": "A4", "text": "Synthetic data generator for a German health startup's test environment" }
+      ]
+    },
+    {
+      "slug": "mcp-server",
+      "keyword": "mcp server",
+      "country": "US",
+      "language": "en",
+      "control": true,
+      "prompts": [
+        { "archetype": "A1", "text": "Best MCP server for connecting an AI assistant to a database" },
+        { "archetype": "A2", "text": "Tool to host and monitor MCP servers in production" },
+        { "archetype": "A4", "text": "Alternative to writing a custom MCP server" }
+      ]
+    }
+  ]
+}
