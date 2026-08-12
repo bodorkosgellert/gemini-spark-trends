@@ -21,6 +21,9 @@ dist-ssr
 .nitro
 *.local
 
+# Local idea-submission fallback (when Supabase migration not applied)
+server/idea-suggestions.local.json
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

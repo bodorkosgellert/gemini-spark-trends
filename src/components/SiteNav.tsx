@@ -5,6 +5,7 @@ const links = [
   { to: "/crosswalk", label: "Crosswalk" },
   { to: "/store", label: "Store" },
   { to: "/graph", label: "Graph" },
+  { to: "/suggest", label: "Suggest" },
 ] as const;
 
 export function SiteNav() {

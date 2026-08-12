@@ -560,8 +560,12 @@ export function score(input: {
   hnRecent: number;
   redditPosts: number | null;
   githubRepos: number | null;
+  /** App Store hits from iTunes Search — commercial shelf occupancy. */
+  itunesApps?: number | null;
+  /** 0..1 from `shelfSatisfaction()`; null when the store returned no rating data. */
+  storeSatisfaction?: number | null;
 }): { demand: number; supply: number; opportunity: number; momentum: number; lead: number } {
-  const { series, hnRecent, redditPosts, githubRepos } = input;
+  const { series, hnRecent, redditPosts, githubRepos, itunesApps, storeSatisfaction } = input;
 
   const recent = mean(series.slice(-4));
   const base = mean(series.slice(0, Math.max(series.length - 4, 1)));
@@ -581,8 +585,20 @@ export function score(input: {
     ),
   );
 
-  // Supply: how crowded the build side already is.
-  const supply = Math.round(Math.min(Math.log1p(githubRepos ?? 0) / Math.log(3000), 1) * 100);
+  // Supply: max of developer crowding (GitHub) and commercial shelf (App Store).
+  // Physical/admin niches often have ~0 repos but many App Store results — GitHub alone
+  // used to understate supply and inflate opportunity.
+  const ghSupply = Math.min(Math.log1p(githubRepos ?? 0) / Math.log(3000), 1) * 100;
+  const storeOccupancy = Math.min(Math.log1p(itunesApps ?? 0) / Math.log(80), 1) * 100;
+
+  // A crowded shelf only counts as *served* demand if the shelf is any good. Discount
+  // occupancy by satisfaction so "many badly-rated apps" stays an opportunity instead of
+  // reading as saturation. Floor at 0.5: bad incumbents still occupy attention, so the
+  // discount is a haircut, never an erasure. Null satisfaction = no data, so no discount.
+  const storeSupply =
+    storeSatisfaction == null ? storeOccupancy : storeOccupancy * (0.5 + 0.5 * storeSatisfaction);
+
+  const supply = Math.round(Math.max(ghSupply, storeSupply));
 
   // Opportunity: demand that nobody has served yet.
   const opportunity = Math.max(0, Math.round(demand * (1 - supply / 130)));
@@ -600,6 +616,8 @@ export function explain(input: {
   momentum: number;
   lead: number;
   firstSeenAt: string | null;
+  /** 0..1 from `shelfSatisfaction()` — lets the narrative separate "crowded" from "well served". */
+  storeSatisfaction?: number | null;
 }): string {
   const parts: string[] = [];
   parts.push(
@@ -619,6 +637,12 @@ export function explain(input: {
         ? "Tooling is appearing but the field is not settled."
         : "The build side is already crowded; differentiation costs more than the idea.",
   );
+  // A shelf can be full and still leave the job undone — that is the better target, so say so.
+  if (input.storeSatisfaction != null && input.storeSatisfaction < 0.5 && input.supply >= 30) {
+    parts.push(
+      "The apps that exist are rated poorly or barely used, so the demand is not actually served.",
+    );
+  }
   if (input.firstSeenAt) {
     parts.push(`First public mention: ${input.firstSeenAt.slice(0, 10)}.`);
   }
@@ -646,6 +670,31 @@ export async function collectKeyword(
   const rd = await reddit(keyword);
   const tv = await tavilyCoverage(keyword);
   const dfs = await dataForSeoVolume(keyword, geo === "DE" ? 2276 : 2840, geo === "DE" ? "de" : "en");
+  const { itunesSearchApps, shelfSatisfaction } = await import("./itunes.server");
+  const itunesCountry = geo === "DE" ? "de" : geo === "GB" ? "gb" : "us";
+  const itunes = await itunesSearchApps(keyword, itunesCountry, 25);
+  const shelf = shelfSatisfaction(itunes.apps);
+  const topApps = itunes.apps.slice(0, 3).map((a) => a.trackName).join("; ");
+  const itunesReading = {
+    source: "App Store (iTunes Search)",
+    metric: "software_results",
+    value: itunes.count,
+    detail: topApps || `no software hits for "${keyword}" (${itunesCountry})`,
+    url: itunes.url,
+  };
+  // Separate reading so the discount on supply is auditable rather than baked into one number.
+  const shelfReading = shelf
+    ? {
+        source: "App Store ratings",
+        metric: "shelf_satisfaction",
+        value: Math.round(shelf.score * 100),
+        detail:
+          `${shelf.weightedStars.toFixed(1)}★ weighted across ${shelf.ratedApps} rated app(s), ` +
+          `${shelf.totalRatings.toLocaleString("en-US")} ratings` +
+          (shelf.score < 0.5 ? " — crowded but poorly served" : ""),
+        url: itunes.url,
+      }
+    : null;
 
   const githubRepos = gh[0]?.value ?? null;
   const redditPosts = rd[0]?.value ?? null;
@@ -661,6 +710,8 @@ export async function collectKeyword(
     hnRecent: hn.recent,
     redditPosts: redditPosts === null ? webArticles : redditPosts + (webArticles ?? 0),
     githubRepos,
+    itunesApps: itunes.count,
+    storeSatisfaction: shelf?.score ?? null,
   });
 
   return {
@@ -673,13 +724,20 @@ export async function collectKeyword(
     momentum: scored.momentum,
     leadWeeks: scored.lead,
     firstSeenAt: hn.firstSeenAt,
-    why: explain({ ...scored, lead: scored.lead, firstSeenAt: hn.firstSeenAt }),
+    why: explain({
+      ...scored,
+      lead: scored.lead,
+      firstSeenAt: hn.firstSeenAt,
+      storeSatisfaction: shelf?.score ?? null,
+    }),
     series,
     readings: [
       ...dfs.readings,
       ...trends.readings,
       ...wiki.readings,
       ...gh,
+      itunesReading,
+      ...(shelfReading ? [shelfReading] : []),
       ...hn.readings,
       ...rd,
       ...tv,

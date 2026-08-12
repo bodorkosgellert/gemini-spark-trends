@@ -1,0 +1,209 @@
+{
+  "generatedAt": "2026-08-12T16:00:32.009Z",
+  "note": "Local export for demo. Live scores need npm run dev + ingest. iTunes ratings affect supply only after re-ingest on a host that has this code.",
+  "aiCitationGaps": [
+    {
+      "slug": "balcony-solar",
+      "keyword": "balcony solar",
+      "gap": "medium",
+      "status": "demo",
+      "prompt": "Best Balkonkraftwerk apps for Germany to track savings and registration?",
+      "cited": [
+        "generic energy blogs",
+        "hardware vendors"
+      ],
+      "localCited": false,
+      "note": "Hardware cited; thin software for Anmeldung + savings tracking.",
+      "citationShape": "none",
+      "answerType": "hardware",
+      "engines": [],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "e-invoicing-germany",
+      "keyword": "e invoicing germany",
+      "gap": "low",
+      "status": "demo",
+      "prompt": "Which tools should a German GmbH use for mandatory e-invoicing?",
+      "cited": [
+        "DATEV",
+        "sevDesk",
+        "Lexoffice"
+      ],
+      "localCited": true,
+      "note": "Crowded AI answers — demand may still rise but AI gap is low. Use as a calibration control.",
+      "citationShape": "dominated",
+      "answerType": "product",
+      "engines": [],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "repair-cafe",
+      "keyword": "repair cafe",
+      "gap": "high",
+      "status": "demo",
+      "prompt": "App to find and schedule neighbourhood repair cafés in Berlin?",
+      "cited": [],
+      "localCited": false,
+      "note": "AI gives directories/lists; no strong product citation — classic whitespace.",
+      "citationShape": "none",
+      "answerType": "directory",
+      "engines": [],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "ai-receptionist",
+      "keyword": "ai receptionist",
+      "gap": "low",
+      "status": "demo",
+      "prompt": "Best AI phone receptionist for a small Berlin clinic?",
+      "cited": [
+        "US voice-agent SaaS"
+      ],
+      "localCited": false,
+      "note": "Global winners cited; DE/clinic packaging may still be open (treat as medium if you confirm in Sitefire).",
+      "citationShape": "dominated",
+      "answerType": "product",
+      "engines": [],
+      "engineDisagreement": false
+    },
+    {
+      "slug": "heat-pump-installer",
+      "keyword": "heat pump installer",
+      "gap": "high",
+      "status": "demo",
+      "prompt": "How do I compare heat pump installers near me and track Förderantrag status?",
+      "cited": [
+        "energy advice sites"
+      ],
+      "localCited": false,
+      "note": "Advice cited; weak product for quote + subsidy workflow.",
+      "citationShape": "none",
+      "answerType": "advice",
+      "engines": [],
+      "engineDisagreement": false
+    }
+  ],
+  "graphEdges": [
+    {
+      "from": "agents",
+      "to": "ai agent",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "agents",
+      "to": "rag chatbot",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "agents",
+      "to": "note taking ai",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "climate",
+      "to": "balcony solar",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "climate",
+      "to": "heat pump",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "climate",
+      "to": "ev charging",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "climate",
+      "to": "public transport",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "climate",
+      "to": "repair cafe",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "hardware",
+      "to": "balcony solar",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "hardware",
+      "to": "heat pump",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "hardware",
+      "to": "ev charging",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "hardware",
+      "to": "energy tracker",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "finance",
+      "to": "budget tracking",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "finance",
+      "to": "receipt scanner",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "local",
+      "to": "local events",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "local",
+      "to": "public transport",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "local",
+      "to": "repair cafe",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "local",
+      "to": "cycling navigation",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "local",
+      "to": "dog walking",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "smb",
+      "to": "invoice freelancer",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "smb",
+      "to": "receipt scanner",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "compliance",
+      "to": "receipt scanner",
+      "type": "SHIPS_INTO"
+    },
+    {
+      "from": "compliance",
+      "to": "invoice freelancer",
+      "type": "SHIPS_INTO"
+    }
+  ],
+  "howToRead": {
+    "rings": "Tag → App Store market (SHIPS_INTO). Deterministic Approach C edges.",
+    "cognee": "NL ask over dated signal docs — not the same as the ring SVG.",
+    "itunes": "In code: count + shelf_satisfaction (weighted stars). Not on Lovable live until push + redeploy + ingest."
+  }
+}

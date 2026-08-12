@@ -27,7 +27,7 @@
 
 - Frontend: TanStack Router/Start, Vite, Tailwind v4, Inter Tight / JetBrains Mono.
 - Data: Supabase `signals`, `signal_evidence`, `signal_briefs`, `ingest_runs`.
-- Ingest hook: `POST /api/public/hooks/ingest` with `apikey: SUPABASE_PUBLISHABLE_KEY`.
+- Ingest hook: `POST /api/public/hooks/ingest` with `apikey: INGEST_HOOK_SECRET` (falls back to `SUPABASE_PUBLISHABLE_KEY`).
 - Watchlist: `src/lib/watchlist.ts`.
 
 ## SummerUP perks to prefer

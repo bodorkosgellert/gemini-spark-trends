@@ -2,7 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { SiteNav } from "@/components/SiteNav";
-import { gapLabel, getAiCitationGap } from "@/lib/ai-citation-gap";
+import {
+  CITED_FINAL_VERSION_HINT,
+  gapLabel,
+  gapStory,
+  gapStoryLabel,
+  getAiCitationGap,
+  resolveCitedUrl,
+  shapeLabel,
+} from "@/lib/ai-citation-gap";
 import { HEAT_LEGEND, heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { getBrief, type BriefResult } from "@/lib/briefs.functions";
 import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
@@ -120,6 +128,8 @@ function RadarPage() {
   const [briefs, setBriefs] = useState<Record<string, BriefResult>>({});
   const [loadingBrief, setLoadingBrief] = useState<string | null>(null);
   const [briefError, setBriefError] = useState<Record<string, string>>({});
+  /** Per-signal hint when a cited brand has no resolvable URL yet (demo / final-version). */
+  const [citeHint, setCiteHint] = useState<Record<string, string>>({});
 
   const loadBrief = async (slug: string) => {
     if (briefs[slug]) {
@@ -278,6 +288,7 @@ function RadarPage() {
             {visible.map((s: SignalRow) => {
               const rows = evidenceBySignal.get(s.id) ?? [];
               const aiGap = getAiCitationGap(s.slug, s.keyword);
+              const story = aiGap ? gapStory(aiGap.gap, s.supply_score) : null;
               const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
               const oppHeat = heatIndexFromScore(s.opportunity_score);
               const demandHeat = heatIndexFromScore(s.demand_score);
@@ -315,12 +326,29 @@ function RadarPage() {
                         {gapLabel(aiGap.gap)}
                         {aiGap.status === "demo" ? " · demo" : ""}
                       </span>
+                      {aiGap.citationShape ? (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                          {shapeLabel(aiGap.citationShape)}
+                        </span>
+                      ) : null}
                       {!aiGap.localCited ? (
                         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                           no local cite
                         </span>
                       ) : null}
+                      {aiGap.engineDisagreement ? (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+                          engines disagree
+                        </span>
+                      ) : null}
                     </div>
+                  ) : null}
+                  {/* Story depends on supply: absent AI citations are whitespace only when the
+                      shelf is also empty — otherwise incumbents exist but have not done GEO. */}
+                  {story ? (
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      {gapStoryLabel(story)}
+                    </p>
                   ) : null}
                   {detail !== "compact" && (
                     <div className="mt-3">
@@ -355,17 +383,70 @@ function RadarPage() {
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">{s.why}</p>
                   )}
                   {detail !== "compact" && aiGap ? (
-                    <p className="mt-2 text-[13px] leading-5 text-muted-foreground">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
+                    <div className="mt-2 text-[13px] leading-5 text-muted-foreground">
+                      <Link
+                        to="/brief/$slug"
+                        params={{ slug: s.slug }}
+                        className="font-mono text-[10px] uppercase tracking-[0.16em] text-primary hover:underline"
+                        title="Open signal build brief"
+                      >
                         AI citation · {aiGap.prompt.slice(0, 72)}
                         {aiGap.prompt.length > 72 ? "…" : ""}
-                      </span>
-                      <br />
-                      {aiGap.note}
-                      {aiGap.cited.length
-                        ? ` Cited: ${aiGap.cited.slice(0, 3).join(", ")}.`
-                        : " No strong product citations."}
-                    </p>
+                      </Link>
+                      <p className="mt-1">{aiGap.note}</p>
+                      {aiGap.cited.length ? (
+                        <p className="mt-1">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                            Cited ·{" "}
+                          </span>
+                          {aiGap.cited.slice(0, 3).map((c, i) => {
+                            const url = resolveCitedUrl(c);
+                            const sep = i < Math.min(aiGap.cited.length, 3) - 1 ? ", " : "";
+                            if (url) {
+                              return (
+                                <span key={c}>
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-primary underline-offset-2 hover:underline"
+                                  >
+                                    {c}
+                                  </a>
+                                  {sep}
+                                </span>
+                              );
+                            }
+                            return (
+                              <span key={c}>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCiteHint((prev) => ({
+                                      ...prev,
+                                      [s.id]: CITED_FINAL_VERSION_HINT,
+                                    }))
+                                  }
+                                  className="text-primary underline-offset-2 hover:underline"
+                                  title="No live domain yet"
+                                >
+                                  {c}
+                                </button>
+                                {sep}
+                              </span>
+                            );
+                          })}
+                          .
+                        </p>
+                      ) : (
+                        <p className="mt-1">No strong product citations.</p>
+                      )}
+                      {citeHint[s.id] ? (
+                        <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
+                          {citeHint[s.id]}
+                        </p>
+                      ) : null}
+                    </div>
                   ) : null}
                   <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
                     {s.tags.join(" · ")}

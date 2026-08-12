@@ -35,10 +35,16 @@ export function heatColor(index: number): string {
 export function heatStyle(index: number): React.CSSProperties {
   const i = Math.max(0, Math.min(4, index));
   const step = HEAT_STEPS[i] ?? HEAT_STEPS[0];
+  // Pale chips → black text; deep chips → white text (never blue-on-blue).
+  const hot = i >= 3;
   return {
-    backgroundColor: `color-mix(in oklab, ${step} ${18 + i * 18}%, white)`,
-    color: i >= 3 ? "var(--heat-5)" : "var(--foreground)",
-    borderColor: `color-mix(in oklab, ${step} 55%, white)`,
+    backgroundColor: hot
+      ? `color-mix(in oklab, ${step} ${62 + (i - 3) * 12}%, black)`
+      : `color-mix(in oklab, ${step} ${14 + i * 14}%, white)`,
+    color: hot ? "#ffffff" : "var(--foreground)",
+    borderColor: hot
+      ? `color-mix(in oklab, ${step} 70%, black)`
+      : `color-mix(in oklab, ${step} 45%, white)`,
   };
 }
 

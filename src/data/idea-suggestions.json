@@ -1,0 +1,30 @@
+{
+  "updatedAt": "2026-08-12",
+  "notes": "Seed wall for Pitch Day. Live posts go to Supabase idea_suggestions (or server/idea-suggestions.local.json fallback).",
+  "suggestions": [
+    {
+      "id": "seed-repair-schedule",
+      "title": "Neighbourhood repair-café scheduler",
+      "pitch": "Match volunteers and broken items by postal code for one weekend slot. Demand shows up in search; AI still points at directories.",
+      "city": "Berlin",
+      "status": "approved",
+      "created_at": "2026-08-10T12:00:00.000Z"
+    },
+    {
+      "id": "seed-balkon-tracker",
+      "title": "Balkonkraftwerk savings + Anmeldung tracker",
+      "pitch": "Hardware is cited everywhere; the paperwork and kWh-to-euro story still has no strong local product citation.",
+      "city": "Germany",
+      "status": "approved",
+      "created_at": "2026-08-11T09:00:00.000Z"
+    },
+    {
+      "id": "seed-heat-pump-quotes",
+      "title": "Heat-pump quote + Förderantrag checklist",
+      "pitch": "People compare installers and lose the subsidy form. Advice sites get cited; a workflow app does not.",
+      "city": "DE",
+      "status": "approved",
+      "created_at": "2026-08-11T15:00:00.000Z"
+    }
+  ]
+}

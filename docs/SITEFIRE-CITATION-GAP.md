@@ -1,3 +1,5 @@
+Full Claude/Cursor MCP runbook: [CLAUDE-SITEFIRE-GEO.md](./CLAUDE-SITEFIRE-GEO.md).
+
 # Sitefire → AI citation gap (TrendSpark)
 
 Sitefire has **no public data API** for citations (only a book-demo API). Integration for SummerUP is:

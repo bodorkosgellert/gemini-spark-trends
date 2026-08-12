@@ -10,7 +10,12 @@
  */
 
 const CONTROL_PLANE = "https://api.aws.cognee.ai";
-const DATASET = "trendspark";
+const DATASET_PREFIX = "trendspark";
+
+/** One dataset per calendar day so re-ingest replaces rather than stacks duplicates. */
+export function datasetNameFor(date = new Date()): string {
+  return `${DATASET_PREFIX}-${date.toISOString().slice(0, 10)}`;
+}
 
 let cachedServiceUrl: string | undefined;
 
@@ -79,38 +84,65 @@ export function renderDocument(doc: GraphDocument): string {
     .join("\n");
 }
 
-/** Push the current signal set into the graph and rebuild it. */
-export async function syncGraph(docs: GraphDocument[]): Promise<{ documents: number }> {
-  if (docs.length === 0) return { documents: 0 };
+/** Push the current signal set into a dated Cognee dataset and rebuild it.
+ *  Dated datasets avoid stacking contradictory copies of the same signal across nightly runs.
+ *  cognify may still finish asynchronously — askGraph prefers today's dataset, then yesterday.
+ */
+export async function syncGraph(docs: GraphDocument[]): Promise<{ documents: number; dataset: string }> {
+  if (docs.length === 0) return { documents: 0, dataset: datasetNameFor() };
+  const dataset = datasetNameFor();
   await call(
     "/api/v1/add_text",
-    { textData: docs.map(renderDocument), datasetName: DATASET },
+    { textData: docs.map(renderDocument), datasetName: dataset },
     120_000,
   );
-  await call("/api/v1/cognify", { datasets: [DATASET], runInBackground: true }, 60_000);
-  return { documents: docs.length };
+  // Background cognify: graph may lag seconds–minutes. UI should tolerate "building".
+  await call("/api/v1/cognify", { datasets: [dataset], runInBackground: true }, 60_000);
+  return { documents: docs.length, dataset };
 }
 
-export type GraphAnswer = { answer: string; datasetName: string | null };
+export type GraphAnswer = { answer: string; datasetName: string | null; pending?: boolean };
 
-/** Ask the graph a relationship question. */
+/** Ask the graph a relationship question (today's dataset, then yesterday). */
 export async function askGraph(question: string): Promise<GraphAnswer> {
-  const results = await call<
-    Array<{ dataset_name?: string; search_result?: unknown[] }>
-  >(
-    "/api/v1/search",
-    { searchType: "GRAPH_COMPLETION", datasets: [DATASET], query: question },
-    180_000,
-  );
+  const today = datasetNameFor();
+  const yesterday = datasetNameFor(new Date(Date.now() - 864e5));
 
-  const first = results?.[0];
-  const answer = (first?.search_result ?? [])
-    .map((part) => (typeof part === "string" ? part : JSON.stringify(part)))
-    .join("\n\n")
-    .trim();
+  const grounded = `${question}
+
+Answer using only facts from the TrendSpark signal documents in the dataset.
+If a number (demand, supply, opportunity, momentum) is not present, say you do not have it.
+Do not invent scores.`;
+
+  for (const dataset of [today, yesterday]) {
+    try {
+      const results = await call<Array<{ dataset_name?: string; search_result?: unknown[] }>>(
+        "/api/v1/search",
+        { searchType: "GRAPH_COMPLETION", datasets: [dataset], query: grounded },
+        180_000,
+      );
+
+      const first = results?.[0];
+      const answer = (first?.search_result ?? [])
+        .map((part) => (typeof part === "string" ? part : JSON.stringify(part)))
+        .join("\n\n")
+        .trim();
+
+      if (answer) {
+        return {
+          answer,
+          datasetName: first?.dataset_name ?? dataset,
+        };
+      }
+    } catch {
+      // try older dataset
+    }
+  }
 
   return {
-    answer: answer || "The graph returned no answer for that question yet.",
-    datasetName: first?.dataset_name ?? null,
+    answer:
+      "No graph answer yet. Ingest may still be building today's Cognee dataset, or COGNEE_API_KEY is missing on the host.",
+    datasetName: today,
+    pending: true,
   };
 }
