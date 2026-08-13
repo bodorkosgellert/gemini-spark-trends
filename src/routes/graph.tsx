@@ -710,11 +710,11 @@ function GraphExplorer() {
                         href={appStoreUrl(app)}
                         target="_blank"
                         rel="noreferrer"
-                        className="underline decoration-dotted underline-offset-2"
+                        className="underline underline-offset-2 hover:text-primary"
                       >
                         {app.name}
+                        <span className="text-muted-foreground"> — {app.seller}</span>
                       </a>
-                      <span className="text-muted-foreground"> — {app.seller}</span>
                     </li>
                   ))}
                 </ul>
