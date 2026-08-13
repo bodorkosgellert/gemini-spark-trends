@@ -62,6 +62,12 @@ export function exploreLinks(keyword: string, geo = ""): ExploreLink[] {
       url: `https://www.youtube.com/results?search_query=${q(keyword)}`,
     },
     {
+      id: "github",
+      label: "GitHub",
+      hint: "Repos tagged or titled with this demand",
+      url: `https://github.com/search?q=${q(keyword)}&type=repositories`,
+    },
+    {
       id: "appstore",
       label: "App Store",
       hint: "Check whether the obvious app already shipped",

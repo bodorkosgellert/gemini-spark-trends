@@ -8,7 +8,7 @@ import crosswalk from "@/data/tag-crosswalk.json";
 import store from "@/data/appstore-signals.json";
 import { heatColor, heatIndexFromScore } from "@/lib/heat";
 import { askTrendGraph } from "@/lib/cognee.functions";
-import { edgesToMap, listObservationBranches, listSignalEdges } from "@/lib/edges.functions";
+import { listObservationBranches } from "@/lib/edges.functions";
 
 const SUGGESTED = [
   "Which signal has rising demand but almost no supply, and what would you build first?",
@@ -97,30 +97,9 @@ function AskTheGraph() {
 }
 
 export const Route = createFileRoute("/graph")({
-  loader: async () => {
-    try {
-      return await listSignalEdges();
-    } catch {
-      return { edges: [], source: "fallback" as const };
-    }
-  },
-  pendingComponent: () => (
-    <div className="min-h-screen bg-background p-10 text-center font-display text-2xl">
-      Drawing the web…
-    </div>
-  ),
-  errorComponent: ({ reset }) => (
-    <div className="min-h-screen bg-background p-10 text-center">
-      <p className="font-display text-2xl">The web jammed. One more try usually draws it.</p>
-      <button
-        type="button"
-        onClick={() => reset()}
-        className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
-      >
-        Draw again
-      </button>
-    </div>
-  ),
+  // No loader: tab switches must not wait on Supabase. Rings draw from the in-file map.
+  preload: false,
+  staleTime: Infinity,
   component: GraphExplorer,
   head: () => ({
     meta: [
@@ -144,6 +123,30 @@ export const Route = createFileRoute("/graph")({
 
 type TagRow = (typeof crosswalk.rows)[number];
 type MarketRow = (typeof store.rows)[number];
+type LaunchExample = TagRow["examples"][number];
+
+function githubSearchUrl(tag: string) {
+  return `https://github.com/search?q=${encodeURIComponent(tag)}&type=repositories`;
+}
+
+function appStoreUrl(app: MarketRow["top"][number]) {
+  return app.url || `https://apps.apple.com/us/search?term=${encodeURIComponent(app.name)}`;
+}
+
+function launchesForTags(tagRows: TagRow[], limit = 8) {
+  const seen = new Set<string>();
+  const out: { tag: string; ex: LaunchExample }[] = [];
+  for (const t of tagRows) {
+    for (const ex of t.examples ?? []) {
+      const key = ex.url || ex.title;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ tag: t.tag, ex });
+      if (out.length >= limit) return out;
+    }
+  }
+  return out;
+}
 
 // Fallback only. `signal_edges` in Postgres is the source of truth (Approach C); this map
 // keeps the page renderable before the migration is applied or if the key is cold.
@@ -203,23 +206,31 @@ function localHits(m: MarketRow, geo: Exclude<GeoScope, "all">): number {
 }
 
 function GraphExplorer() {
-  const { edges: edgeRows, source: edgeSource } = Route.useLoaderData();
   const loadBranches = useServerFn(listObservationBranches);
   const branchQuery = useQuery({
     queryKey: ["observation-branches"],
-    queryFn: () => loadBranches(),
+    queryFn: async () => {
+      try {
+        return await loadBranches();
+      } catch {
+        return { branches: [], source: "fallback" as const };
+      }
+    },
     staleTime: 5 * 60_000,
+    gcTime: Infinity,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
   const [focus, setFocus] = useState<string | null>(null);
   const [leadingOnly, setLeadingOnly] = useState(false);
   /** Storefront lens — re-weights outer nodes by one country; does not explode the graph. */
   const [geo, setGeo] = useState<GeoScope>("all");
 
-  // Table wins when it has rows; otherwise the in-file map keeps the rings drawn.
-  const EDGES = useMemo(
-    () => (edgeSource === "table" ? edgesToMap(edgeRows) : FALLBACK_EDGES),
-    [edgeRows, edgeSource],
-  );
+  // Rings always use the in-file map. Swapping to Postgres mid-session (or on
+  // every tab remount) rewired the SVG and looked like the graph was breaking.
+  const EDGES = FALLBACK_EDGES;
 
   const tags = useMemo(() => {
     const rows = crosswalk.rows as TagRow[];
@@ -262,9 +273,18 @@ function GraphExplorer() {
   }, [focus, links]);
 
   const dim = (id: string) => (neighbours && !neighbours.has(id) ? 0.12 : 1);
+  const fade = (opacity: number) =>
+    ({
+      opacity,
+      transition: "opacity 600ms ease",
+    }) as const;
 
   const focusTag = tags.find((t) => t.tag === focus) ?? null;
   const focusMarket = markets.find((m) => m.query === focus) ?? null;
+  const feedingTags = focusMarket
+    ? tags.filter((t) => (EDGES[t.tag] ?? []).includes(focusMarket.query))
+    : [];
+  const feedingLaunches = launchesForTags(feedingTags);
 
   const maxLaunch = Math.max(...tags.map((t) => t.app_launches), 1);
   const maxOpp = Math.max(...markets.map((m) => m.opportunity), 1);
@@ -298,19 +318,33 @@ function GraphExplorer() {
           </p>
           <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {tags.length} tags · {markets.length} markets · {links.length} edges
-            {edgeSource === "table" ? " · edges from Postgres" : " · edges from fallback map"}
           </div>
         </header>
 
         <section className="mt-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[2fr_1fr]">
-          <p className="text-[16px] leading-7">
-            The Crosswalk told us which themes attention moves ahead of. The Store Ledger told us
-            which shelves are already full. Neither is useful alone: a tag that leads by three weeks
-            is worthless if it lands in a market three incumbents have locked, and an empty shelf is
-            worthless if nobody is looking at it. This page joins the two. The inner ring is the tag
-            vocabulary, sized by how many launches carried it; the outer ring is the App Store
-            markets, sized by opportunity. Click anything to isolate its neighbourhood.
-          </p>
+          <div className="space-y-4">
+            <p className="text-[16px] leading-7">
+              The inner ring is the tag vocabulary, sized by how many launches carried it; the outer
+              ring is the App Store markets, sized by opportunity. Click anything to isolate its
+              neighbourhood.
+            </p>
+            <p className="text-[16px] leading-7">
+              Inner tags come from the{" "}
+              <Link to="/crosswalk" className="underline decoration-dotted underline-offset-2">
+                Crosswalk
+              </Link>
+              : GitHub and Hacker News launches from the last two months, tagged and lined up against
+              demand so we can see which themes move before the apps ship. The outer ring comes from
+              the{" "}
+              <Link to="/store" className="underline decoration-dotted underline-offset-2">
+                Store Ledger
+              </Link>
+              : what the App Store already sells in each category, who holds the shelf, and how empty
+              it still is. Neither is useful alone — a tag that leads by three weeks is worthless if it
+              lands in a market three incumbents have locked, and an empty shelf is worthless if nobody
+              is looking at it. This page joins the two.
+            </p>
+          </div>
           <aside className="border-l border-dotted border-border pl-5 font-mono text-[11px] leading-6 text-muted-foreground">
             <p className="mb-2 uppercase tracking-[0.25em] text-foreground">Reading the web</p>
             <p>
@@ -397,10 +431,11 @@ function GraphExplorer() {
         <div className="mt-6 overflow-x-auto border-y border-border py-4">
           <svg viewBox="-380 -380 760 760" className="mx-auto h-[640px] w-full max-w-[760px]">
             {links.map((l, i) => {
-              const a = tagPos.get(l.tag)!;
-              const b = marketPos.get(l.market)!;
+              const a = tagPos.get(l.tag);
+              const b = marketPos.get(l.market);
+              const m = markets.find((x) => x.query === l.market);
+              if (!a || !b || !m) return null;
               const active = !neighbours || (neighbours.has(l.tag) && neighbours.has(l.market));
-              const m = markets.find((x) => x.query === l.market)!;
               return (
                 <path
                   key={i}
@@ -408,18 +443,22 @@ function GraphExplorer() {
                   fill="none"
                   stroke={heatColor(marketHeat(m))}
                   strokeWidth={active && neighbours ? 1.4 : 0.6}
-                  opacity={active ? (neighbours ? 0.55 : 0.22) : 0.06}
+                  style={{
+                    opacity: active ? (neighbours ? 0.55 : 0.22) : 0.06,
+                    transition: "opacity 600ms ease, stroke-width 600ms ease",
+                  }}
                 />
               );
             })}
 
             {markets.map((m) => {
-              const p = marketPos.get(m.query)!;
+              const p = marketPos.get(m.query);
+              if (!p) return null;
               const r = marketRadius(m) * 0.55;
               const deg = (p.a * 180) / Math.PI;
               const flip = p.x < 0;
               return (
-                <g key={m.query} opacity={dim(m.query)}>
+                <g key={m.query} style={fade(dim(m.query))}>
                   <circle
                     cx={p.x}
                     cy={p.y}
@@ -441,15 +480,16 @@ function GraphExplorer() {
             })}
 
             {tags.map((t) => {
-              const p = tagPos.get(t.tag)!;
+              const p = tagPos.get(t.tag);
+              if (!p) return null;
               const leads = t.r > 0 && t.p <= 0.1;
               const r = 3 + (t.app_launches / maxLaunch) * 10;
               const rHeat = Math.min(4, Math.floor((Math.max(0, t.r) / maxR) * 4));
               return (
                 <g
                   key={t.tag}
-                  opacity={dim(t.tag)}
                   className="cursor-pointer"
+                  style={fade(dim(t.tag))}
                   onClick={() => setFocus(focus === t.tag ? null : t.tag)}
                 >
                   <circle
@@ -552,7 +592,16 @@ function GraphExplorer() {
                     ? "Attention moves before the launches at conventional significance — the strongest kind of row on this page."
                     : focusTag.r > 0 && focusTag.lead_weeks === 0
                       ? "Coincident with attention: builders and audience arrive together, which reads as crowding rather than foresight."
-                      : "Weak or negative association on nine weekly points — a hint, not a finding."}
+                      : "Weak or negative association on nine weekly points — a hint, not a finding."}{" "}
+                  <a
+                    href={githubSearchUrl(focusTag.tag)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline decoration-dotted underline-offset-2"
+                  >
+                    Search GitHub for {focusTag.tag}
+                  </a>
+                  .
                 </p>
                 <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                   {(EDGES[focusTag.tag] ?? []).map((q) => {
@@ -575,6 +624,35 @@ function GraphExplorer() {
                     );
                   })}
                 </ul>
+                {focusTag.examples.length > 0 && (
+                  <>
+                    <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      Crosswalk launches that carried this tag
+                    </p>
+                    <ul className="mt-3 space-y-2">
+                      {focusTag.examples.map((ex, i) => (
+                        <li key={i} className="text-[13px] leading-5">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                            {ex.src} · {ex.at.slice(0, 10)}
+                          </span>
+                          <br />
+                          {ex.url ? (
+                            <a
+                              href={ex.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="underline decoration-dotted underline-offset-2"
+                            >
+                              {ex.title}
+                            </a>
+                          ) : (
+                            <span>{ex.title}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
             )}
 
@@ -594,10 +672,31 @@ function GraphExplorer() {
                 </p>
                 <p className="mt-3 max-w-2xl text-[15px] leading-7">
                   Tags feeding this shelf:{" "}
-                  {tags
-                    .filter((t) => (EDGES[t.tag] ?? []).includes(focusMarket.query))
-                    .map((t) => `${t.tag} (${t.lead_weeks}w lead, r ${t.r.toFixed(2)})`)
-                    .join(", ") || "none in the current filter"}
+                  {feedingTags.length
+                    ? feedingTags.map((t, i) => (
+                        <span key={t.tag}>
+                          <button
+                            type="button"
+                            onClick={() => setFocus(t.tag)}
+                            className="underline decoration-dotted underline-offset-2 hover:text-primary"
+                          >
+                            {t.tag}
+                          </button>{" "}
+                          ({t.lead_weeks}w lead, r {t.r.toFixed(2)}
+                          {" · "}
+                          <a
+                            href={githubSearchUrl(t.tag)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline decoration-dotted underline-offset-2"
+                          >
+                            GitHub
+                          </a>
+                          )
+                          {i < feedingTags.length - 1 ? ", " : ""}
+                        </span>
+                      ))
+                    : "none in the current filter"}
                   .
                 </p>
                 <ul className="mt-4 space-y-2">
@@ -607,11 +706,52 @@ function GraphExplorer() {
                         {app.ratings.toLocaleString("en-US")} ratings · released {app.released}
                       </span>
                       <br />
-                      {app.name}
+                      <a
+                        href={appStoreUrl(app)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline decoration-dotted underline-offset-2"
+                      >
+                        {app.name}
+                      </a>
                       <span className="text-muted-foreground"> — {app.seller}</span>
                     </li>
                   ))}
                 </ul>
+                {feedingLaunches.length > 0 && (
+                  <>
+                    <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      GitHub / HN launches under those tags
+                    </p>
+                    <p className="mt-2 max-w-2xl text-[13px] leading-6 text-muted-foreground">
+                      These are Crosswalk matches — repos and Show HN posts tagged with the same
+                      demand words — not the App Store incumbents above. The join is the tag, not a
+                      claim that any of these already shipped as a {focusMarket.query} app.
+                    </p>
+                    <ul className="mt-3 space-y-2">
+                      {feedingLaunches.map(({ tag, ex }, i) => (
+                        <li key={i} className="text-[13px] leading-5">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                            {tag} · {ex.src} · {ex.at.slice(0, 10)}
+                          </span>
+                          <br />
+                          {ex.url ? (
+                            <a
+                              href={ex.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="underline decoration-dotted underline-offset-2"
+                            >
+                              {ex.title}
+                            </a>
+                          ) : (
+                            <span>{ex.title}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
             )}
           </section>
@@ -642,12 +782,20 @@ function GraphExplorer() {
                   key={i}
                   className="grid grid-cols-2 items-baseline gap-3 border-b border-border py-3 md:grid-cols-[1fr_1fr_1fr_1fr]"
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+                  <button
+                    type="button"
+                    onClick={() => setFocus(c.tag.tag)}
+                    className="text-left font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:underline"
+                  >
                     {c.tag.tag}
-                  </span>
-                  <span className="font-display text-xl font-bold capitalize">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFocus(c.market.query)}
+                    className="text-left font-display text-xl font-bold capitalize hover:text-primary"
+                  >
                     {c.market.query}
-                  </span>
+                  </button>
                   <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     lead {c.tag.lead_weeks}w · r {c.tag.r.toFixed(2)}
                   </span>
@@ -666,11 +814,7 @@ function GraphExplorer() {
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString("en-US")}{" "}
             launches) and the Store Ledger ({new Date(store.generatedAt).toUTCString().slice(5, 16)}
-            ) · edges
-            {edgeSource === "table"
-              ? ` from signal_edges (${edgeRows.length} rows)`
-              : " from the in-file fallback map"}
-            , hand-mapped, not inferred
+            ) · edges from the tag→market map, hand-mapped, not inferred
           </p>
         </footer>
       </div>

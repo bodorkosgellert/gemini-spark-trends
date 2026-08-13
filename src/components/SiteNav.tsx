@@ -27,6 +27,7 @@ export function SiteNav() {
             <Link
               key={l.to}
               to={l.to}
+              preload={l.to === "/graph" ? false : "intent"}
               className="whitespace-nowrap rounded-md px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&.active]:bg-secondary [&.active]:text-primary"
             >
               {l.label}
