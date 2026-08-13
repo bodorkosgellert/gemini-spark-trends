@@ -739,6 +739,7 @@ export async function collectKeyword(
   const rd = await reddit(keyword);
   const tv = await tavilyCoverage(keyword);
   const dfs = await dataForSeoVolume(keyword, geo.locationCode ?? 2840, geo.languageCode);
+  const dfsWorld = await dataForSeoVolume(keyword, 2840, "en");
   const { itunesSearchApps, shelfSatisfaction } = await import("./itunes.server");
   const itunesCountry = geo.countryCode.toLowerCase();
   const itunes = await itunesSearchApps(keyword, itunesCountry, 25);
@@ -782,10 +783,12 @@ export async function collectKeyword(
     storeSatisfaction: shelf?.score ?? null,
   });
   const conversation = redditPosts === null ? webArticles : redditPosts + (webArticles ?? 0);
+  const worldwideSeries =
+    trendsGlobal.series.length >= 8 ? trendsGlobal.series : dfsWorld.series;
   const globalScored =
-    trendsGlobal.series.length >= 8
+    worldwideSeries.length >= 8
       ? score({
-          series: trendsGlobal.series,
+          series: worldwideSeries,
           hnRecent: hn.recent,
           redditPosts: conversation,
           githubRepos,
@@ -811,7 +814,7 @@ export async function collectKeyword(
       storeSatisfaction: shelf?.score ?? null,
     }),
     series,
-    globalSeries: trendsGlobal.series,
+    globalSeries: worldwideSeries,
     globalScores: globalScored,
     readings: [
       ...dfs.readings,

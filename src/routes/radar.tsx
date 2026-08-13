@@ -39,7 +39,13 @@ import { seriesDelta } from "@/lib/series";
 import { ALL_TAGS } from "@/lib/watchlist";
 
 export const Route = createFileRoute("/radar")({
-  loader: () => listSignals(),
+  loader: async () => {
+    try {
+      return await listSignals();
+    } catch {
+      return { signals: [], evidence: [], lastRun: null };
+    }
+  },
   component: Radar,
   errorComponent: () => (
     <div className="min-h-screen bg-background p-10 text-center font-display text-2xl">

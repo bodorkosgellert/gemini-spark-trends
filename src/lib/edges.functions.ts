@@ -75,34 +75,42 @@ export const listObservationBranches = createServerFn({ method: "GET" }).handler
  * still renders before the migration is applied.
  */
 export const listSignalEdges = createServerFn({ method: "GET" }).handler(async () => {
-  const { createClient } = await import("@supabase/supabase-js");
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  const client = createClient(process.env["SUPABASE_URL"]!, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input: RequestInfo | URL, init?: RequestInit) => {
-        const headers = new Headers(init?.headers);
-        if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) {
-          headers.delete("Authorization");
-        }
-        headers.set("apikey", key);
-        return fetch(input, { ...init, headers });
+  const empty = { edges: [] as SignalEdgeRow[], source: "fallback" as const };
+  try {
+    const url = process.env["SUPABASE_URL"];
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+    if (!url || !key) return empty;
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const client = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+          const headers = new Headers(init?.headers);
+          if (key.startsWith("sb_") && headers.get("Authorization") === `Bearer ${key}`) {
+            headers.delete("Authorization");
+          }
+          headers.set("apikey", key);
+          return fetch(input, { ...init, headers });
+        },
       },
-    },
-  });
+    });
 
-  const { data, error } = await client
-    .from("signal_edges")
-    .select("from_slug, to_slug, edge_type, weight, evidence")
-    .eq("edge_type", "SHIPS_INTO");
+    const { data, error } = await client
+      .from("signal_edges")
+      .select("from_slug, to_slug, edge_type, weight, evidence")
+      .eq("edge_type", "SHIPS_INTO");
 
-  // A missing table or a cold key should degrade to the in-file map, not blank the page.
-  if (error) return { edges: [] as SignalEdgeRow[], source: "fallback" as const };
+    // A missing table or a cold key should degrade to the in-file map, not blank the page.
+    if (error) return empty;
 
-  return {
-    edges: (data ?? []) as SignalEdgeRow[],
-    source: (data && data.length > 0 ? "table" : "fallback") as "table" | "fallback",
-  };
+    return {
+      edges: (data ?? []) as SignalEdgeRow[],
+      source: (data && data.length > 0 ? "table" : "fallback") as "table" | "fallback",
+    };
+  } catch {
+    return empty;
+  }
 });
 
 /**

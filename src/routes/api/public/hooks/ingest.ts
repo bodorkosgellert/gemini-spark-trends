@@ -80,6 +80,12 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           geo.languageCode,
         );
         if (dfs.error) failures.push(`dataforseo: ${dfs.error}`);
+        const dfsWorld = await prefetchDataForSeo(
+          batch.map((item) => item.keyword),
+          2840,
+          "en",
+        );
+        if (dfsWorld.error) failures.push(`dataforseo-world: ${dfsWorld.error}`);
 
         for (const item of batch) {
           try {

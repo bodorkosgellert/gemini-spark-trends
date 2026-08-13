@@ -97,7 +97,30 @@ function AskTheGraph() {
 }
 
 export const Route = createFileRoute("/graph")({
-  loader: () => listSignalEdges(),
+  loader: async () => {
+    try {
+      return await listSignalEdges();
+    } catch {
+      return { edges: [], source: "fallback" as const };
+    }
+  },
+  pendingComponent: () => (
+    <div className="min-h-screen bg-background p-10 text-center font-display text-2xl">
+      Drawing the web…
+    </div>
+  ),
+  errorComponent: ({ reset }) => (
+    <div className="min-h-screen bg-background p-10 text-center">
+      <p className="font-display text-2xl">The web jammed. One more try usually draws it.</p>
+      <button
+        type="button"
+        onClick={() => reset()}
+        className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-primary hover:underline"
+      >
+        Draw again
+      </button>
+    </div>
+  ),
   component: GraphExplorer,
   head: () => ({
     meta: [
@@ -156,6 +179,7 @@ const R_OUT = 300;
 const R_IN = 168;
 
 function polar(i: number, n: number, r: number) {
+  if (n <= 0) return { x: 0, y: 0, a: 0 };
   const a = (i / n) * Math.PI * 2 - Math.PI / 2;
   // Round so the SSR string and the client string are byte-identical.
   const round = (v: number) => Math.round(v * 100) / 100;

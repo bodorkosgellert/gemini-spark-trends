@@ -7,7 +7,13 @@ import { HEAT_LEGEND, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { listSignals } from "@/lib/signals.functions";
 
 export const Route = createFileRoute("/")({
-  loader: () => listSignals(),
+  loader: async () => {
+    try {
+      return await listSignals();
+    } catch {
+      return { signals: [], evidence: [], lastRun: null };
+    }
+  },
   head: () => ({
     meta: [
       { title: "TrendSpark — Know what to build" },
