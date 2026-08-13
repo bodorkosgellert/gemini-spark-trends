@@ -1,11 +1,13 @@
 import { CheckItYourself } from "@/components/CheckItYourself";
+import { useGeo } from "@/components/geo-context";
 import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { getBrief } from "@/lib/briefs.functions";
+import { getBrief, getBriefOpportunitySpace } from "@/lib/briefs.functions";
+import type { AppSeed } from "@/lib/observations.types";
 
 export const Route = createFileRoute("/brief/$slug")({
   component: BriefPage,
@@ -52,11 +54,33 @@ function List({ items }: { items: string[] }) {
 function BriefPage() {
   const { slug } = Route.useParams();
   const run = useServerFn(getBrief);
+  const explore = useServerFn(getBriefOpportunitySpace);
+  const { geoKey, selection } = useGeo();
   const [copied, setCopied] = useState(false);
+  const [selectedDirection, setSelectedDirection] = useState<AppSeed | null>(null);
+  const [briefRequested, setBriefRequested] = useState(false);
+
+  const opportunityQuery = useQuery({
+    queryKey: ["brief-opportunity-space", slug],
+    queryFn: () => explore({ data: { slug } }),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
 
   const { data, isFetching, error, refetch } = useQuery({
-    queryKey: ["brief", slug],
-    queryFn: () => run({ data: { slug } }),
+    queryKey: ["brief", slug, geoKey, selectedDirection?.id ?? "canonical"],
+    queryFn: () =>
+      run({
+        data: {
+          slug,
+          geoKey,
+          observationSetHash: opportunityQuery.data?.observationSetHash ?? "legacy",
+          direction: selectedDirection
+            ? `${selectedDirection.family}: ${selectedDirection.title}. ${selectedDirection.concept}`
+            : null,
+        },
+      }),
+    enabled: briefRequested,
     staleTime: Infinity,
     retry: false,
   });
@@ -71,7 +95,6 @@ function BriefPage() {
           </Link>
           <span>{data ? (data.cached ? "Filed earlier" : "Written just now") : "Brief desk"}</span>
         </div>
-        
 
         <h1 className="mt-5 font-display text-5xl font-extrabold capitalize leading-none tracking-tight">
           {data?.brief.headline ?? slug.replace(/-/g, " ")}
@@ -81,8 +104,61 @@ function BriefPage() {
         </p>
 
         <div className="mt-6 max-w-md">
-          <CheckItYourself keyword={data?.keyword ?? slug.replace(/-/g, " ")} />
+          <CheckItYourself
+            keyword={data?.keyword ?? slug.replace(/-/g, " ")}
+            geo={selection.countryCode}
+          />
         </div>
+
+        <section className="mt-8 border-y border-border py-6">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
+            Choose the opportunity before the execution
+          </p>
+          {opportunityQuery.isFetching ? (
+            <p className="mt-3 text-sm text-muted-foreground">Opening the evidence branches…</p>
+          ) : opportunityQuery.data?.seeds.length ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {opportunityQuery.data.seeds.slice(0, 6).map((seed) => (
+                <button
+                  key={seed.id ?? `${seed.sourceHash}-${seed.family}`}
+                  type="button"
+                  onClick={() => {
+                    setSelectedDirection(seed);
+                    setBriefRequested(true);
+                  }}
+                  aria-pressed={selectedDirection?.id === seed.id}
+                  className="min-w-0 border border-border p-4 text-left transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:translate-y-px aria-pressed:border-primary aria-pressed:bg-secondary/50"
+                >
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-primary">
+                    {seed.family} · derived
+                  </span>
+                  <strong className="mt-2 block font-display text-lg">{seed.title}</strong>
+                  <span className="mt-2 block text-xs leading-5 text-muted-foreground">
+                    {seed.concept}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3">
+              <p className="text-sm leading-6 text-muted-foreground">
+                {opportunityQuery.data?.available
+                  ? "No archived observation is linked yet. You can still build from the canonical measured signal."
+                  : "The observation migration is not available yet. The canonical brief remains available."}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedDirection(null);
+                  setBriefRequested(true);
+                }}
+                className="mt-3 rounded-md border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:translate-y-px"
+              >
+                Use canonical signal
+              </button>
+            </div>
+          )}
+        </section>
 
         {isFetching && (
           <p className="mt-10 text-base text-muted-foreground">

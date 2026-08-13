@@ -1,8 +1,16 @@
+import { createHash } from "node:crypto";
+
 import { generateBrief, scoreBucket, BRIEF_MODEL, type Brief } from "./briefs.server";
 import type { BriefResult } from "./briefs.functions";
 
-export async function buildBriefForSlug(slug: string): Promise<BriefResult> {
+export async function buildBriefForSlug(input: {
+  slug: string;
+  geoKey: string;
+  observationSetHash: string;
+  direction: string | null;
+}): Promise<BriefResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { slug } = input;
 
   const { data: signal, error } = await supabaseAdmin
     .from("signals")
@@ -16,13 +24,32 @@ export async function buildBriefForSlug(slug: string): Promise<BriefResult> {
   if (!signal) throw new Error(`No signal on the wire for "${slug}"`);
 
   const bucket = scoreBucket(signal.opportunity_score ?? 0);
+  const directionHash = createHash("sha256")
+    .update(input.direction ?? "canonical")
+    .digest("hex");
+  const cacheKey = createHash("sha256")
+    .update(
+      [signal.id, bucket, input.geoKey, input.observationSetHash, directionHash, BRIEF_MODEL].join(
+        "\n",
+      ),
+    )
+    .digest("hex");
 
-  const { data: cached } = await supabaseAdmin
+  const { data: scopedCached, error: scopedCacheError } = await supabaseAdmin
     .from("signal_briefs")
     .select("brief, created_at")
-    .eq("signal_id", signal.id)
-    .eq("score_bucket", bucket)
+    .eq("cache_key", cacheKey)
     .maybeSingle();
+  let cached = scopedCached;
+  if (scopedCacheError && !input.direction) {
+    const legacy = await supabaseAdmin
+      .from("signal_briefs")
+      .select("brief, created_at")
+      .eq("signal_id", signal.id)
+      .eq("score_bucket", bucket)
+      .maybeSingle();
+    cached = legacy.data;
+  }
 
   const base = {
     keyword: signal.keyword,
@@ -61,7 +88,11 @@ export async function buildBriefForSlug(slug: string): Promise<BriefResult> {
     });
   }
 
-  const brief = await generateBrief({ ...base, evidence: evidenceRows });
+  const brief = await generateBrief({
+    ...base,
+    direction: input.direction,
+    evidence: evidenceRows,
+  });
   const createdAt = new Date().toISOString();
 
   await supabaseAdmin.from("signal_briefs").upsert(
@@ -69,10 +100,14 @@ export async function buildBriefForSlug(slug: string): Promise<BriefResult> {
       signal_id: signal.id,
       score_bucket: bucket,
       model: BRIEF_MODEL,
+      geo_key: input.geoKey,
+      observation_set_hash: input.observationSetHash,
+      direction_hash: directionHash,
+      cache_key: cacheKey,
       brief: JSON.parse(JSON.stringify(brief)),
       created_at: createdAt,
     },
-    { onConflict: "signal_id,score_bucket" },
+    { onConflict: "cache_key" },
   );
 
   return { ...base, brief, cached: false, createdAt };

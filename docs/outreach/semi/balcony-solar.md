@@ -1,7 +1,7 @@
 # Semi · balcony solar (interest first)
 
 **Use for:** email markets only (United States, United Kingdom, Ireland, Netherlands, France, Australia)  
-**Dated finding:** 10 August 2026  
+**Dated finding:** 10 August 2026
 
 ---
 
@@ -26,7 +26,7 @@ https://trendspark2026.lovable.app
 On the site you will see four tabs:
 • Radar — here you see demand signals ranked
 • Store — here you see what already shipped in that niche
-• Graph — here you see how themes connect to markets
+• Connections — here you see how themes connect to markets
 • Suggest — here you can leave an idea or reaction
 
 If this is useful, reply “interested”.

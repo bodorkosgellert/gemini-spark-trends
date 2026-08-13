@@ -1,20 +1,41 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 
 import { CheckItYourself } from "@/components/CheckItYourself";
+import { EvidenceList } from "@/components/EvidenceList";
+import { LocalGlobalChart } from "@/components/LocalGlobalChart";
+import { useGeo } from "@/components/geo-context";
 import { SiteNav } from "@/components/SiteNav";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
+  AI_GAP_FILTER_EXPLANATION,
   CITED_FINAL_VERSION_HINT,
+  ENGINE_DISAGREEMENT_EXPLANATION,
+  LOCAL_CITE_EXPLANATION,
+  gapExplanation,
   gapLabel,
   gapStory,
+  gapStoryExplanation,
   gapStoryLabel,
   getAiCitationGap,
   resolveCitedUrl,
+  shapeExplanation,
   shapeLabel,
 } from "@/lib/ai-citation-gap";
 import { HEAT_LEGEND, heatColor, heatIndexFromScore, heatStyle } from "@/lib/heat";
 import { getBrief, type BriefResult } from "@/lib/briefs.functions";
-import { listSignals, type EvidenceRow, type SignalRow } from "@/lib/signals.functions";
+import {
+  listMarketContext,
+  listSignals,
+  type EvidenceRow,
+  type MarketSnapshotRow,
+  type SignalOpportunityContext,
+  type SignalRow,
+} from "@/lib/signals.functions";
+import { calculateMarketDelta, geoLabel, marketScopeLabel } from "@/lib/geo.types";
+import { seriesDelta } from "@/lib/series";
 import { ALL_TAGS } from "@/lib/watchlist";
 
 export const Route = createFileRoute("/radar")({
@@ -44,19 +65,6 @@ export const Route = createFileRoute("/radar")({
     ],
   }),
 });
-
-function seriesDelta(series: number[]): { pct: number; label: string } | null {
-  if (series.length < 8) return null;
-  const recent = series.slice(-4);
-  const prior = series.slice(0, -4);
-  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-  const r = mean(recent);
-  const p = mean(prior);
-  if (p <= 0.5) return null;
-  const pct = Math.round(((r - p) / p) * 100);
-  const label = pct > 0 ? `+${pct}% vs earlier` : pct < 0 ? `${pct}% vs earlier` : "flat vs earlier";
-  return { pct, label };
-}
 
 function Sparkline({ series, heat = 2 }: { series: number[]; heat?: number }) {
   if (series.length < 4) return null;
@@ -147,7 +155,42 @@ function InlineBrief({ result }: { result: BriefResult }) {
 }
 
 function RadarPage() {
-  const { signals, evidence, lastRun } = Route.useLoaderData();
+  const { signals: baseSignals, evidence, lastRun } = Route.useLoaderData();
+  const { selection, geoKey } = useGeo();
+  const loadMarket = useServerFn(listMarketContext);
+  const marketQuery = useQuery({
+    queryKey: ["radar-market", geoKey],
+    queryFn: () => loadMarket({ data: { geoKey, countryCode: selection.countryCode } }),
+    staleTime: 5 * 60_000,
+  });
+  const marketSnapshots = marketQuery.data?.snapshots as
+    Record<string, MarketSnapshotRow> | undefined;
+  const baselineSnapshots = marketQuery.data?.baselines as
+    Record<string, MarketSnapshotRow> | undefined;
+  const globalSnapshots = marketQuery.data?.globals as
+    Record<string, MarketSnapshotRow> | undefined;
+  const opportunityContext = (marketQuery.data?.opportunities ?? {}) as Record<
+    string,
+    SignalOpportunityContext
+  >;
+  const signals = useMemo(
+    () =>
+      baseSignals.map((signal) => {
+        const snapshot = marketSnapshots?.[signal.id];
+        return snapshot
+          ? {
+              ...signal,
+              demand_score: snapshot.demand_score,
+              supply_score: snapshot.supply_score,
+              opportunity_score: snapshot.opportunity_score,
+              momentum: snapshot.momentum,
+              lead_weeks: snapshot.lead_weeks,
+              series: snapshot.series,
+            }
+          : signal;
+      }),
+    [baseSignals, marketSnapshots],
+  );
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [onlyAiGap, setOnlyAiGap] = useState(false);
@@ -202,7 +245,8 @@ function RadarPage() {
       const matchesTags = tags.length === 0 || tags.every((t) => s.tags.includes(t));
       const gap = getAiCitationGap(s.slug, s.keyword);
       const matchesGap =
-        !onlyAiGap || (gap != null && (gap.gap === "high" || gap.gap === "medium"));
+        !onlyAiGap ||
+        (gap != null && gap.status !== "demo" && (gap.gap === "high" || gap.gap === "medium"));
       return matchesQuery && matchesTags && matchesGap;
     });
   }, [signals, query, tags, onlyAiGap]);
@@ -223,8 +267,10 @@ function RadarPage() {
             {signals.length} signals
             {(() => {
               const gapped = signals.filter((s) => {
-                const g = getAiCitationGap(s.slug, s.keyword)?.gap;
-                return g === "high" || g === "medium";
+                const result = getAiCitationGap(s.slug, s.keyword);
+                return (
+                  result?.status !== "demo" && (result?.gap === "high" || result?.gap === "medium")
+                );
               }).length;
               return gapped > 0 ? ` · ${gapped} with AI-gap overlay` : "";
             })()}
@@ -233,8 +279,13 @@ function RadarPage() {
             Radar
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Demand scored against the supply already shipped · Wikipedia · GitHub · Hacker News ·
-            Tavily · Sitefire AI-gap overlay
+            {marketQuery.data?.available && Object.keys(marketSnapshots ?? {}).length > 0
+              ? `${geoLabel(selection)} snapshots · unmatched rows retain canonical fallback scores`
+              : `${geoLabel(selection)} selected · country/global fallback until this market is ingested`}
+            {Object.keys(globalSnapshots ?? {}).length > 0
+              ? " · local vs global interest after ingest"
+              : ""}
+            {" · "}Wikipedia · GitHub · Hacker News · Tavily · Sitefire AI-gap overlay
           </p>
           <div className="mt-5 flex items-center gap-2">
             {HEAT_LEGEND.map((l) => (
@@ -281,37 +332,58 @@ function RadarPage() {
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => setOnlyAiGap((v) => !v)}
-              className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
-                onlyAiGap
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
-              }`}
-            >
-              ai-gap
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setOnlyAiGap((v) => !v)}
+                  aria-pressed={onlyAiGap}
+                  className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    onlyAiGap
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  ai-gap
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-72 normal-case leading-5">
+                {AI_GAP_FILTER_EXPLANATION}
+              </TooltipContent>
+            </Tooltip>
           </div>
           <div className="mt-5 flex items-center gap-3">
             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               Detail
             </span>
             <div className="flex">
-              {(["compact", "standard", "full"] as const).map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setDetail(level)}
-                  className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
-                    detail === level
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:border-primary hover:text-primary"
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
+              {(["compact", "standard", "full"] as const).map((level) => {
+                const description =
+                  level === "compact"
+                    ? "Scores and labels only."
+                    : level === "standard"
+                      ? "Adds evidence summaries and signal history."
+                      : "Keeps every card expanded with its full evidence.";
+                return (
+                  <Tooltip key={level}>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setDetail(level)}
+                        aria-pressed={detail === level}
+                        className={`border rounded-md px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                          detail === level
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>{description}</TooltipContent>
+                  </Tooltip>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -324,7 +396,15 @@ function RadarPage() {
           <div className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {visible.map((s: SignalRow) => {
               const rows = evidenceBySignal.get(s.id) ?? [];
-              const aiGap = getAiCitationGap(s.slug, s.keyword);
+              const opportunity = opportunityContext[s.id];
+              const snapshot = marketSnapshots?.[s.id];
+              const baseline = baselineSnapshots?.[s.id];
+              const marketDelta = calculateMarketDelta(
+                snapshot?.opportunity_score,
+                baseline?.opportunity_score,
+              );
+              const rawAiGap = getAiCitationGap(s.slug, s.keyword);
+              const aiGap = rawAiGap?.status === "demo" ? null : rawAiGap;
               const story = aiGap ? gapStory(aiGap.gap, s.supply_score) : null;
               const isOpen = detail === "full" ? open !== `closed-${s.id}` : open === s.id;
               const oppHeat = heatIndexFromScore(s.opportunity_score);
@@ -351,54 +431,105 @@ function RadarPage() {
                   </h2>
                   {aiGap ? (
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span
-                        className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] ${
-                          aiGap.gap === "high"
-                            ? "border-primary text-primary"
-                            : aiGap.gap === "medium"
-                              ? "border-border text-foreground"
-                              : "border-border text-muted-foreground"
-                        }`}
-                      >
-                        {gapLabel(aiGap.gap)}
-                        {aiGap.status === "demo" ? " · demo" : ""}
-                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            tabIndex={0}
+                            className={`cursor-help rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                              aiGap.gap === "high"
+                                ? "border-primary text-primary"
+                                : aiGap.gap === "medium"
+                                  ? "border-border text-foreground"
+                                  : "border-border text-muted-foreground"
+                            }`}
+                          >
+                            {gapLabel(aiGap.gap)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-72 normal-case leading-5">
+                          {gapExplanation(aiGap.gap)}
+                        </TooltipContent>
+                      </Tooltip>
                       {aiGap.citationShape ? (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                          {shapeLabel(aiGap.citationShape)}
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              tabIndex={0}
+                              className="cursor-help font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            >
+                              {shapeLabel(aiGap.citationShape)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-72 normal-case leading-5">
+                            {shapeExplanation(aiGap.citationShape)}
+                          </TooltipContent>
+                        </Tooltip>
                       ) : null}
                       {!aiGap.localCited ? (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                          no local cite
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              tabIndex={0}
+                              className="cursor-help font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            >
+                              no local cite
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-72 normal-case leading-5">
+                            {LOCAL_CITE_EXPLANATION}
+                          </TooltipContent>
+                        </Tooltip>
                       ) : null}
                       {aiGap.engineDisagreement ? (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
-                          engines disagree
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              tabIndex={0}
+                              className="cursor-help font-mono text-[10px] uppercase tracking-[0.14em] text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            >
+                              engines disagree
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-72 normal-case leading-5">
+                            {ENGINE_DISAGREEMENT_EXPLANATION}
+                          </TooltipContent>
+                        </Tooltip>
                       ) : null}
                     </div>
                   ) : null}
                   {/* Story depends on supply: absent AI citations are whitespace only when the
                       shelf is also empty — otherwise incumbents exist but have not done GEO. */}
                   {story ? (
-                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                      {gapStoryLabel(story)}
-                    </p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p
+                          tabIndex={0}
+                          className="mt-2 w-fit cursor-help font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {gapStoryLabel(story)}
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-72 normal-case leading-5">
+                        {gapStoryExplanation(story)}
+                      </TooltipContent>
+                    </Tooltip>
                   ) : null}
                   {detail !== "compact" && (
                     <div className="mt-3">
                       <Sparkline series={s.series ?? []} heat={oppHeat} />
+                      {globalSnapshots?.[s.id]?.series ? (
+                        <LocalGlobalChart
+                          localLabel={selection.city || selection.countryName}
+                          localSeries={s.series ?? []}
+                          globalSeries={globalSnapshots[s.id]!.series}
+                        />
+                      ) : null}
                     </div>
                   )}
                   <dl className="mt-3 grid grid-cols-3 gap-2 border-y border-dotted border-border py-2 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                     <div>
                       <dt>Demand</dt>
-                      <dd
-                        className="font-display text-lg"
-                        style={{ color: heatColor(demandHeat) }}
-                      >
+                      <dd className="font-display text-lg" style={{ color: heatColor(demandHeat) }}>
                         {s.demand_score}
                       </dd>
                     </div>
@@ -408,16 +539,46 @@ function RadarPage() {
                     </div>
                     <div>
                       <dt>Lead</dt>
-                      <dd
-                        className="font-display text-lg"
-                        style={{ color: heatColor(leadHeat) }}
-                      >
+                      <dd className="font-display text-lg" style={{ color: heatColor(leadHeat) }}>
                         {s.lead_weeks}w
                       </dd>
                     </div>
                   </dl>
                   {detail !== "compact" && (
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">{s.why}</p>
+                  )}
+                  {detail !== "compact" && (
+                    <div className="mt-3 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+                      <span className="border border-border px-2 py-1">
+                        {snapshot
+                          ? marketScopeLabel(snapshot.measurement_scope)
+                          : "global fallback"}
+                      </span>
+                      {snapshot &&
+                      baseline &&
+                      snapshot.geo_key !== baseline.geo_key &&
+                      marketDelta != null ? (
+                        <span className="border border-primary/40 px-2 py-1 text-primary">
+                          local Δ {marketDelta >= 0 ? "+" : ""}
+                          {marketDelta}
+                        </span>
+                      ) : null}
+                      {opportunity ? (
+                        <>
+                          <span className="border border-border px-2 py-1">
+                            {opportunity.observationCount} observations
+                          </span>
+                          <span className="border border-border px-2 py-1">
+                            {opportunity.appSeedCount} directions
+                          </span>
+                          {opportunity.workaround ? (
+                            <span className="border border-border px-2 py-1 normal-case tracking-normal">
+                              workaround: {opportunity.workaround}
+                            </span>
+                          ) : null}
+                        </>
+                      ) : null}
+                    </div>
                   )}
                   {detail !== "compact" && aiGap ? (
                     <div className="mt-2 text-[13px] leading-5 text-muted-foreground">
@@ -509,15 +670,15 @@ function RadarPage() {
                       Full page →
                     </Link>
                   </div>
-                  {detail !== "compact" ? <CheckItYourself keyword={s.keyword} /> : null}
+                  {detail !== "compact" ? (
+                    <CheckItYourself keyword={s.keyword} geo={selection.countryCode} />
+                  ) : null}
                   {briefError[s.slug] ? (
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
                       {briefError[s.slug]}
                     </p>
                   ) : null}
-                  {briefs[s.slug] ? (
-                    <InlineBrief result={briefs[s.slug]!} />
-                  ) : null}
+                  {briefs[s.slug] ? <InlineBrief result={briefs[s.slug]!} /> : null}
                   {detail !== "compact" && (
                     <button
                       type="button"
@@ -532,29 +693,7 @@ function RadarPage() {
                     </button>
                   )}
                   {detail !== "compact" && isOpen && (
-                    <ul className="mt-3 space-y-2 border-t border-dotted border-border pt-3">
-                      {rows.map((row, i) => (
-                        <li key={`${row.metric}-${i}`} className="text-[13px] leading-5">
-                          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                            {row.source} · {row.metric}
-                            {row.value !== null ? ` · ${row.value}` : ""}
-                          </span>
-                          <br />
-                          {row.url ? (
-                            <a
-                              href={row.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="underline decoration-dotted"
-                            >
-                              {row.detail}
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">{row.detail}</span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+                    <EvidenceList rows={rows} keyword={s.keyword} geo={selection.countryCode} />
                   )}
                 </article>
               );

@@ -8,6 +8,65 @@ export type SignalEdgeRow = {
   evidence: string | null;
 };
 
+export type ObservationBranch = {
+  signalSlug: string;
+  signal: string;
+  observationId: string;
+  evidenceType: string;
+  friction: string;
+  family: string;
+  appSeed: string;
+};
+
+export const listObservationBranches = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: seeds, error } = await supabaseAdmin
+      .from("app_seeds")
+      .select("observation_id, signal_id, family, title")
+      .not("signal_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(40);
+    if (error || !seeds?.length)
+      return { branches: [] as ObservationBranch[], source: "fallback" as const };
+    const signalIds = [
+      ...new Set(seeds.flatMap((seed) => (seed.signal_id ? [seed.signal_id] : []))),
+    ];
+    const observationIds = [...new Set(seeds.map((seed) => seed.observation_id))];
+    const [{ data: signals }, { data: observations }] = await Promise.all([
+      supabaseAdmin.from("signals").select("id, slug, keyword").in("id", signalIds),
+      supabaseAdmin
+        .from("signal_observations")
+        .select("id, evidence_type, friction, observed_behavior")
+        .in("id", observationIds),
+    ]);
+    const signalMap = new Map((signals ?? []).map((signal) => [signal.id, signal]));
+    const observationMap = new Map(
+      (observations ?? []).map((observation) => [observation.id, observation]),
+    );
+    const branches = seeds.flatMap<ObservationBranch>((seed) => {
+      if (!seed.signal_id) return [];
+      const signal = signalMap.get(seed.signal_id);
+      const observation = observationMap.get(seed.observation_id);
+      if (!signal || !observation) return [];
+      return [
+        {
+          signalSlug: signal.slug,
+          signal: signal.keyword,
+          observationId: observation.id,
+          evidenceType: observation.evidence_type,
+          friction: observation.friction || observation.observed_behavior,
+          family: seed.family,
+          appSeed: seed.title,
+        },
+      ];
+    });
+    return { branches, source: "table" as const };
+  } catch {
+    return { branches: [] as ObservationBranch[], source: "fallback" as const };
+  }
+});
+
 /**
  * Tag -> App Store market edges from Postgres (`signal_edges`).
  *

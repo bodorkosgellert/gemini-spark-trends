@@ -33,13 +33,15 @@ export function hostOf(url: string): string {
  * Places a visitor can verify a Radar keyword for free.
  * These are search templates (keyword encoded) — not proof that a page ranked.
  */
-export function exploreLinks(keyword: string): ExploreLink[] {
+export function exploreLinks(keyword: string, geo = ""): ExploreLink[] {
   const rows: Omit<ExploreLink, "host">[] = [
     {
       id: "trends",
       label: "Google Trends",
-      hint: "The interest curve behind the percentage",
-      url: trendsUrl(keyword),
+      hint: geo
+        ? `Interest curve for ${geo.toUpperCase()} — then open subregions on the map`
+        : "The interest curve behind the percentage",
+      url: trendsUrl(keyword, geo),
     },
     {
       id: "search",

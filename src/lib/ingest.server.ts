@@ -6,6 +6,8 @@
  * Every source is optional: a failing source degrades the score's confidence
  * rather than the whole run.
  */
+import type { GeoContext } from "./geo.types";
+import { parseTrendsPayload } from "./evidence-display";
 
 export type Reading = {
   source: string;
@@ -28,6 +30,17 @@ export type KeywordResult = {
   why: string;
   series: number[];
   readings: Reading[];
+  geo: GeoContext;
+  sourceScopes: Record<string, "city" | "country" | "global">;
+  /** Worldwide Google Trends series when the pull succeeded. Empty if not measured. */
+  globalSeries: number[];
+  globalScores: {
+    demand: number;
+    supply: number;
+    opportunity: number;
+    momentum: number;
+    lead: number;
+  } | null;
 };
 
 const UA =
@@ -60,24 +73,29 @@ export async function googleTrends(
   geo: string,
 ): Promise<{ series: number[]; readings: Reading[] }> {
   const readings: Reading[] = [];
+  const geoCode = geo.trim().toUpperCase();
+  const exploreGeo = geoCode || "";
   try {
-    const cookieRes = await fetch(`https://trends.google.com/?geo=${geo}`, {
-      headers: { "user-agent": UA },
-    });
+    const cookieRes = await fetch(
+      geoCode ? `https://trends.google.com/?geo=${geoCode}` : "https://trends.google.com/",
+      { headers: { "user-agent": UA } },
+    );
     const cookie = (cookieRes.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
 
     const req = {
-      comparisonItem: [{ keyword, geo, time: "today 12-m" }],
+      comparisonItem: [{ keyword, geo: exploreGeo, time: "today 12-m" }],
       category: 0,
       property: "",
     };
     const exploreUrl =
-      `https://trends.google.com/trends/api/explore?hl=en-US&tz=0&geo=${geo}&req=` +
+      `https://trends.google.com/trends/api/explore?hl=en-US&tz=0` +
+      (exploreGeo ? `&geo=${exploreGeo}` : "") +
+      `&req=` +
       encodeURIComponent(JSON.stringify(req));
     const exploreRaw = await fetch(exploreUrl, {
       headers: { "user-agent": UA, cookie },
     }).then((r) => r.text());
-    const widgets = JSON.parse(exploreRaw.slice(5)).widgets as Array<any>;
+    const widgets = (parseTrendsPayload(exploreRaw) as { widgets?: Array<any> }).widgets ?? [];
     const timeseries = widgets.find((w) => w.id === "TIMESERIES");
     if (!timeseries) throw new Error("no timeseries widget");
 
@@ -87,24 +105,32 @@ export async function googleTrends(
     const dataRaw = await fetch(dataUrl, { headers: { "user-agent": UA, cookie } }).then((r) =>
       r.text(),
     );
-    const points = JSON.parse(dataRaw.slice(5)).default.timelineData as Array<any>;
+    const points = (
+      parseTrendsPayload(dataRaw) as { default?: { timelineData?: Array<any> } }
+    ).default?.timelineData ?? [];
     const series = points.map((p) => Number(p.value?.[0] ?? 0));
 
+    const exploreLink = exploreGeo
+      ? `https://trends.google.com/trends/explore?geo=${exploreGeo}&q=${encodeURIComponent(keyword)}`
+      : `https://trends.google.com/trends/explore?q=${encodeURIComponent(keyword)}`;
     readings.push({
       source: "Google Trends",
-      metric: "interest_last_12m",
+      metric: exploreGeo ? "interest_last_12m" : "interest_global_12m",
       value: series.at(-1) ?? 0,
-      detail: `${series.length} weekly points, geo ${geo}`,
-      url: `https://trends.google.com/trends/explore?geo=${geo}&q=${encodeURIComponent(keyword)}`,
+      detail: `${series.length} weekly points, geo ${exploreGeo || "worldwide"}`,
+      url: exploreLink,
     });
     return { series, readings };
   } catch (error) {
+    const exploreLink = exploreGeo
+      ? `https://trends.google.com/trends/explore?geo=${exploreGeo}&q=${encodeURIComponent(keyword)}`
+      : `https://trends.google.com/trends/explore?q=${encodeURIComponent(keyword)}`;
     readings.push({
       source: "Google Trends",
-      metric: "interest_last_12m",
+      metric: exploreGeo ? "interest_last_12m" : "interest_global_12m",
       value: null,
       detail: `unavailable: ${(error as Error).message}`,
-      url: `https://trends.google.com/trends/explore?geo=${geo}&q=${encodeURIComponent(keyword)}`,
+      url: exploreLink,
     });
     return { series: [], readings };
   }
@@ -202,7 +228,7 @@ export async function githubSupply(keyword: string): Promise<Reading[]> {
         metric: "new_repos_90d",
         value: null,
         detail: `unavailable: ${(error as Error).message}`,
-        url: null,
+        url: `https://github.com/search?q=${encodeURIComponent(keyword)}&type=repositories`,
       },
     ];
   }
@@ -268,7 +294,7 @@ export async function hackerNews(keyword: string): Promise<{
           metric: "stories_30d",
           value: null,
           detail: `unavailable: ${(error as Error).message}`,
-          url: null,
+          url: `https://hn.algolia.com/?query=${query}`,
         },
       ],
     };
@@ -280,6 +306,7 @@ export async function hackerNews(keyword: string): Promise<{
 /* ------------------------------------------------------------------ */
 
 export async function reddit(keyword: string): Promise<Reading[]> {
+  const publicUrl = `https://www.reddit.com/search/?q=${encodeURIComponent(keyword)}&sort=new`;
   try {
     const url = `https://old.reddit.com/search.json?q=${encodeURIComponent(
       keyword,
@@ -293,19 +320,60 @@ export async function reddit(keyword: string): Promise<Reading[]> {
         metric: "posts_30d",
         value: children.length,
         detail: `${children.length} posts, ${score} combined upvotes in the last month`,
-        url: `https://www.reddit.com/search/?q=${encodeURIComponent(keyword)}&sort=new`,
+        url: publicUrl,
       },
     ];
-  } catch (error) {
+  } catch {
+    const viaTavily = await redditViaTavily(keyword);
+    if (viaTavily) return viaTavily;
     return [
       {
         source: "Reddit",
         metric: "posts_30d",
         value: null,
-        detail: `unavailable: ${(error as Error).message}`,
-        url: null,
+        detail: "unavailable: Reddit blocked automated counts",
+        url: publicUrl,
       },
     ];
+  }
+}
+
+async function redditViaTavily(keyword: string): Promise<Reading[] | null> {
+  const key = process.env["TAVILY_API_KEY"];
+  if (!key) return null;
+  try {
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        query: keyword,
+        include_domains: ["reddit.com"],
+        topic: "general",
+        days: 30,
+        max_results: 10,
+        search_depth: "basic",
+      }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      results?: Array<{ title?: string; url?: string }>;
+    };
+    const results = data.results ?? [];
+    if (results.length === 0) return null;
+    const top = results[0];
+    return [
+      {
+        source: "Reddit",
+        metric: "posts_30d",
+        value: results.length,
+        detail: top?.title
+          ? `${results.length} Reddit threads via Tavily — top: "${top.title}"`
+          : `${results.length} Reddit threads via Tavily in the last 30 days`,
+        url: top?.url ?? `https://www.reddit.com/search/?q=${encodeURIComponent(keyword)}&sort=new`,
+      },
+    ];
+  } catch {
+    return null;
   }
 }
 
@@ -456,7 +524,6 @@ export async function dataForSeoVolume(
     return empty(`unavailable: ${(error as Error).message}`);
   }
 }
-
 
 function mean(xs: number[]): number {
   return xs.length === 0 ? 0 : xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -657,11 +724,13 @@ export async function collectKeyword(
   keyword: string,
   category: string,
   tags: string[],
-  geo = "US",
+  geo: GeoContext,
 ): Promise<KeywordResult> {
   // Sequential with small gaps: the free tiers of these APIs rate-limit hard
   // when a batch fans out in parallel.
-  const trends = await googleTrends(keyword, geo);
+  const trends = await googleTrends(keyword, geo.countryCode);
+  await sleep(300);
+  const trendsGlobal = await googleTrends(keyword, "");
   const wiki = await wikipediaDemand(keyword);
   await sleep(300);
   const gh = await githubSupply(keyword);
@@ -669,12 +738,15 @@ export async function collectKeyword(
   const hn = await hackerNews(keyword);
   const rd = await reddit(keyword);
   const tv = await tavilyCoverage(keyword);
-  const dfs = await dataForSeoVolume(keyword, geo === "DE" ? 2276 : 2840, geo === "DE" ? "de" : "en");
+  const dfs = await dataForSeoVolume(keyword, geo.locationCode ?? 2840, geo.languageCode);
   const { itunesSearchApps, shelfSatisfaction } = await import("./itunes.server");
-  const itunesCountry = geo === "DE" ? "de" : geo === "GB" ? "gb" : "us";
+  const itunesCountry = geo.countryCode.toLowerCase();
   const itunes = await itunesSearchApps(keyword, itunesCountry, 25);
   const shelf = shelfSatisfaction(itunes.apps);
-  const topApps = itunes.apps.slice(0, 3).map((a) => a.trackName).join("; ");
+  const topApps = itunes.apps
+    .slice(0, 3)
+    .map((a) => a.trackName)
+    .join("; ");
   const itunesReading = {
     source: "App Store (iTunes Search)",
     metric: "software_results",
@@ -700,11 +772,7 @@ export async function collectKeyword(
   const redditPosts = rd[0]?.value ?? null;
   const webArticles = tv[0]?.value ?? null;
   const series =
-    dfs.series.length >= 8
-      ? dfs.series
-      : trends.series.length >= 8
-        ? trends.series
-        : wiki.series;
+    dfs.series.length >= 8 ? dfs.series : trends.series.length >= 8 ? trends.series : wiki.series;
   const scored = score({
     series,
     hnRecent: hn.recent,
@@ -713,6 +781,18 @@ export async function collectKeyword(
     itunesApps: itunes.count,
     storeSatisfaction: shelf?.score ?? null,
   });
+  const conversation = redditPosts === null ? webArticles : redditPosts + (webArticles ?? 0);
+  const globalScored =
+    trendsGlobal.series.length >= 8
+      ? score({
+          series: trendsGlobal.series,
+          hnRecent: hn.recent,
+          redditPosts: conversation,
+          githubRepos,
+          itunesApps: null,
+          storeSatisfaction: null,
+        })
+      : null;
 
   return {
     keyword,
@@ -731,9 +811,12 @@ export async function collectKeyword(
       storeSatisfaction: shelf?.score ?? null,
     }),
     series,
+    globalSeries: trendsGlobal.series,
+    globalScores: globalScored,
     readings: [
       ...dfs.readings,
       ...trends.readings,
+      ...trendsGlobal.readings,
       ...wiki.readings,
       ...gh,
       itunesReading,
@@ -742,6 +825,17 @@ export async function collectKeyword(
       ...rd,
       ...tv,
     ],
+    geo,
+    sourceScopes: {
+      DataForSEO: geo.measurementScope === "city-measured" ? "city" : "country",
+      "Google Trends": "country",
+      "App Store": "country",
+      Wikipedia: "global",
+      GitHub: "global",
+      "Hacker News": "global",
+      Reddit: "global",
+      Tavily: "global",
+    },
   };
 }
 

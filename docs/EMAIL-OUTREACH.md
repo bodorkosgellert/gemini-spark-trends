@@ -9,11 +9,11 @@ Payment / paid dossier comes **only after** someone shows interest — not in th
 
 ## Channels by country
 
-| Channel | Markets |
-|---------|---------|
-| Email | United States, United Kingdom (companies), Ireland, Netherlands, France, Australia |
+| Channel              | Markets                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| Email                | United States, United Kingdom (companies), Ireland, Netherlands, France, Australia      |
 | LinkedIn handwritten | Germany, Austria, Switzerland, Italy, Spain, Poland, Czechia, and other opt-in defaults |
-| In person | Berlin / Pitch Day (highest conversion) |
+| In person            | Berlin / Pitch Day (highest conversion)                                                 |
 
 You are in Berlin → European privacy rules still apply to processing. If using Apollo-style lists, note source in the footer.
 
@@ -54,7 +54,7 @@ https://trendspark2026.lovable.app
 On the site you will see four tabs:
 • Radar — demand signals ranked
 • Store — what already shipped in that niche
-• Graph — how themes connect to markets
+• Connections — how themes connect to markets
 • Suggest — leave an idea or reaction
 
 If this is useful, reply “interested”.
@@ -78,12 +78,12 @@ Berlin
 
 ## What customers see (four tabs)
 
-| Tab | In easy words |
-|-----|----------------|
-| Radar | Here you see demand signals ranked |
-| Store | Here you see which apps already own the shelf |
-| Graph | Here you see how themes wire into markets |
-| Suggest | Here you can leave feedback or an idea |
+| Tab         | In easy words                                 |
+| ----------- | --------------------------------------------- |
+| Radar       | Here you see demand signals ranked            |
+| Store       | Here you see which apps already own the shelf |
+| Connections | Here you see how themes wire into markets     |
+| Suggest     | Here you can leave feedback or an idea        |
 
 Pitch / slide version of the same story: problem → TrendSpark → one finding → four tabs → “early stage, try it, give feedback” → feedback form / code on last slide. Keep spoken pitch under about three minutes; email uses only the first part.
 
@@ -95,11 +95,11 @@ Pitch / slide version of the same story: problem → TrendSpark → one finding 
 
 ## Sender: private Gmail vs automated
 
-| Choice | When |
-|--------|------|
+| Choice                                    | When                                                                 |
+| ----------------------------------------- | -------------------------------------------------------------------- |
 | **Domain + Resend / Brevo** (recommended) | Sending globally at any real volume; keeps your personal inbox clean |
-| Domain mailbox in Apple Mail / Outlook | First 20–30 hand sends this week |
-| Personal Gmail | Only tiny tests; burns personal reputation and looks less serious |
+| Domain mailbox in Apple Mail / Outlook    | First 20–30 hand sends this week                                     |
+| Personal Gmail                            | Only tiny tests; burns personal reputation and looks less serious    |
 
 For “mostly not Germany, global email”: use a **product domain**, not private Gmail. Cap about 15–20/day on a new domain.
 

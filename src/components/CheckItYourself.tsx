@@ -37,8 +37,14 @@ function Favicon({ link }: { link: ExploreLink }) {
 }
 
 /** Five search links so visitors can verify a keyword without trusting the card alone. */
-export function CheckItYourself({ keyword }: { keyword: string }) {
-  const links = exploreLinks(keyword);
+export function CheckItYourself({
+  keyword,
+  geo = "",
+}: {
+  keyword: string;
+  geo?: string;
+}) {
+  const links = exploreLinks(keyword, geo);
 
   return (
     <div className="mt-3 border-t border-dotted border-border pt-3">

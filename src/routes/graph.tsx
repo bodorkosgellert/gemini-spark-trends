@@ -1,14 +1,14 @@
 import { SiteNav } from "@/components/SiteNav";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import crosswalk from "@/data/tag-crosswalk.json";
 import store from "@/data/appstore-signals.json";
 import { heatColor, heatIndexFromScore } from "@/lib/heat";
 import { askTrendGraph } from "@/lib/cognee.functions";
-import { edgesToMap, listSignalEdges } from "@/lib/edges.functions";
+import { edgesToMap, listObservationBranches, listSignalEdges } from "@/lib/edges.functions";
 
 const SUGGESTED = [
   "Which signal has rising demand but almost no supply, and what would you build first?",
@@ -101,13 +101,13 @@ export const Route = createFileRoute("/graph")({
   component: GraphExplorer,
   head: () => ({
     meta: [
-      { title: "The Web — how demand tags connect to app markets | TrendSpark" },
+      { title: "Web — how demand tags connect to app markets | TrendSpark" },
       {
         name: "description",
         content:
           "A graph of 23 demand tags wired to 25 App Store markets: which attention themes lead which shelves, how crowded each market is, and where a lead time meets an unbuilt market.",
       },
-      { property: "og:title", content: "The Web — demand tags wired to app markets" },
+      { property: "og:title", content: "Web — demand tags wired to app markets" },
       {
         property: "og:description",
         content:
@@ -180,6 +180,12 @@ function localHits(m: MarketRow, geo: Exclude<GeoScope, "all">): number {
 
 function GraphExplorer() {
   const { edges: edgeRows, source: edgeSource } = Route.useLoaderData();
+  const loadBranches = useServerFn(listObservationBranches);
+  const branchQuery = useQuery({
+    queryKey: ["observation-branches"],
+    queryFn: () => loadBranches(),
+    staleTime: 5 * 60_000,
+  });
   const [focus, setFocus] = useState<string | null>(null);
   const [leadingOnly, setLeadingOnly] = useState(false);
   /** Storefront lens — re-weights outer nodes by one country; does not explode the graph. */
@@ -259,15 +265,12 @@ function GraphExplorer() {
       <SiteNav />
       <div className="mx-auto max-w-5xl px-5 pb-24 pt-8">
         <header>
-          
           <h1 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
-            The Web
+            Web
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             Every demand tag wired to the app markets it would ship into
-            {geo === "all"
-              ? ""
-              : ` · outer ring sized by ${COUNTRY_NAMES[geo]} storefront hits`}
+            {geo === "all" ? "" : ` · outer ring sized by ${COUNTRY_NAMES[geo]} storefront hits`}
           </p>
           <div className="mt-4 border-y border-border py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             {tags.length} tags · {markets.length} markets · {links.length} edges
@@ -448,6 +451,67 @@ function GraphExplorer() {
           </svg>
         </div>
 
+        <section className="mt-8 border-y border-border py-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
+                Typed observation paths
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-bold">
+                From signal to build direction
+              </h2>
+            </div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              {branchQuery.data?.source === "table" ? "archived rows" : "waiting for first archive"}
+            </span>
+          </div>
+          {branchQuery.data?.branches.length ? (
+            <div className="mt-5 space-y-3">
+              {branchQuery.data.branches.slice(0, 8).map((branch, index) => (
+                <div
+                  key={`${branch.observationId}-${branch.family}-${index}`}
+                  className="flex min-w-0 flex-wrap items-center gap-2 text-xs"
+                >
+                  <Link
+                    to="/brief/$slug"
+                    params={{ slug: branch.signalSlug }}
+                    className="border border-border px-2 py-1 font-mono uppercase tracking-[0.1em] hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    signal · {branch.signal}
+                  </Link>
+                  <span aria-hidden className="text-primary">
+                    →
+                  </span>
+                  <span className="border border-border px-2 py-1">
+                    observation · {branch.evidenceType}
+                  </span>
+                  <span aria-hidden className="text-primary">
+                    →
+                  </span>
+                  <span className="max-w-60 border border-border px-2 py-1">
+                    friction · {branch.friction}
+                  </span>
+                  <span aria-hidden className="text-primary">
+                    →
+                  </span>
+                  <span className="border border-border px-2 py-1">family · {branch.family}</span>
+                  <span aria-hidden className="text-primary">
+                    →
+                  </span>
+                  <strong className="border border-primary/50 px-2 py-1">
+                    seed · {branch.appSeed}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
+              Existing market edges stay visible. Typed paths appear after an observation is tracked
+              and the signal is ingested; no synthetic history is drawn.
+            </p>
+          )}
+        </section>
+
         <AskTheGraph />
 
         {(focusTag || focusMarket) && (
@@ -492,7 +556,9 @@ function GraphExplorer() {
 
             {focusMarket && (
               <div>
-                <h2 className="font-display text-3xl font-extrabold capitalize">{focusMarket.query}</h2>
+                <h2 className="font-display text-3xl font-extrabold capitalize">
+                  {focusMarket.query}
+                </h2>
                 <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   opportunity {focusMarket.opportunity} · {focusMarket.supply} listings ·{" "}
                   {Math.round(focusMarket.freshRate * 100)}% fresh · top-3 hold{" "}
@@ -574,8 +640,9 @@ function GraphExplorer() {
 
         <footer className="mt-12 border-t border-border pt-5 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString("en-US")} launches)
-            and the Store Ledger ({new Date(store.generatedAt).toUTCString().slice(5, 16)}) · edges
+            Joined from the Crosswalk study ({crosswalk.launchesScanned.toLocaleString("en-US")}{" "}
+            launches) and the Store Ledger ({new Date(store.generatedAt).toUTCString().slice(5, 16)}
+            ) · edges
             {edgeSource === "table"
               ? ` from signal_edges (${edgeRows.length} rows)`
               : " from the in-file fallback map"}

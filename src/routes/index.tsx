@@ -1,9 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BlueWaves } from "@/components/BlueWaves";
+import { useGeo } from "@/components/geo-context";
 import { SiteNav } from "@/components/SiteNav";
-import { HEAT_LEGEND, heatStyle } from "@/lib/heat";
+import { geoLabel } from "@/lib/geo.types";
+import { HEAT_LEGEND, heatIndexFromScore, heatStyle } from "@/lib/heat";
+import { listSignals } from "@/lib/signals.functions";
 
 export const Route = createFileRoute("/")({
+  loader: () => listSignals(),
   head: () => ({
     meta: [
       { title: "TrendSpark — Know what to build" },
@@ -25,62 +29,34 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const signals = [
-  {
-    kicker: "Berlin",
-    title: "Neighbourhood repair cafés outpace delivery apps in weekend search",
-    score: 92,
-    days: 1,
-    body:
-      "Queries for “fix my” overtook “order my” across three postal districts. Tooling gap: nobody schedules the volunteers.",
-    tags: ["local", "marketplace"],
-  },
-  {
-    kicker: "Tokyo",
-    title: "Voice-first bookkeeping requested by solo shopkeepers",
-    score: 87,
-    days: 4,
-    body:
-      "A two-week spike in forum threads asking for spoken receipts. The delta reaches Europe in roughly nine weeks.",
-    tags: ["voice", "smb"],
-  },
-  {
-    kicker: "Lisbon",
-    title: "Agents buying data by the call, not by the seat",
-    score: 81,
-    days: 12,
-    body:
-      "Per-request billing chatter tripled. Seat licences read as legacy to anyone shipping an autonomous worker.",
-    tags: ["agents", "pricing"],
-  },
-];
-
-const ledger = [
-  { label: "Signals tracked", value: "148" },
-  { label: "Cities on the wire", value: "26" },
-  { label: "Median lead time", value: "9 wks" },
-  { label: "Our cut before you earn", value: "0%" },
-];
-
 const pipeline = [
   {
     step: "01",
-    title: "Ingest",
-    body: "Wikipedia pageviews, GitHub, Hacker News, App Store and live Tavily web coverage, pulled daily.",
+    title: "Observe",
+    body: "Retain the complaint, workaround or new capability as source-linked evidence.",
   },
   {
     step: "02",
-    title: "Score",
-    body: "Demand over supply. A high score means people are asking and nobody has shipped the answer yet.",
+    title: "Name the friction",
+    body: "Separate what happened from the interpretation: manual effort, fragmentation or coordination.",
   },
   {
     step: "03",
-    title: "Brief",
-    body: "One click turns a signal into a hero flow, a monetisation angle and a prompt you can paste into any builder.",
+    title: "Branch",
+    body: "Explore discovery, automation, monitoring, marketplace and other genuinely different app directions.",
   },
 ];
 
 function Index() {
+  const { signals } = Route.useLoaderData();
+  const { selection } = useGeo();
+  const featured = signals.slice(0, 3);
+  const ledger = [
+    { label: "Signals tracked", value: String(signals.length) },
+    { label: "Active lens", value: geoLabel(selection) },
+    { label: "Evidence model", value: "Observed" },
+    { label: "Our cut before you earn", value: "0%" },
+  ];
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
@@ -92,20 +68,23 @@ function Index() {
             TrendSpark
           </h1>
           <p className="mt-5 max-w-xl font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            Building got free. Knowing what to build didn’t.
+            World → observation → friction → app directions.
+          </p>
+          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            Active lens · {geoLabel(selection)}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              to="/radar"
+              to="/discover"
               className="rounded-md bg-primary px-6 py-3 font-mono text-xs uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90"
             >
-              Open the radar →
+              Find an observation →
             </Link>
             <Link
-              to="/graph"
+              to="/arbitrage"
               className="rounded-md border border-border px-6 py-3 font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
             >
-              Explore the graph
+              Global arbitrage
             </Link>
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
               No account · No card
@@ -122,7 +101,7 @@ function Index() {
                 {item.label}
               </dt>
               <dd
-                className="mt-1 inline-block rounded-sm border px-2 py-0.5 font-display text-3xl font-bold tracking-tight"
+                className="mt-1 inline-block max-w-full break-words rounded-sm border px-2 py-0.5 font-display text-xl font-bold tracking-tight sm:text-2xl"
                 style={heatStyle([3, 4, 2, 4][i] ?? 3)}
               >
                 {item.value}
@@ -149,10 +128,7 @@ function Index() {
           <div className="flex items-center gap-2">
             {HEAT_LEGEND.map((l) => (
               <div key={l.label} className="text-center">
-                <div
-                  className="h-6 w-12 rounded-sm border"
-                  style={heatStyle(l.index)}
-                />
+                <div className="h-6 w-12 rounded-sm border" style={heatStyle(l.index)} />
                 <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
                   {l.label}
                 </span>
@@ -162,26 +138,26 @@ function Index() {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {signals.map((s) => (
+          {featured.map((s) => (
             <article
-              key={s.title}
+              key={s.id}
               className="rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-[0_1px_24px_-8px_var(--heat-4)]"
             >
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  {s.kicker}
+                  {s.category} · canonical
                 </span>
                 <span
                   className="rounded-sm border px-2 py-0.5 font-mono text-xs font-semibold"
-                  style={heatStyle(4 - Math.min(4, Math.floor(s.days / 3)))}
+                  style={heatStyle(heatIndexFromScore(s.opportunity_score))}
                 >
-                  {s.score} · {s.days}d
+                  {s.opportunity_score}
                 </span>
               </div>
               <h3 className="mt-3 font-display text-lg font-bold leading-snug tracking-tight">
-                {s.title}
+                {s.keyword}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{s.body}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{s.why}</p>
               <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">
                 {s.tags.join(" · ")}
               </p>

@@ -6,11 +6,11 @@ The Lovable web app already demonstrates the core loop: **signals in Supabase �
 
 ## Surfaces
 
-| Surface | Look / role |
-|---------|-------------|
-| Landing `/` | White paper + **blue wave** backdrop (`BlueWaves`), Inter Tight display, mono CTAs, sample Berlin/Tokyo/Lisbon cards |
-| Radar `/radar` | Live scored list, tag filters, sparklines, heat colors, “write brief” inline |
-| Crosswalk / Graph / Store | Correlation + opportunity exploration; graph usable without every paid key |
+| Surface                         | Look / role                                                                                                          |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Landing `/`                     | White paper + **blue wave** backdrop (`BlueWaves`), Inter Tight display, mono CTAs, sample Berlin/Tokyo/Lisbon cards |
+| Radar `/radar`                  | Live scored list, tag filters, sparklines, heat colors, “write brief” inline                                         |
+| Crosswalk / Connections / Store | Correlation + opportunity exploration; connection map usable without every paid key                                  |
 
 Visual language today: cool light UI, primary blue accent, mono uppercase nav — not the Expo Cobalt paper pass (that lives in `trendspark-22c0c6`).
 

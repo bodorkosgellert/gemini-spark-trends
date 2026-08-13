@@ -1,0 +1,115 @@
+{
+  "updatedAt": "2026-08-13T00:00:00.000Z",
+  "focus": "Europe-first (DE) with LATAM / APAC wedges",
+  "ideas": [
+    {
+      "id": "menu-ai-us-de",
+      "coreConcept": "AI-driven local restaurant menu translation + allergen compliance",
+      "validatedMarket": {
+        "countryCode": "US",
+        "searchVelocity": "high",
+        "dominantPlayer": "Menuify-class SaaS"
+      },
+      "targetMarketOpportunity": {
+        "countryCode": "DE",
+        "localSearchVolume": 62,
+        "localCompetition": "weak",
+        "localizationMoat": "DE allergen / LMIV labelling + Speisekarte workflows, not raw MT"
+      },
+      "tags": ["hospitality", "localization", "smb"],
+      "capitalizationScore": 8.5,
+      "source": "seed",
+      "note": "Proven US category; DE needs compliance-native UX."
+    },
+    {
+      "id": "field-service-us-de",
+      "coreConcept": "Field-service scheduling for trades (dispatch + invoicing)",
+      "validatedMarket": {
+        "countryCode": "US",
+        "searchVelocity": "high",
+        "dominantPlayer": "Jobber / ServiceTitan class"
+      },
+      "targetMarketOpportunity": {
+        "countryCode": "DE",
+        "localSearchVolume": 71,
+        "localCompetition": "fragmented",
+        "localizationMoat": "DATEV / e-invoicing + Handwerker mobile-first German UX"
+      },
+      "tags": ["smb", "services", "compliance"],
+      "capitalizationScore": 9.0,
+      "source": "seed"
+    },
+    {
+      "id": "bookkeeping-voice-us-jp",
+      "coreConcept": "Voice-first bookkeeping for solo shopkeepers",
+      "validatedMarket": {
+        "countryCode": "US",
+        "searchVelocity": "medium",
+        "dominantPlayer": "QuickBooks Voice experiments"
+      },
+      "targetMarketOpportunity": {
+        "countryCode": "JP",
+        "localSearchVolume": 58,
+        "localCompetition": "weak",
+        "localizationMoat": "Japanese business etiquette + local tax receipt norms; not a translated US UI"
+      },
+      "tags": ["smb", "voice", "localization"],
+      "capitalizationScore": 9.2,
+      "source": "seed"
+    },
+    {
+      "id": "smb-payments-uk-br",
+      "coreConcept": "SMB checkout + payout rails for marketplaces",
+      "validatedMarket": {
+        "countryCode": "UK",
+        "searchVelocity": "high",
+        "dominantPlayer": "Stripe ecosystem apps"
+      },
+      "targetMarketOpportunity": {
+        "countryCode": "BR",
+        "localSearchVolume": 76,
+        "localCompetition": "fragmented",
+        "localizationMoat": "Pix + Mercado Livre / local acquirer integrations, PT-BR ops language"
+      },
+      "tags": ["payments", "commerce", "localization"],
+      "capitalizationScore": 7.8,
+      "source": "seed"
+    },
+    {
+      "id": "einvoice-us-de",
+      "coreConcept": "Lightweight e-invoicing for micro-businesses",
+      "validatedMarket": {
+        "countryCode": "US",
+        "searchVelocity": "medium",
+        "dominantPlayer": "FreshBooks / Wave class"
+      },
+      "targetMarketOpportunity": {
+        "countryCode": "DE",
+        "localSearchVolume": 84,
+        "localCompetition": "fragmented",
+        "localizationMoat": "XRechnung / Peppol + Kleinunternehmer path — incumbents feel heavy"
+      },
+      "tags": ["compliance", "smb", "finance"],
+      "capitalizationScore": 8.2,
+      "source": "seed"
+    },
+    {
+      "id": "shopify-apps-us-de",
+      "coreConcept": "Shopify app for returns / local carrier labels",
+      "validatedMarket": {
+        "countryCode": "US",
+        "searchVelocity": "high",
+        "dominantPlayer": "AfterShip / Loop class"
+      },
+      "targetMarketOpportunity": {
+        "countryCode": "DE",
+        "localSearchVolume": 55,
+        "localCompetition": "weak",
+        "localizationMoat": "DHL / DPD / Hermes label flows + German returns law copy"
+      },
+      "tags": ["commerce", "localization", "logistics"],
+      "capitalizationScore": 8.0,
+      "source": "seed"
+    }
+  ]
+}

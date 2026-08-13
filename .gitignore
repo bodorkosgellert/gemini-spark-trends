@@ -23,6 +23,7 @@ dist-ssr
 
 # Local idea-submission fallback (when Supabase migration not applied)
 server/idea-suggestions.local.json
+server/promoted-watchlist.local.json
 
 # Wrangler / Cloudflare
 .wrangler/

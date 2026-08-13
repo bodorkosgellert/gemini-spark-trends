@@ -42,6 +42,7 @@ function buildUserPrompt(input: {
   opportunity: number;
   leadWeeks: number;
   why: string | null;
+  direction?: string | null;
   evidence: Array<{ source: string; metric: string; value: number | null; detail: string | null }>;
 }): string {
   const evidenceText = input.evidence
@@ -54,6 +55,7 @@ Tags: ${input.tags.join(", ")}
 Scores (0-100): demand ${input.demand}, supply/crowding ${input.supply}, opportunity ${input.opportunity}
 Lead: ${input.leadWeeks} weeks above baseline
 Engine note: ${input.why ?? "none"}
+Selected app direction: ${input.direction ?? "canonical signal — no derived direction selected"}
 
 Evidence:
 ${evidenceText || "- none collected"}
@@ -112,7 +114,8 @@ async function generateBriefAnthropic(
   });
 
   if (res.status === 429) throw new Error("The brief desk is rate limited. Try again in a minute.");
-  if (res.status === 402) throw new Error("Anthropic credits exhausted. Check your console billing.");
+  if (res.status === 402)
+    throw new Error("Anthropic credits exhausted. Check your console billing.");
   if (!res.ok) throw new Error(`Brief generation failed (${res.status})`);
 
   const payload = (await res.json()) as {
@@ -142,7 +145,8 @@ async function generateBriefLovable(
   });
 
   if (res.status === 429) throw new Error("The brief desk is rate limited. Try again in a minute.");
-  if (res.status === 402) throw new Error("Lovable AI credits exhausted. Set ANTHROPIC_API_KEY instead.");
+  if (res.status === 402)
+    throw new Error("Lovable AI credits exhausted. Set ANTHROPIC_API_KEY instead.");
   if (!res.ok) throw new Error(`Brief generation failed (${res.status})`);
 
   const payload = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
@@ -159,6 +163,7 @@ export async function generateBrief(input: {
   opportunity: number;
   leadWeeks: number;
   why: string | null;
+  direction?: string | null;
   evidence: Array<{ source: string; metric: string; value: number | null; detail: string | null }>;
 }): Promise<Brief> {
   const anthropicKey = process.env["ANTHROPIC_API_KEY"];

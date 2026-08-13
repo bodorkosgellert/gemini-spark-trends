@@ -10,11 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ArbitrageRouteImport } from './routes/arbitrage'
 import { Route as CrosswalkRouteImport } from './routes/crosswalk'
+import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SuggestRouteImport } from './routes/suggest'
+import { Route as ApiLocationRouteImport } from './routes/api/location'
 import { Route as BriefSlugRouteImport } from './routes/brief.$slug'
 import { Route as ApiPublicHooksIngestRouteImport } from './routes/api/public/hooks/ingest'
 
@@ -23,9 +26,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArbitrageRoute = ArbitrageRouteImport.update({
+  id: '/arbitrage',
+  path: '/arbitrage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrosswalkRoute = CrosswalkRouteImport.update({
   id: '/crosswalk',
   path: '/crosswalk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GraphRoute = GraphRouteImport.update({
@@ -48,6 +61,11 @@ const SuggestRoute = SuggestRouteImport.update({
   path: '/suggest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLocationRoute = ApiLocationRouteImport.update({
+  id: '/api/location',
+  path: '/api/location',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BriefSlugRoute = BriefSlugRouteImport.update({
   id: '/brief/$slug',
   path: '/brief/$slug',
@@ -61,32 +79,41 @@ const ApiPublicHooksIngestRoute = ApiPublicHooksIngestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/arbitrage': typeof ArbitrageRoute
   '/crosswalk': typeof CrosswalkRoute
+  '/discover': typeof DiscoverRoute
   '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
   '/suggest': typeof SuggestRoute
+  '/api/location': typeof ApiLocationRoute
   '/brief/$slug': typeof BriefSlugRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/arbitrage': typeof ArbitrageRoute
   '/crosswalk': typeof CrosswalkRoute
+  '/discover': typeof DiscoverRoute
   '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
   '/suggest': typeof SuggestRoute
+  '/api/location': typeof ApiLocationRoute
   '/brief/$slug': typeof BriefSlugRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/arbitrage': typeof ArbitrageRoute
   '/crosswalk': typeof CrosswalkRoute
+  '/discover': typeof DiscoverRoute
   '/graph': typeof GraphRoute
   '/radar': typeof RadarRoute
   '/store': typeof StoreRoute
   '/suggest': typeof SuggestRoute
+  '/api/location': typeof ApiLocationRoute
   '/brief/$slug': typeof BriefSlugRoute
   '/api/public/hooks/ingest': typeof ApiPublicHooksIngestRoute
 }
@@ -94,42 +121,54 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/arbitrage'
     | '/crosswalk'
+    | '/discover'
     | '/graph'
     | '/radar'
     | '/store'
     | '/suggest'
+    | '/api/location'
     | '/brief/$slug'
     | '/api/public/hooks/ingest'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/arbitrage'
     | '/crosswalk'
+    | '/discover'
     | '/graph'
     | '/radar'
     | '/store'
     | '/suggest'
+    | '/api/location'
     | '/brief/$slug'
     | '/api/public/hooks/ingest'
   id:
     | '__root__'
     | '/'
+    | '/arbitrage'
     | '/crosswalk'
+    | '/discover'
     | '/graph'
     | '/radar'
     | '/store'
     | '/suggest'
+    | '/api/location'
     | '/brief/$slug'
     | '/api/public/hooks/ingest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ArbitrageRoute: typeof ArbitrageRoute
   CrosswalkRoute: typeof CrosswalkRoute
+  DiscoverRoute: typeof DiscoverRoute
   GraphRoute: typeof GraphRoute
   RadarRoute: typeof RadarRoute
   StoreRoute: typeof StoreRoute
   SuggestRoute: typeof SuggestRoute
+  ApiLocationRoute: typeof ApiLocationRoute
   BriefSlugRoute: typeof BriefSlugRoute
   ApiPublicHooksIngestRoute: typeof ApiPublicHooksIngestRoute
 }
@@ -143,11 +182,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/arbitrage': {
+      id: '/arbitrage'
+      path: '/arbitrage'
+      fullPath: '/arbitrage'
+      preLoaderRoute: typeof ArbitrageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crosswalk': {
       id: '/crosswalk'
       path: '/crosswalk'
       fullPath: '/crosswalk'
       preLoaderRoute: typeof CrosswalkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/graph': {
@@ -178,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuggestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/location': {
+      id: '/api/location'
+      path: '/api/location'
+      fullPath: '/api/location'
+      preLoaderRoute: typeof ApiLocationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/brief/$slug': {
       id: '/brief/$slug'
       path: '/brief/$slug'
@@ -197,11 +257,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ArbitrageRoute: ArbitrageRoute,
   CrosswalkRoute: CrosswalkRoute,
+  DiscoverRoute: DiscoverRoute,
   GraphRoute: GraphRoute,
   RadarRoute: RadarRoute,
   StoreRoute: StoreRoute,
   SuggestRoute: SuggestRoute,
+  ApiLocationRoute: ApiLocationRoute,
   BriefSlugRoute: BriefSlugRoute,
   ApiPublicHooksIngestRoute: ApiPublicHooksIngestRoute,
 }

@@ -20,19 +20,39 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           });
         }
 
-        const { collectKeyword, slugify, prefetchDataForSeo } = await import(
-          "@/lib/ingest.server"
-        );
-        const { WATCHLIST } = await import("@/lib/watchlist");
+        const { collectKeyword, slugify, prefetchDataForSeo } = await import("@/lib/ingest.server");
+        const { getActiveWatchlist } = await import("@/lib/watchlist.server");
+        const { resolveGeo } = await import("@/lib/geo.server");
+        const { countryDetails } = await import("@/lib/geo.types");
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        let limit = WATCHLIST.length;
+        const watchlist = await getActiveWatchlist();
+        let limit = watchlist.length;
+        let countryCode = process.env["DEFAULT_INGEST_COUNTRY"] || "DE";
+        let city: string | null = process.env["DEFAULT_INGEST_CITY"] || "Berlin";
+        let languageCode = process.env["DEFAULT_INGEST_LANGUAGE"] || "de";
         try {
-          const body = (await request.json()) as { limit?: number };
+          const body = (await request.json()) as {
+            limit?: number;
+            countryCode?: string;
+            city?: string | null;
+            languageCode?: string;
+          };
           if (typeof body.limit === "number" && body.limit > 0) limit = Math.min(body.limit, 50);
+          if (body.countryCode && /^[a-z]{2}$/i.test(body.countryCode)) {
+            countryCode = body.countryCode.toUpperCase();
+          }
+          if (body.city !== undefined) city = body.city?.trim() || null;
+          if (body.languageCode) languageCode = body.languageCode.slice(0, 8);
         } catch {
           // empty body is fine
         }
+        const geo = await resolveGeo({
+          ...countryDetails(countryCode),
+          languageCode,
+          city,
+          source: "manual",
+        });
 
         const { data: run } = await supabaseAdmin
           .from("ingest_runs")
@@ -40,17 +60,22 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           .select("id")
           .single();
 
-        const batch = WATCHLIST.slice(0, limit);
+        const batch = watchlist.slice(0, limit);
         let processed = 0;
+        let snapshotWrites = 0;
         const failures: string[] = [];
 
         // One paid DataForSEO task covers the whole batch.
-        const dfs = await prefetchDataForSeo(batch.map((item) => item.keyword));
+        const dfs = await prefetchDataForSeo(
+          batch.map((item) => item.keyword),
+          geo.locationCode ?? 2840,
+          geo.languageCode,
+        );
         if (dfs.error) failures.push(`dataforseo: ${dfs.error}`);
 
         for (const item of batch) {
           try {
-            const result = await collectKeyword(item.keyword, item.category, item.tags);
+            const result = await collectKeyword(item.keyword, item.category, item.tags, geo);
             const { data: signal, error } = await supabaseAdmin
               .from("signals")
               .upsert(
@@ -85,6 +110,62 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
                 url: reading.url,
               })),
             );
+            // Additive rollout: a missing migration must not break the established Radar ingest.
+            const { error: snapshotError } = await supabaseAdmin
+              .from("signal_market_snapshots")
+              .insert({
+                signal_id: signal.id,
+                ingest_run_id: run?.id ?? null,
+                geo_key: result.geo.geoKey,
+                country_code: result.geo.countryCode,
+                city: result.geo.city,
+                language_code: result.geo.languageCode,
+                location_code: result.geo.locationCode,
+                measurement_scope: result.geo.measurementScope,
+                demand_score: result.demand,
+                supply_score: result.supply,
+                opportunity_score: result.opportunity,
+                momentum: result.momentum,
+                lead_weeks: result.leadWeeks,
+                series: result.series,
+                source_scopes: result.sourceScopes,
+              });
+            if (!snapshotError) snapshotWrites += 1;
+            if (result.globalScores && result.globalSeries.length >= 8) {
+              const { error: globalError } = await supabaseAdmin
+                .from("signal_market_snapshots")
+                .insert({
+                  signal_id: signal.id,
+                  ingest_run_id: run?.id ?? null,
+                  geo_key: "GLOBAL",
+                  country_code: result.geo.countryCode,
+                  city: null,
+                  language_code: "en",
+                  location_code: null,
+                  measurement_scope: "global",
+                  demand_score: result.globalScores.demand,
+                  supply_score: result.globalScores.supply,
+                  opportunity_score: result.globalScores.opportunity,
+                  momentum: result.globalScores.momentum,
+                  lead_weeks: result.globalScores.lead,
+                  series: result.globalSeries,
+                  source_scopes: { "Google Trends": "global" },
+                });
+              if (!globalError) snapshotWrites += 1;
+            }
+            // A promoted observation becomes a measured signal on this ingest.
+            const { data: linkedObservations } = await supabaseAdmin
+              .from("signal_observations")
+              .update({ signal_id: signal.id })
+              .ilike("canonical_query", result.keyword)
+              .select("id");
+            const observationIds = (linkedObservations ?? []).map((row) => row.id);
+            if (observationIds.length > 0) {
+              await supabaseAdmin
+                .from("app_seeds")
+                .update({ signal_id: signal.id })
+                .in("observation_id", observationIds);
+            }
             processed += 1;
           } catch (error) {
             failures.push(`${item.keyword}: ${(error as Error).message}`);
@@ -143,6 +224,9 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           graphed,
           searchVolumeKeywords: dfs.fetched,
           searchVolumeCostUsd: dfs.cost,
+          market: geo.geoKey,
+          measurementScope: geo.measurementScope,
+          snapshotWrites,
           failed: failures.length,
           failures,
         });
