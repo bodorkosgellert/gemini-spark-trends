@@ -1,39 +1,62 @@
-# TrendSpark — current state (2026-08-11)
+# TrendSpark — current state (2026-08-13)
 
 ## Verdict
 
-The Lovable web app already demonstrates the core loop: **signals in Supabase → Radar UI → LLM build briefs**. Global Trends + Tavily + ruthless filter → tags/app angles works (see SummerUP demo table: 162 → 25 keepers). Cursor now owns further edits because Lovable credits are spent.
+**Local + GitHub `main` (`9a1685a`) is the Pitch Day build.** Lovable host [trendspark2026.lovable.app](https://trendspark2026.lovable.app) syncs from that commit. Hard-refresh after deploy (Ctrl+Shift+R).
+
+City-first loop: **location → observations → Radar scores → brief**. Scores and Δ still come from ingest, never from an LLM.
 
 ## Surfaces
 
-| Surface                         | Look / role                                                                                                          |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Landing `/`                     | White paper + **blue wave** backdrop (`BlueWaves`), Inter Tight display, mono CTAs, sample Berlin/Tokyo/Lisbon cards |
-| Radar `/radar`                  | Live scored list, tag filters, sparklines, heat colors, “write brief” inline                                         |
-| Crosswalk / Connections / Store | Correlation + opportunity exploration; connection map usable without every paid key                                  |
+| Route | Label | Role |
+| ----- | ----- | ---- |
+| `/` | Home | Brand + product story |
+| `/radar` | Radar | Scored signals, AI-gap overlay, cited-brand links, local vs global interest after ingest |
+| `/discover` | Discover | Human-friction observations → app seeds (no invented keywords) |
+| `/arbitrage` | Market Gaps | Proven-elsewhere vs open-here (seed + optional live scan) |
+| `/graph` | Connections | Signal → observation → friction → seed |
+| `/store` | Store | App Store shelf occupancy |
+| `/crosswalk` | Crosswalk | Tag / market correlation |
+| `/suggest` | Suggest | Public idea inbox |
 
-Visual language today: cool light UI, primary blue accent, mono uppercase nav — not the Expo Cobalt paper pass (that lives in `trendspark-22c0c6`).
+Default market: **Berlin, DE** (country-proxy unless DataForSEO resolves the city).
 
 ## Engine
 
-1. **Watchlist** keywords → ingest (Trends scrape + Wiki + GH + HN + Tavily + optional DFS batch).
-2. Fold into demand / supply / opportunity / momentum / series.
-3. Upsert `signals` + `signal_evidence`.
-4. Brief on demand via **Anthropic** (preferred) or Lovable AI gateway.
+1. Watchlist (+ Discover promotions) → ingest (Wiki, GitHub, HN, App Store, Tavily, optional DataForSEO, Google Trends country + worldwide).
+2. Demand / supply / opportunity; supply uses GitHub crowding and App Store occupancy × satisfaction.
+3. `signals` + `signal_evidence` + `signal_market_snapshots` (city/country + `GLOBAL` series).
+4. Briefs via **Anthropic** first, Lovable AI only as fallback. Cached per signal.
 
-## What still needs work for Pitch Day (~Aug 14)
+## Sales / outreach (different approaches)
 
-1. Put `ANTHROPIC_API_KEY` (+ Tavily / DFS if missing) in local `.env` and confirm briefs work offline Lovable.
-2. Seed or re-ingest a **Berlin +Δ** and a **global −Δ** pair for the live demo path.
-3. Optional: surface “kept archive” / tag counts from the ruthless filter run (finance, health, admin, …).
-4. **Sitefire AI gap:** redeem trial → fill `src/data/ai-citation-gaps.json` (see `docs/SITEFIRE-CITATION-GAP.md`); Radar already shows badges + `ai-gap` filter.
-5. Deploy path if Lovable host drifts: Sliplane or `npm run build` + static/SSR host.
-6. Do **not** block on pytrends, worldmonitor clone, or Failory scrape.
+All copy lives in `docs/outreach/` and `docs/EMAIL-OUTREACH.md`. Do not invent regional scores.
 
-## Archive thesis
+| Approach | Where | Use |
+| -------- | ----- | --- |
+| Interest-first email (no price) | `EMAIL-OUTREACH.md`, `SHORT-TEMPLATE.md` | US/UK/IE/NL/FR/AU — finding + live link, ask “interested” |
+| Personalized Wave A (~20) | `outreach/personalized/` | Named app + seller + dated shelf line |
+| Semi-templated Wave B | `outreach/semi/` (heat pump, balcony solar, invoice, habit, RAG) | Same finding, swap name/app |
+| LinkedIn hand notes | EMAIL-OUTREACH channel table | DE/AT/CH/IT/ES/PL — no cold email |
+| In person | Pitch Day / Berlin | Highest conversion |
+| Market Gaps board | `/arbitrage` | Import play: proven in A, thin in B |
+| AI citation gap | Radar `ai-gap` + Sitefire notes | Built but invisible to AI |
 
-Each kept query should accumulate as structured rows (geo, lang, tags, keep reason, date, optional Δ). Over weeks that becomes the moat; a one-shot LLM idea table is not.
+First email: **no €39 / payment link.** Dossier price only after they reply interested.
 
-## Sister repo
+## Pitch Day checklist
 
-`trendspark-22c0c6` has Cobalt design tokens, `npm run fetch:trends-dfs`, `enrich:watchlist`, and discovery scripts — useful for Δ math before wiring into this Supabase `signals` table.
+1. Lovable Cloud env = same Supabase as `.env` (`yzdhyhyqxbrybjwkrlow`).
+2. Bounded Berlin ingest so Radar shows local vs global curves (snapshots + `GLOBAL` rows).
+3. Demo path: Radar (heat pump / balcony solar / MCP) → evidence → brief → Market Gaps.
+4. Cancel Sitefire Pro by **2026-08-17**.
+5. Sister Expo lab `trendspark-22c0c6` is design/scripts only — do not submit it as the web app.
+
+## Sister remotes
+
+| Remote | Role | Status (2026-08-13) |
+| ------ | ---- | ------------------- |
+| `origin` `gemini-spark-trends` | Lovable-connected web app | `main` @ `9a1685a` (plus any follow-up ingest/docs commits) |
+| `parallel` `trendspark-web` | Cursor export | **Behind** origin (~147 commits). Do not force-push. |
+
+`.env` stays local. Never commit secrets.

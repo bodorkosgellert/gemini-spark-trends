@@ -88,10 +88,23 @@ async function backfill() {
     );
   }
   const secret = requiredEnvironment("INGEST_HOOK_SECRET");
-  const limit = Math.max(1, Math.min(20, Number(argument("limit", "18")) || 18));
+  const limit = Math.max(1, Math.min(20, Number(argument("limit", "5")) || 5));
   const countryCode = argument("country", "DE").toUpperCase();
   const city = argument("city", "Berlin");
   const languageCode = argument("language", "de");
+  const loomKeywords = [
+    "heat pump installer",
+    "balcony solar",
+    "mcp server",
+    "ai receptionist",
+    "e invoicing germany",
+  ];
+  const keywords = process.argv.includes("--loom")
+    ? loomKeywords
+    : argument("keywords", "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
 
   const response = await fetch(`${baseUrl}/api/public/hooks/ingest`, {
     method: "POST",
@@ -100,7 +113,13 @@ async function backfill() {
       apikey: secret,
       "content-type": "application/json",
     },
-    body: JSON.stringify({ limit, countryCode, city, languageCode }),
+    body: JSON.stringify({
+      limit,
+      countryCode,
+      city,
+      languageCode,
+      ...(keywords.length ? { keywords } : {}),
+    }),
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {

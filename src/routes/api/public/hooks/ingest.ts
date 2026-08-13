@@ -27,6 +27,7 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         const watchlist = await getActiveWatchlist();
+        let selected = watchlist;
         let limit = watchlist.length;
         let countryCode = process.env["DEFAULT_INGEST_COUNTRY"] || "DE";
         let city: string | null = process.env["DEFAULT_INGEST_CITY"] || "Berlin";
@@ -37,7 +38,14 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
             countryCode?: string;
             city?: string | null;
             languageCode?: string;
+            keywords?: unknown;
           };
+          if (Array.isArray(body.keywords) && body.keywords.length > 0) {
+            const wanted = new Set(
+              body.keywords.map((item) => String(item).trim().toLowerCase()).filter(Boolean),
+            );
+            selected = watchlist.filter((item) => wanted.has(item.keyword.toLowerCase()));
+          }
           if (typeof body.limit === "number" && body.limit > 0) limit = Math.min(body.limit, 50);
           if (body.countryCode && /^[a-z]{2}$/i.test(body.countryCode)) {
             countryCode = body.countryCode.toUpperCase();
@@ -60,7 +68,7 @@ export const Route = createFileRoute("/api/public/hooks/ingest")({
           .select("id")
           .single();
 
-        const batch = watchlist.slice(0, limit);
+        const batch = selected.slice(0, limit);
         let processed = 0;
         let snapshotWrites = 0;
         const failures: string[] = [];

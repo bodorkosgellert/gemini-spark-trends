@@ -24,7 +24,7 @@ Pick a niche in `semi/`. For each row in `tracker.csv` with `wave=semi`, fill `{
 
 - **Email:** US, UK corps, IE, NL, FR, AU  
 - **Not cold email:** DE, AT, CH, IT, ES, PL → LinkedIn hand notes only  
-- Lead with finding + **€39** dossier, not a call  
+- Lead with finding + live site, not a call. **No price in the first email** (see `EMAIL-OUTREACH.md`). A paid dossier comes only after they reply interested.  
 - Footer: how you found them + `stop` unsubscribe  
 
 ## Suggested send order (Pitch Day ~14 Aug)
