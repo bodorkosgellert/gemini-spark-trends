@@ -33,11 +33,11 @@ SummerUP build: first commit **8 August 2026** (Lovable template). Pipeline and 
 
 ## Local
 
-`sh
+```sh
 npm i
 cp .env.example .env
 npm run dev
-`
+```
 
 Use the port Vite prints. Required for Radar: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SUPABASE_SERVICE_ROLE_KEY, and the matching VITE_* keys. Briefs need ANTHROPIC_API_KEY.
 
